@@ -1,0 +1,186 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
+import { CSSTransition } from 'react-transition-group';
+import { useNavigate } from 'react-router-dom';
+import { useCurrentUserContext, useSetCurrentUser } from '../contexts/UserAuth';
+import { logout } from '../services/userService';
+
+import { ReactComponent as LogoutWhite } from '../svg/logout_white_36dp.svg';
+import { ReactComponent as AccountCircleWhite } from '../svg/account_circle_white_36dp.svg';
+import { ReactComponent as DownArrow } from '../svg/down-arrow-white.svg';
+import { ReactComponent as SettingsWhite } from '../svg/settings_white_36dp.svg';
+import { ReactComponent as RightArrowWhite } from '../svg/right-arrow-white.svg';
+import { ReactComponent as LeftArrowWhite } from '../svg/left-arrow-white.svg';
+import { ReactComponent as Manager } from '../svg/manager-9650.svg';
+
+import { ReactComponent as ArrowIcon } from '../svg/arrow.svg';
+import { ReactComponent as BoltIcon } from '../svg/bolt.svg';
+
+import { userRole } from '../utils/types';
+import '../styles/HeaderStyle.scss';
+
+type MenuTypes = 'main' | 'profiles' | 'settings';
+
+const menuOptions: {
+  main: 'main';
+  profiles: 'profiles';
+  settings: 'settings';
+} = {
+  main: 'main',
+  profiles: 'profiles',
+  settings: 'settings',
+};
+
+function DropdownMenu() {
+  const [activeMenu, setActiveMenu] = useState<MenuTypes>(menuOptions.main);
+  const [menuHeight, setMenuHeight] = useState<number | null>(null);
+  const dropdownRef = useRef<any>(null);
+
+  const navigate = useNavigate();
+  const [setUserContext] = useSetCurrentUser();
+  const { currentUser } = useCurrentUserContext();
+
+  useEffect(() => setMenuHeight(dropdownRef.current?.firstChild.offsetHeight), []);
+
+  const calcHeight = useCallback(
+    (el: { offsetHeight: React.SetStateAction<number | null> }) => setMenuHeight(el.offsetHeight),
+    []
+  );
+
+  const DropdownItem = useCallback(
+    (props: {
+      children: ReactElement<any, any> | string;
+      displayIcon?: any;
+      extendIcon?: any;
+      goToMenu?: MenuTypes;
+      functionCall?: () => void;
+    }) => (
+      <button
+        type="button"
+        className="dropdown-item"
+        onClick={() => {
+          if (props.goToMenu) setActiveMenu(props.goToMenu);
+          else if (props.functionCall) props.functionCall();
+        }}
+      >
+        <span className="icon-button">{props.displayIcon}</span>
+        {props.children}
+        <span className="extend-icon">{props.extendIcon}</span>
+      </button>
+    ),
+    []
+  );
+
+  const callLogout = useCallback(() => {
+    logout()
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) setUserContext({ currentUser: null });
+        window.location.reload();
+        return navigate(`/`);
+      })
+      .catch((err) => {
+        console.log(err);
+        setUserContext({ currentUser: null });
+        window.location.reload();
+      });
+  }, [navigate, setUserContext]);
+
+  return (
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    <div className="dropdown-div" style={{ height: menuHeight! }} ref={dropdownRef}>
+      <CSSTransition
+        in={activeMenu === menuOptions.main}
+        timeout={500}
+        classNames="menu-primary"
+        unmountOnExit
+        onEnter={calcHeight}
+      >
+        <div className="menu">
+          <DropdownItem>
+            <strong>Options</strong>
+          </DropdownItem>
+          <DropdownItem
+            displayIcon={<AccountCircleWhite />}
+            extendIcon={<RightArrowWhite />}
+            goToMenu={menuOptions.profiles}
+          >
+            profiles
+          </DropdownItem>
+          <DropdownItem
+            displayIcon={<SettingsWhite />}
+            extendIcon={<RightArrowWhite />}
+            goToMenu={menuOptions.settings}
+          >
+            Settings
+          </DropdownItem>
+          {currentUser?.role === userRole.admin && (
+            <DropdownItem displayIcon={<Manager />} functionCall={() => navigate('/admin')}>
+              Admin Page
+            </DropdownItem>
+          )}
+          <DropdownItem displayIcon={<LogoutWhite />} functionCall={callLogout}>
+            Logout
+          </DropdownItem>
+        </div>
+      </CSSTransition>
+
+      <CSSTransition
+        in={activeMenu === menuOptions.settings}
+        timeout={500}
+        classNames="menu-secondary"
+        unmountOnExit
+        onEnter={calcHeight}
+      >
+        <div className="menu">
+          <DropdownItem goToMenu="main" displayIcon={<ArrowIcon />}>
+            <h2>My Tutorial</h2>
+          </DropdownItem>
+          <DropdownItem displayIcon={<BoltIcon />}>HTML</DropdownItem>
+          <DropdownItem displayIcon={<BoltIcon />}>CSS</DropdownItem>
+          <DropdownItem displayIcon={<BoltIcon />}>JavaScript</DropdownItem>
+          <DropdownItem displayIcon={<BoltIcon />}>Awesome!</DropdownItem>
+        </div>
+      </CSSTransition>
+      <CSSTransition
+        in={activeMenu === menuOptions.profiles}
+        unmountOnExit
+        timeout={500}
+        className="menu-secondary"
+        onEnter={calcHeight}
+      >
+        <div className="menu">
+          <DropdownItem displayIcon={<LeftArrowWhite />} goToMenu={menuOptions.main}>
+            <strong>Profile</strong>
+          </DropdownItem>
+          <DropdownItem displayIcon={<LogoutWhite />}>logout</DropdownItem>
+          <DropdownItem displayIcon={<LogoutWhite />}>logout</DropdownItem>
+          <DropdownItem displayIcon={<LogoutWhite />}>logout</DropdownItem>
+        </div>
+      </CSSTransition>
+    </div>
+  );
+}
+
+export default function Header() {
+  const [openDropdown, setOpenDropdown] = useState<boolean>(false);
+
+  const { currentUser } = useCurrentUserContext();
+  if (!currentUser) return null;
+  return (
+    <div className="header-container">
+      <div className="header-div">
+        <div />
+        <button
+          type="button"
+          className="dropdown-button"
+          onClick={() => setOpenDropdown(!openDropdown)}
+        >
+          <DownArrow />
+        </button>
+        {openDropdown ? <DropdownMenu /> : null}
+      </div>
+    </div>
+  );
+}

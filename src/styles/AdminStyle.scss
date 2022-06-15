@@ -1,0 +1,285 @@
+@import '../utils/scssVariables.scss';
+
+.admin-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+  background-color: $main-color;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+
+  .options-menu {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 18%;
+    height: 100%;
+    background-color: #30333b;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    font-weight: 300;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);
+
+    .options-button-box {
+      cursor: pointer;
+      @include centerFlex;
+      flex-direction: row;
+      width: 85%;
+      height: 50px;
+      background-color: #3b3e46;
+      font-family: $Roboto-Slab, 'Roboto', sans-serif;
+      border-radius: 5px;
+      margin: 10px 0;
+      padding: 5px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+      border: none;
+
+      &:hover {
+        transition: 0.3s;
+        filter: brightness(1.2);
+      }
+
+      .options-box-heading {
+        color: #d6d6d6;
+
+        &:hover {
+          transition: 0.3s;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .main-section {
+    display: flex;
+    flex-direction: column;
+    width: 82%;
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    font-weight: 300;
+
+    // add avatar
+    .add-avatar-container {
+      @include centerFlex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      font-family: 'Roboto', sans-serif;
+
+      .switch-div-section {
+        @include centerFlex;
+        flex-direction: row;
+        width: 100%;
+        height: 10%;
+        margin: 10px 0;
+        font-family: $Roboto-Slab, 'Roboto', sans-serif;
+        border: none;
+
+        .switch-div-box {
+          @include centerFlex;
+          flex-direction: row;
+          width: 60%;
+          height: 100%;
+          border-radius: 10px;
+          background-color: #3b3e46;
+          font-family: $Roboto-Slab, 'Roboto', sans-serif;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+          border: none;
+
+          .add-avatar-header-text {
+            font-size: 1.5rem;
+            margin: 0 20px;
+            font-family: $Roboto-Slab, 'Roboto', sans-serif;
+          }
+
+          input[type='checkbox'].switch-input {
+            position: absolute;
+            opacity: 0;
+            top: -9000px;
+            left: -9000px;
+
+            &:focus + label {
+              &:before {
+                // box-shadow: 0 0 0 1px #fff, 0 0 0 3px $main-color;
+                outline: 1px solid rgb(255, 255, 255);
+              }
+            }
+
+            &:checked + label {
+              color: red;
+            }
+
+            &:disabled + label {
+              cursor: not-allowed;
+              color: #777;
+              opacity: 0.7;
+
+              &::before {
+                background-color: #777;
+              }
+              &::after {
+                background-color: #222;
+                color: #777;
+                opacity: 0.7;
+              }
+            }
+          }
+
+          input[type='checkbox'].switch-input + label {
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+
+            &::before {
+              content: '';
+              width: 6em;
+              height: 2em;
+              background-color: #ccc;
+              border-radius: 1em;
+              margin-right: 0.25em;
+              transition: background-color 0.3s ease-in-out;
+            }
+            &::after {
+              content: '\21A9'; // 21AA
+              position: absolute;
+              @include centerFlex;
+              font-size: 1.6em;
+              left: 0.1em;
+              width: 1.13em;
+              height: 1.13em;
+              color: hsl(0, 80%, 95%);
+              background-color: hsl(0, 80%, 35%);
+              border-radius: 1em;
+              margin-right: 0.25em;
+              transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            }
+          }
+          input[type='checkbox'].switch-input:checked + label {
+            &::after {
+              content: '\21AA';
+              background-color: hsl(100, 80%, 40%);
+              transform: translateX(215%);
+            }
+
+            &::before {
+              background-color: hsl(100, 80%, 90%);
+            }
+          }
+        }
+      }
+    }
+
+    // add category
+    .add-category-container {
+      @include centerFlex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      font-family: 'Roboto', sans-serif;
+
+      .add-filed-section {
+        @include centerFlex;
+        flex-direction: row;
+        width: 100%;
+        height: 10%;
+        margin: 10px 0;
+        font-family: $Roboto-Slab, 'Roboto', sans-serif;
+        border: none;
+
+        .add-filed-div {
+          @include centerFlex;
+          justify-content: space-around;
+          flex-direction: row;
+          width: 60%;
+          height: 100%;
+          border-radius: 10px;
+          background-color: #3b3e46;
+          font-family: $Roboto-Slab, 'Roboto', sans-serif;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+          border: none;
+
+          .add-filed-button {
+            @include centerFlex;
+            cursor: pointer;
+            flex-direction: row;
+            width: 28%;
+            height: 50%;
+            border-radius: 10px;
+            background-color: $header-color2;
+            color: $white;
+            font-family: $Roboto-Slab, 'Roboto', sans-serif;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.4);
+            border: none;
+            &:hover {
+              transition: 0.2s;
+              filter: brightness(1.1);
+              box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
+            }
+          }
+        }
+      }
+
+      .main-content {
+        @include centerFlex;
+        width: 100%;
+        height: 90vh;
+        font-family: 'Roboto', sans-serif;
+        font-size: 1rem;
+        font-weight: 300;
+        border-radius: 5px;
+
+        .form-parent-div {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          width: 90%;
+          height: 79.3vh;
+          background-color: $header-color;
+          font-family: 'Roboto', sans-serif;
+          font-size: 1rem;
+          font-weight: 300;
+          border-radius: 5px;
+          overflow: hidden;
+          box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+
+          .single-category-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+            // height: 100%;
+            padding-top: 20px;
+
+            .category-input-div {
+              width: 100%;
+              display: flex;
+              flex-direction: column;
+
+              .category-input-sub-div {
+                display: flex;
+                flex-direction: row;
+              }
+
+              .single-category-form-input {
+                @include input-field-test;
+                width: 70%;
+                // margin: 10px 0;
+              }
+              .remove-category-button {
+                width: 30%;
+                // margin: 10px 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

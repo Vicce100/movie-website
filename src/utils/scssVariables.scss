@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@600&display=swap');
+// Roboto Slab
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@1,300&display=swap');
+// Ubuntu
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300&display=swap');
+// Nunito Sans
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap');
+// Quicksand
+
+$main-color: #24272e;
+$header-color: #373c46;
+$header-color2: #4d535e;
+$white: #ffffff;
+$black: #000;
+$transparent: rgba(0, 0, 0, 0);
+$link-text-color: #03b1fc;
+
+$Roboto-Slab: 'Roboto Slab';
+$Ubuntu: 'Ubuntu';
+$Nunito-Sans: 'Nunito Sans';
+$Quicksand: 'Quicksand';
+
+@mixin centerFlex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin navigation-link {
+  background-color: $transparent;
+  color: $link-text-color;
+  border-width: 0px;
+  margin-bottom: 15px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+@mixin input-field-test {
+  height: 35px;
+  width: 200px;
+  margin: 10px;
+  padding: 0px 10px;
+  border-radius: 5px;
+  border: 3px solid rgb(68, 67, 67);
+  color: $black;
+  font-size: 16px;
+  &:focus {
+    outline: none;
+    border: 3px solid #7afcf5;
+  }
+}
