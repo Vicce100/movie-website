@@ -213,6 +213,20 @@ export default function AddAvatar() {
                     </div>
                   ))}
               </div>
+              <div className="remove-upload-form-div">
+                <button
+                  type="button"
+                  className="remove-upload-form-button"
+                  onClick={() => {
+                    // remove avatar from array
+                    const newAvatar = [...multipleAvatar];
+                    newAvatar.splice(multipleAvatar.indexOf(avatar), 1);
+                    setMultipleAvatar(newAvatar);
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
         </form>
