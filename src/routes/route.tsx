@@ -23,6 +23,7 @@ function Router() {
             <Route path="/Admin" element={<AdminScene />} />
           ) : null}
           {/* <Route path="*" element={<ErrorPage />} /> */}
+          <Route path="*" element={<Navigate replace to="/" />} /> {/* ErrorPageScene */}
         </Routes>
       ) : (
         <Routes>

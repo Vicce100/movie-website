@@ -9,7 +9,7 @@ axios.defaults.withCredentials = true;
 // ---------- local ---------- //
 
 const getRequest = async <T>(endpoint: EndpointType): Promise<AxiosResponse<T>> =>
-  axios.post(`${protocol}://${endpoint.url}:${endpoint.port}${endpoint.path}`);
+  axios.get(`${protocol}://${endpoint.url}:${endpoint.port}${endpoint.path}`);
 
 const postRequest = async <T>(endpoint: EndpointType, data?: object): Promise<AxiosResponse<T>> =>
   axios.post(`${protocol}://${endpoint.url}:${endpoint.port}${endpoint.path}`, data);
@@ -38,10 +38,10 @@ export const logoutUser = () =>
 export const deleteUser = (data: { email: string; password: string; userId: string }) =>
   postRequest<CurrentUserType>({ url: 'localhost', port: '5050', path: '/user/delete' }, data);
 
-export const userRefreshToken = (refreshToken: string) =>
+export const userRefreshToken = (data: { refreshToken: string }) =>
   postRequest<CurrentUserType>(
     { url: 'localhost', port: '5050', path: '/user/refreshToken' },
-    { refreshToken }
+    data
   );
 
 export const getUser = () =>
@@ -64,4 +64,8 @@ export const getSingleCategory = (categoryId: string) =>
   });
 
 export const getAllCategory = () =>
-  getRequest<CategorySchemaType>({ url: 'localhost', port: '5050', path: '/category/all' });
+  getRequest<CategorySchemaType[]>({
+    url: 'localhost',
+    port: '5050',
+    path: '/category/get/multiple',
+  });

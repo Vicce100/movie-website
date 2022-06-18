@@ -4,9 +4,9 @@ import { uploadMultipleCategory } from '../services/index';
 import '../styles/AdminStyle.scss';
 
 export default function AddCategories() {
-  const [categories, setCategories] = useState<{ id: string; value: string }[]>([
-    { id: uuidV4(), value: '' },
-  ]);
+  const [categories, setCategories] = useState<
+    { id: string; value: string; isRemoving: boolean }[]
+  >([{ id: uuidV4(), value: '', isRemoving: false }]);
 
   const submitCategories = useCallback(
     (event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -14,22 +14,26 @@ export default function AddCategories() {
       const data = categories.map((category) => category.value);
       if (!data[0]) return;
       uploadMultipleCategory({ categories: data })
-        .then((res) => {
-          // if (res.status === 200)'
-          console.log(res);
-          setCategories([{ id: String(uuidV4()), value: '' }]);
-          // return navigate(`/`);
-        })
+        .then(() => setCategories([{ id: String(uuidV4()), value: '', isRemoving: false }]))
         .catch((e) => console.log(e));
     },
     [categories]
   );
 
+  const checkRemovingStatus = useCallback(
+    (boolean: boolean) => (boolean ? '#3d424e' : '#373c46'),
+    []
+  );
+
   const renderMultipleUpload = useCallback(
     () => (
-      <form className="single-category-form" onSubmit={submitCategories}>
+      <form className="category-form" onSubmit={submitCategories}>
         {categories.map((category) => (
-          <div key={category.id} className="category-input-div">
+          <div
+            key={category.id}
+            className="category-input-div"
+            style={{ backgroundColor: checkRemovingStatus(category.isRemoving) }}
+          >
             <label htmlFor={category.id}>Category ID</label>
             <div className="category-input-sub-div">
               <input
@@ -49,9 +53,14 @@ export default function AddCategories() {
                 className="remove-category-button"
                 type="button"
                 onClick={() => {
-                  const newCategories = [...categories];
-                  newCategories.splice(newCategories.indexOf(category), 1);
-                  setCategories(newCategories);
+                  const newCategories1 = [...categories];
+                  newCategories1[newCategories1.indexOf(category)].isRemoving = true;
+                  setCategories(newCategories1);
+                  setTimeout(() => {
+                    const newCategories = [...categories];
+                    newCategories.splice(newCategories.indexOf(category), 1);
+                    setCategories(newCategories);
+                  }, 40);
                 }}
               >
                 remove
@@ -61,7 +70,7 @@ export default function AddCategories() {
         ))}
       </form>
     ),
-    [categories, submitCategories]
+    [categories, checkRemovingStatus, submitCategories]
   );
 
   return (
@@ -72,7 +81,7 @@ export default function AddCategories() {
             className="add-filed-button"
             type="button"
             onClick={() => {
-              setCategories([...categories, { id: uuidV4(), value: '' }]);
+              setCategories([...categories, { id: uuidV4(), value: '', isRemoving: false }]);
             }}
           >
             Add Field

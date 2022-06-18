@@ -46,6 +46,24 @@ $Quicksand: 'Quicksand';
   font-size: 16px;
   &:focus {
     outline: none;
-    border: 3px solid #7afcf5;
+    border: 2px solid #7afcf5;
+  }
+}
+
+@mixin custom-light-blue-scrollbar {
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: #3b3e46;
+    border-radius: 10px;
+    // &:hover {}
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #7afcf5;
+    border-radius: 10px;
+    &:hover {
+      background: #64c4c0;
+    }
   }
 }

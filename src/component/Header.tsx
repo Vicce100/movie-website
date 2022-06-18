@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'r
 import { CSSTransition } from 'react-transition-group';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUserContext, useSetCurrentUser } from '../contexts/UserAuth';
-import { logout } from '../services/userService';
+import { getCurrentUser, logout, refreshToken } from '../services/userService';
 
 import { ReactComponent as LogoutWhite } from '../svg/logout_white_36dp.svg';
 import { ReactComponent as AccountCircleWhite } from '../svg/account_circle_white_36dp.svg';
@@ -13,6 +13,7 @@ import { ReactComponent as SettingsWhite } from '../svg/settings_white_36dp.svg'
 import { ReactComponent as RightArrowWhite } from '../svg/right-arrow-white.svg';
 import { ReactComponent as LeftArrowWhite } from '../svg/left-arrow-white.svg';
 import { ReactComponent as Manager } from '../svg/manager-9650.svg';
+import { ReactComponent as Cookie } from '../svg/cookie.svg';
 
 import { ReactComponent as ArrowIcon } from '../svg/arrow.svg';
 import { ReactComponent as BoltIcon } from '../svg/bolt.svg';
@@ -87,6 +88,15 @@ function DropdownMenu() {
       });
   }, [navigate, setUserContext]);
 
+  const callRefreshToken = useCallback(async () => {
+    if (!currentUser || !currentUser?.refreshToken) return;
+    refreshToken({ refreshToken: currentUser.refreshToken })
+      .then((res) =>
+        res.status === 200 ? setUserContext({ currentUser: res.data.currentUser }) : null
+      )
+      .catch(() => setUserContext({ currentUser: null }));
+  }, [currentUser, setUserContext]);
+
   return (
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     <div className="dropdown-div" style={{ height: menuHeight! }} ref={dropdownRef}>
@@ -114,6 +124,9 @@ function DropdownMenu() {
             goToMenu={menuOptions.settings}
           >
             Settings
+          </DropdownItem>
+          <DropdownItem displayIcon={<Cookie />} functionCall={callRefreshToken}>
+            Update Auth Cookie
           </DropdownItem>
           {currentUser?.role === userRole.admin && (
             <DropdownItem displayIcon={<Manager />} functionCall={() => navigate('/admin')}>

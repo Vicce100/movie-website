@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/userService';
-import { useWindowDimensions } from '../hooks';
+// import { useWindowDimensions } from '../hooks';
 import '../styles/LoginStyle.scss';
 import { useSetCurrentUser } from '../contexts/UserAuth';
 
