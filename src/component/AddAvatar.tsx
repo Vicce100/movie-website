@@ -57,13 +57,31 @@ export default function AddAvatar() {
   );
 
   const uploadMultipleAvatars = useCallback(
-    (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    async (
+      e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => {
       e.preventDefault();
       if (!multipleAvatar[0].file || !multipleAvatar[0].name || !multipleAvatarCategories?.length)
         return;
       const formData = new FormData();
+      multipleAvatar.forEach((avatar) => {
+        if (avatar.file) formData.append('avatarImage', avatar.file);
+        formData.append('name', avatar.name);
+      });
+      multipleAvatarCategories.forEach((category) => formData.append('categories', category));
+
+      const options: RequestInit = { method: 'POST', body: formData, credentials: 'include' };
+      try {
+        const res = await fetch('http://localhost:5050/avatar/upload/multiple', options);
+        if (res.status === 201) {
+          setMultipleAvatar([{ id: uuidV4(), file: null, name: '' }]);
+          setMultipleAvatarCategories([]);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
-    [multipleAvatar, multipleAvatarCategories?.length]
+    [multipleAvatar, multipleAvatarCategories]
   );
 
   const renderSingleUpload = useCallback(

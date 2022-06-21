@@ -1,12 +1,14 @@
 export const userRole: {
+  superAdmin: 'superAdmin';
   admin: 'admin';
   user: 'user';
 } = {
+  superAdmin: 'superAdmin',
   admin: 'admin',
   user: 'user',
 };
 
-type UsersRolesType = 'admin' | 'user';
+type UsersRolesType = 'superAdmin' | 'admin' | 'user';
 type UserStatusType = 'active' | 'disabled';
 
 export interface CategorySchemaType {
@@ -15,15 +17,29 @@ export interface CategorySchemaType {
   // url: string;
 }
 
+export interface ReturnAvatarType {
+  id: string;
+  category: string[];
+  name: string;
+  url: string;
+  urlPath: string;
+}
+
 export interface AvatarSchemaType {
   _id: string;
-  category: string;
+  category: string[];
   name: string;
   url: string;
 }
 
+export interface ActiveProfileType {
+  _id: string;
+  profileName: string;
+  avatarURL: string;
+}
+
 export type ProfileType = {
-  id: string;
+  _id: string;
   profileName: string;
   avatarURL: string;
 }[];
