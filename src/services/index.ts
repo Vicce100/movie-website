@@ -5,6 +5,8 @@ import {
   uploadMultipleCategory as multipleCategory,
   getSingleCategory as singleCategoryGet,
   getAllCategory as allCategoryGet,
+  getSingleAvatar as singleAvatarGet,
+  getAllAvatars as allAvatarGet,
 } from './apiService';
 
 type LoginErrorType = { message: string; status: string; currentUser?: CurrentUserType | null };
@@ -32,6 +34,20 @@ export const getSingleCategory = (categoryId: string) =>
 
 export const getAllCategory = () =>
   allCategoryGet()
+    .then((res) => res)
+    .catch((error: AxiosError<LoginErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getSingleAvatar = (avatarId: string) =>
+  singleAvatarGet(avatarId)
+    .then((res) => res)
+    .catch((error: AxiosError<LoginErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getAllAvatars = () =>
+  allAvatarGet()
     .then((res) => res)
     .catch((error: AxiosError<LoginErrorType>) => {
       throw new Error(error.response?.data.message);
