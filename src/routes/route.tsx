@@ -5,7 +5,7 @@ import { userRole } from '../utils/types';
 import Login from '../scenes/Login';
 import SignUp from '../scenes/SignUp';
 import HomeScene from '../scenes/HomeScene';
-import PostFile from '../scenes/PostFile';
+import UploadVideo from '../scenes/UploadVideoScene';
 import AvatarScene from '../scenes/AvatarScene';
 import AdminScene from '../scenes/AdminScene';
 import ProfileScene from '../scenes/ProfileScene';
@@ -14,23 +14,24 @@ function Router() {
   const { currentUser } = useCurrentUserContext();
   const { activeProfile } = useProfileContext();
 
-  console.log(activeProfile);
   return (
     <BrowserRouter>
       {currentUser ? (
         <Routes>
           {!activeProfile ? (
             <React.Fragment>
-              <Route path="/" element={<Navigate replace to="/profile" />} />
+              <Route path="/" element={<Navigate replace to="/Profile" />} />
               {/* add outer components */}
             </React.Fragment>
           ) : (
-            <Route path="/" element={<HomeScene />} />
+            <React.Fragment>
+              <Route path="/" element={<HomeScene />} />
+              <Route path="/UploadVideo" element={<UploadVideo />} />
+            </React.Fragment>
           )}
           {/* <Route path="/" element={<HomeScene />} /> */}
           <Route path="/Avatar" element={<AvatarScene />} />
           <Route path="/Profile" element={<ProfileScene />} />
-          <Route path="/PostFile" element={<PostFile />} />
           {currentUser.role === (userRole.admin || userRole.superAdmin) && (
             <Route path="/Admin" element={<AdminScene />} />
           )}
@@ -39,10 +40,10 @@ function Router() {
         </Routes>
       ) : (
         <Routes>
-          <Route path="*" element={<Navigate replace to="/login" />} />
-          <Route path="/" element={<Navigate replace to="/login" />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signUp" element={<SignUp />} />
+          <Route path="*" element={<Navigate replace to="/Login" />} />
+          <Route path="/" element={<Navigate replace to="/Login" />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path="/SignUp" element={<SignUp />} />
         </Routes>
       )}
     </BrowserRouter>

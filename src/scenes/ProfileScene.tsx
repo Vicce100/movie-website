@@ -43,10 +43,10 @@ export default function ProfileScene() {
 
   const { currentUser } = useCurrentUserContext();
   const [setActiveProfile] = useSetActiveProfile();
+  const [setUserContext] = useSetCurrentUser();
 
   const { width } = useWindowDimensions();
   const navigate = useNavigate();
-  const [setUserContext] = useSetCurrentUser();
 
   const swiperSlidesPerView = useMemo(() => Number(String(width / 250).split('.')[0]), [width]);
 
@@ -98,7 +98,10 @@ export default function ProfileScene() {
               <button
                 type="button"
                 className="profile-card-button"
-                onClick={() => setActiveProfile(profile)}
+                onClick={() => {
+                  setActiveProfile(profile);
+                  navigate('/');
+                }}
               >
                 <img src={profile.avatarURL} alt="profile.profileName" />
               </button>
@@ -120,7 +123,7 @@ export default function ProfileScene() {
         </div>
       </div>
     ),
-    [isAddingProfile, profiles, setActiveProfile]
+    [isAddingProfile, navigate, profiles, setActiveProfile]
   );
 
   const renderAddingProfile = useCallback(

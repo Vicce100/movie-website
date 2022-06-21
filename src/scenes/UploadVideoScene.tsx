@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/PostFile.scss';
+import '../styles/UploadVideoStyle.scss';
 
 // create state for storing file in
 export default function PostFile() {
@@ -24,15 +24,7 @@ export default function PostFile() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const options = {
-        method: 'POST',
-        headers: {
-          // 'Content-Type': 'multipart/form-data',
-          // boundary: '----WebKitFormBoundary7MA4YWxkTrZu0gW',
-          Accept: '*/*',
-        },
-        body: formData,
-      };
+      const options: RequestInit = { method: 'POST', credentials: 'include', body: formData };
       try {
         const res = await fetch('http://localhost:5050/image/upload/multiple', options);
         if (res.ok) navigate('/');

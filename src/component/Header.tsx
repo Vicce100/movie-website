@@ -3,11 +3,16 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { useNavigate } from 'react-router-dom';
-import { useCurrentUserContext, useSetCurrentUser } from '../contexts/UserAuth';
-import { getCurrentUser, logout, refreshToken } from '../services/userService';
+import {
+  useCurrentUserContext,
+  useSetCurrentUser,
+  useProfileContext,
+  useSetActiveProfile,
+} from '../contexts/UserAuth';
+import { logout, refreshToken } from '../services/userService';
 
 import { ReactComponent as LogoutWhite } from '../svg/logout_white_36dp.svg';
-import { ReactComponent as AccountCircleWhite } from '../svg/account_circle_white_36dp.svg';
+import { ReactComponent as Plus } from '../svg/plus.svg';
 import { ReactComponent as DownArrow } from '../svg/down-arrow-white.svg';
 import { ReactComponent as SettingsWhite } from '../svg/settings_white_36dp.svg';
 import { ReactComponent as RightArrowWhite } from '../svg/right-arrow-white.svg';
@@ -40,7 +45,9 @@ function DropdownMenu() {
 
   const navigate = useNavigate();
   const [setUserContext] = useSetCurrentUser();
+  const [SetProfileContext] = useSetActiveProfile();
   const { currentUser } = useCurrentUserContext();
+  const { activeProfile } = useProfileContext();
 
   useEffect(() => setMenuHeight(dropdownRef.current?.firstChild.offsetHeight), []);
 
@@ -77,7 +84,10 @@ function DropdownMenu() {
     logout()
       .then((res) => {
         console.log(res);
-        if (res.status === 200) setUserContext({ currentUser: null });
+        if (res.status === 200) {
+          setUserContext({ currentUser: null });
+          SetProfileContext(null);
+        }
         window.location.reload();
         return navigate(`/`);
       })
@@ -86,7 +96,7 @@ function DropdownMenu() {
         setUserContext({ currentUser: null });
         window.location.reload();
       });
-  }, [navigate, setUserContext]);
+  }, [SetProfileContext, navigate, setUserContext]);
 
   const callRefreshToken = useCallback(async () => {
     if (!currentUser || !currentUser?.refreshToken) return;
@@ -112,7 +122,13 @@ function DropdownMenu() {
             <strong>Options</strong>
           </DropdownItem>
           <DropdownItem
-            displayIcon={<AccountCircleWhite />}
+            displayIcon={
+              <img
+                src={activeProfile?.avatarURL}
+                alt={activeProfile?.profileName}
+                className="menu-profile-avatar"
+              />
+            }
             extendIcon={<RightArrowWhite />}
             goToMenu={menuOptions.profiles}
           >
@@ -167,9 +183,27 @@ function DropdownMenu() {
           <DropdownItem displayIcon={<LeftArrowWhite />} goToMenu={menuOptions.main}>
             <strong>Profile</strong>
           </DropdownItem>
-          <DropdownItem displayIcon={<LogoutWhite />}>logout</DropdownItem>
-          <DropdownItem displayIcon={<LogoutWhite />}>logout</DropdownItem>
-          <DropdownItem displayIcon={<LogoutWhite />}>logout</DropdownItem>
+          {currentUser?.profiles.map((profile) => (
+            <DropdownItem
+              key={profile._id}
+              displayIcon={
+                <img
+                  src={profile.avatarURL}
+                  alt={profile.profileName}
+                  className="menu-profile-avatar"
+                />
+              }
+              functionCall={() => {
+                SetProfileContext(profile);
+                window.location.reload();
+              }}
+            >
+              {profile.profileName}
+            </DropdownItem>
+          ))}
+          <DropdownItem displayIcon={<Plus />} functionCall={() => navigate('/Profile')}>
+            Add Profile
+          </DropdownItem>
         </div>
       </CSSTransition>
     </div>

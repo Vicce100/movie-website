@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useMemo, useContext, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useContext, useCallback } from 'react';
 import { CurrentUserType, ActiveProfileType } from '../utils/types';
 
 export interface TempActiveProfileType {
@@ -7,18 +7,19 @@ export interface TempActiveProfileType {
 }
 
 const UserContext = React.createContext({} as CurrentUserType);
-const SetUserContext = React.createContext({} as React.Dispatch<CurrentUserType>);
+const SetUserContext = React.createContext({} as React.Dispatch<CurrentUserType | null>);
 
 const UserProfileContext = React.createContext({} as TempActiveProfileType);
-const SetUserProfileContext = React.createContext({} as React.Dispatch<ActiveProfileType>);
+const SetUserProfileContext = React.createContext({} as React.Dispatch<ActiveProfileType | null>);
 
 export const useSetCurrentUser = () => {
-  const setUserContext: React.Dispatch<CurrentUserType> = useContext(SetUserContext);
+  const setUserContext: React.Dispatch<CurrentUserType | null> = useContext(SetUserContext);
   return [setUserContext];
 };
 
 export const useSetActiveProfile = () => {
-  const SetProfileContext: React.Dispatch<ActiveProfileType> = useContext(SetUserProfileContext);
+  const SetProfileContext: React.Dispatch<ActiveProfileType | null> =
+    useContext(SetUserProfileContext);
   return [SetProfileContext];
 };
 
@@ -42,7 +43,7 @@ export function UserAuth({ children }: { children?: React.ReactNode }): JSX.Elem
   }, []);
 
   const getStoredActiveProfile = useCallback((): CurrentUserType | null => {
-    const value = localStorage.getItem('activeProfile');
+    const value = sessionStorage.getItem('activeProfile');
     if (value === null) return null;
     return JSON.parse(value);
   }, []);
@@ -62,7 +63,7 @@ export function UserAuth({ children }: { children?: React.ReactNode }): JSX.Elem
   const updateActiveProfile = useCallback((value: ActiveProfileType | null) => {
     setActiveProfile(value);
     if (!value) localStorage.removeItem('activeProfile');
-    else localStorage.setItem('activeProfile', JSON.stringify(value));
+    else sessionStorage.setItem('activeProfile', JSON.stringify(value));
   }, []);
 
   return (
