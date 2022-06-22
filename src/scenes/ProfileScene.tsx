@@ -59,7 +59,7 @@ export default function ProfileScene() {
         setAvatarsFormCategories(
           categoryData.map((category) => ({
             ...category,
-            avatars: avatarData.filter((avatar) => avatar.category.includes(category.name)),
+            avatars: avatarData.filter((avatar) => avatar.categories.includes(category.name)),
           }))
         );
       } catch (error) {
@@ -141,11 +141,16 @@ export default function ProfileScene() {
             className="adding-profile-button"
             onClick={(e) => {
               e.preventDefault();
-              const a = currentUser?.profiles.map((profile) => {
-                if (profile.profileName === addingProfileRef.current?.value) return true;
-                return false;
-              });
-              if (!addingProfileRef.current?.value || !a || a.includes(true)) return;
+              if (
+                !addingProfileRef.current?.value ||
+                currentUser?.profiles
+                  .map((profile) => {
+                    if (profile.profileName === addingProfileRef.current?.value) return true;
+                    return false;
+                  })
+                  .includes(true)
+              )
+                return;
               setNewProfileName(addingProfileRef.current?.value);
               setIsAddingProfile(false);
               setIsChoosingAvatar(!isChoosingAvatar);

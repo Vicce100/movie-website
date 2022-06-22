@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 import Header from '../component/Header';
 import '../styles/UploadVideoStyle.scss';
 
@@ -13,6 +14,12 @@ export default function PostFile() {
     (e: React.ChangeEvent<HTMLInputElement>) => setFile(e.target.files && e.target.files[0]),
     []
   );
+
+  // useEffect(() => {
+  //   const date1 = dayjs('2019-02-29').format();
+  //   const date2 = dayjs('2018-06-05').format();
+  //   console.log(date1);
+  // }, []);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {

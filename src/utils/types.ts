@@ -19,7 +19,7 @@ export interface CategorySchemaType {
 
 export interface ReturnAvatarType {
   id: string;
-  category: string[];
+  categories: string[];
   name: string;
   url: string;
   urlPath: string;
@@ -27,7 +27,7 @@ export interface ReturnAvatarType {
 
 export interface AvatarSchemaType {
   _id: string;
-  category: string[];
+  categories: string[];
   name: string;
   url: string;
 }

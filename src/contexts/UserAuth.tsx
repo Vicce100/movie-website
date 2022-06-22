@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo, useContext, useCallback } from 'react';
+import { useLocalStorage, useSessionStorage } from '../hooks/index';
 import { CurrentUserType, ActiveProfileType } from '../utils/types';
 
 export interface TempActiveProfileType {
@@ -36,35 +37,52 @@ export const useCurrentUserContext = () => {
 export const useProfileContext = () => useContext(UserProfileContext);
 
 export function UserAuth({ children }: { children?: React.ReactNode }): JSX.Element {
-  const getStoredUser = useCallback((): CurrentUserType | null => {
-    const value = localStorage.getItem('currentUser');
-    if (value === null) return null;
-    return JSON.parse(value).currentUser;
-  }, []);
+  const { setLocalStorage, getLocalStorage, removeLocalStorage } = useLocalStorage();
+  const { setSessionStorage, getSessionStorage, removeSessionStorage } = useSessionStorage();
 
-  const getStoredActiveProfile = useCallback((): CurrentUserType | null => {
-    const value = sessionStorage.getItem('activeProfile');
-    if (value === null) return null;
-    return JSON.parse(value);
-  }, []);
+  const getLocalStoredValue = useCallback(
+    (key: string): CurrentUserType | null => {
+      const value = getLocalStorage(key);
+      if (!value) return null;
+      return JSON.parse(value).currentUser;
+    },
+    [getLocalStorage]
+  );
 
-  const [currentUser, setCurrentUser] = useState<any | null>(getStoredUser());
-  const [activeProfile, setActiveProfile] = useState<any | null>(getStoredActiveProfile());
+  const getSessionStoredValue = useCallback(
+    (key: string): CurrentUserType | null => {
+      const value = getSessionStorage(key);
+      if (!value) return null;
+      return JSON.parse(value).currentUser;
+    },
+    [getSessionStorage]
+  );
+
+  const [currentUser, setCurrentUser] = useState<any | null>(getLocalStoredValue('currentUser'));
+  const [activeProfile, setActiveProfile] = useState<any | null>(
+    getSessionStoredValue('activeProfile')
+  );
 
   const authState = useMemo(() => ({ currentUser }), [currentUser]);
   const profileState = useMemo(() => ({ activeProfile }), [activeProfile]);
 
-  const updateCurrentUser = useCallback((value: CurrentUserType | null) => {
-    setCurrentUser(value?.currentUser);
-    if (value?.currentUser) localStorage.setItem('currentUser', JSON.stringify(value));
-    else localStorage.removeItem('currentUser');
-  }, []);
+  const updateCurrentUser = useCallback(
+    (value: CurrentUserType | null) => {
+      setCurrentUser(value?.currentUser);
+      if (value?.currentUser) setLocalStorage('currentUser', JSON.stringify(value));
+      else removeLocalStorage('currentUser');
+    },
+    [removeLocalStorage, setLocalStorage]
+  );
 
-  const updateActiveProfile = useCallback((value: ActiveProfileType | null) => {
-    setActiveProfile(value);
-    if (!value) localStorage.removeItem('activeProfile');
-    else sessionStorage.setItem('activeProfile', JSON.stringify(value));
-  }, []);
+  const updateActiveProfile = useCallback(
+    (value: ActiveProfileType | null) => {
+      setActiveProfile(value);
+      if (!value) removeSessionStorage('activeProfile');
+      else setSessionStorage('activeProfile', JSON.stringify(value));
+    },
+    [removeSessionStorage, setSessionStorage]
+  );
 
   return (
     <UserContext.Provider value={authState}>
