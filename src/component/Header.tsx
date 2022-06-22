@@ -19,6 +19,7 @@ import { ReactComponent as RightArrowWhite } from '../svg/right-arrow-white.svg'
 import { ReactComponent as LeftArrowWhite } from '../svg/left-arrow-white.svg';
 import { ReactComponent as Manager } from '../svg/manager-9650.svg';
 import { ReactComponent as Cookie } from '../svg/cookie.svg';
+import { ReactComponent as Home } from '../svg/home_white_36dp.svg';
 
 import { ReactComponent as ArrowIcon } from '../svg/arrow.svg';
 import { ReactComponent as BoltIcon } from '../svg/bolt.svg';
@@ -213,12 +214,16 @@ function DropdownMenu() {
 export default function Header() {
   const [openDropdown, setOpenDropdown] = useState<boolean>(false);
 
+  const navigate = useNavigate();
   const { currentUser } = useCurrentUserContext();
   if (!currentUser) return null;
   return (
     <div className="header-container">
       <div className="header-div">
-        <div />
+        <div style={{ width: 50 }} />
+        <button type="button" className="navigate-home-button" onClick={() => navigate('/')}>
+          <Home />
+        </button>
         <button
           type="button"
           className="dropdown-button"

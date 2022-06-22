@@ -230,8 +230,13 @@
       font-weight: bold;
 
       .avatar-category-title {
+        margin: 10px 20px 0 20px;
+        padding: 10px 20px 0 20px;
         cursor: text;
         height: 5%;
+        .avatar-category-title-text {
+          font-family: $Nunito-Sans, 'Helvetica Neue', sans-serif;
+        }
       }
       .swiper-container {
         width: 100%;

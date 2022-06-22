@@ -141,7 +141,11 @@ export default function ProfileScene() {
             className="adding-profile-button"
             onClick={(e) => {
               e.preventDefault();
-              if (!addingProfileRef.current?.value) return;
+              const a = currentUser?.profiles.map((profile) => {
+                if (profile.profileName === addingProfileRef.current?.value) return true;
+                return false;
+              });
+              if (!addingProfileRef.current?.value || !a || a.includes(true)) return;
               setNewProfileName(addingProfileRef.current?.value);
               setIsAddingProfile(false);
               setIsChoosingAvatar(!isChoosingAvatar);
@@ -152,7 +156,7 @@ export default function ProfileScene() {
         </form>
       </div>
     ),
-    [isChoosingAvatar]
+    [currentUser?.profiles, isChoosingAvatar]
   );
 
   const renderChoosingAvatar = useCallback(
@@ -163,7 +167,9 @@ export default function ProfileScene() {
             if (!category.avatars.length) return null;
             return (
               <div className="avatar-category-div" key={category._id}>
-                <h3 className="avatar-category-title">{category.name}</h3>
+                <div className="avatar-category-title">
+                  <h3 className="avatar-category-title-text">{category.name}</h3>
+                </div>
                 <div className="swiper-container">
                   <Swiper
                     slidesPerView={swiperSlidesPerView || 1}

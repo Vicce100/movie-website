@@ -108,6 +108,7 @@ export default function AddAvatar() {
               id="singleAvatarImage"
               className="single-form-upload-file"
               type="file"
+              accept="image/*"
               name="avatarImage"
               onChange={(e) => setSingleAvatarFile(e.target.files && e.target.files[0])}
             />
