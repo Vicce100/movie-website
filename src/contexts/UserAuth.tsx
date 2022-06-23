@@ -53,7 +53,7 @@ export function UserAuth({ children }: { children?: React.ReactNode }): JSX.Elem
     (key: string): CurrentUserType | null => {
       const value = getSessionStorage(key);
       if (!value) return null;
-      return JSON.parse(value).currentUser;
+      return JSON.parse(value);
     },
     [getSessionStorage]
   );

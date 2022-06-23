@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '../hooks/index';
 import Header from '../component/Header';
 import { ReactComponent as Plus } from '../svg/plus.svg';
 
@@ -7,6 +8,10 @@ import '../styles/HomeSceneStyle.scss';
 
 export default function HomeScene() {
   const navigate = useNavigate();
+  const { setPageTitle } = usePageTitle();
+
+  useEffect(() => setPageTitle('Home'), [setPageTitle]);
+
   return (
     <div className="home-container">
       <Header />

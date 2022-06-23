@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { usePageTitle } from '../hooks/index';
 import AddAvatar from '../component/AddAvatar';
 import AddCategories from '../component/AddCategories';
 import '../styles/AdminStyle.scss';
@@ -8,6 +9,9 @@ export default function AdminScene() {
   const [showAddAvatar, setShowAddAvatar] = useState<boolean>(false);
   const [showVideo, setShowVideo] = useState<boolean>(false);
   const [showAddUser, setShowAddUser] = useState<boolean>(false);
+  const { setPageTitle } = usePageTitle();
+
+  useEffect(() => setPageTitle('Admin'), [setPageTitle]);
 
   return (
     <div className="admin-container">

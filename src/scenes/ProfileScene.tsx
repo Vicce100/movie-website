@@ -12,7 +12,7 @@ import {
 } from '../contexts/UserAuth';
 import { addProfile, getCurrentUser } from '../services/userService';
 import { getAllAvatars, getAllCategory } from '../services';
-import { useWindowDimensions } from '../hooks/index';
+import { useWindowDimensions, usePageTitle } from '../hooks/index';
 import { ReturnAvatarType, ProfileType } from '../utils/types';
 
 import { ReactComponent as Plus } from '../svg/plus.svg';
@@ -46,9 +46,12 @@ export default function ProfileScene() {
   const [setUserContext] = useSetCurrentUser();
 
   const { width } = useWindowDimensions();
+  const { setPageTitle } = usePageTitle();
   const navigate = useNavigate();
 
   const swiperSlidesPerView = useMemo(() => Number(String(width / 250).split('.')[0]), [width]);
+
+  useEffect(() => setPageTitle('Profile'), [setPageTitle]);
 
   useEffect(() => {
     async function getAvatarsForCategories() {

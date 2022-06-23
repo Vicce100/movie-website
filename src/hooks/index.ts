@@ -19,13 +19,12 @@ const useWindowDimensions = () => {
 };
 
 const useLocalStorage = () => {
-  const setLocalStorage = useCallback((key: string, value: string) => {
-    localStorage.setItem(key, value);
-  }, []);
+  const setLocalStorage = useCallback(
+    (key: string, value: string) => localStorage.setItem(key, value),
+    []
+  );
 
-  const removeLocalStorage = useCallback((key: string) => {
-    localStorage.removeItem(key);
-  }, []);
+  const removeLocalStorage = useCallback((key: string) => localStorage.removeItem(key), []);
 
   const getLocalStorage = useCallback((key: string) => localStorage.getItem(key), []);
 
@@ -46,4 +45,13 @@ const useSessionStorage = () => {
   return { getSessionStorage, setSessionStorage, removeSessionStorage };
 };
 
-export { useWindowDimensions, useLocalStorage, useSessionStorage };
+const usePageTitle = () => {
+  const setPageTitle = useCallback((value: string) => {
+    const title = document.querySelector('title');
+    if (title) title.innerText = `${value} | Movie Website`;
+  }, []);
+
+  return { setPageTitle };
+};
+
+export { useWindowDimensions, useLocalStorage, useSessionStorage, usePageTitle };
