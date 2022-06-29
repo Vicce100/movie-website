@@ -36,18 +36,36 @@ code {
   .header-div {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
     padding: 10px 0;
     margin: 0 2vw;
 
-    .dropdown-button {
-      background-color: $transparent;
-      width: 45px;
-      height: 45px;
+    .navigate-home-button {
+      background-color: #4d525c;
+      box-shadow: 0 0 10px rgba(200, 200, 200, 0.3);
+      border: 1px solid $header-color2;
       cursor: pointer;
-      border-radius: 15%;
+      &:hover {
+        filter: brightness(1.1);
+        border: 1px solid #5d626c;
+        color: $main-color;
+      }
+    }
+    .dropdown-button {
+      @include centerFlex;
+      cursor: pointer;
+      background-color: $transparent;
+      width: 50px;
+      height: 50px;
+      padding: 0 8px;
+      border-radius: 50%;
       border: 1px solid $white;
-      padding: 6px;
+      transition: all 250ms;
+      &:hover {
+        filter: brightness(1.01);
+        box-shadow: 0 0 10px rgba(120, 120, 120, 0.6);
+      }
     }
   }
 }

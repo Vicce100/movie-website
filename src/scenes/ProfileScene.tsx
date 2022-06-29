@@ -12,7 +12,7 @@ import {
 } from '../contexts/UserAuth';
 import { addProfile, getCurrentUser } from '../services/userService';
 import { getAllAvatars, getAllCategory } from '../services';
-import { useWindowDimensions } from '../hooks/index';
+import { useWindowDimensions, usePageTitle } from '../hooks/index';
 import { ReturnAvatarType, ProfileType } from '../utils/types';
 
 import { ReactComponent as Plus } from '../svg/plus.svg';
@@ -46,9 +46,12 @@ export default function ProfileScene() {
   const [setUserContext] = useSetCurrentUser();
 
   const { width } = useWindowDimensions();
+  const { setPageTitle } = usePageTitle();
   const navigate = useNavigate();
 
   const swiperSlidesPerView = useMemo(() => Number(String(width / 250).split('.')[0]), [width]);
+
+  useEffect(() => setPageTitle('Profile'), [setPageTitle]);
 
   useEffect(() => {
     async function getAvatarsForCategories() {
@@ -59,7 +62,7 @@ export default function ProfileScene() {
         setAvatarsFormCategories(
           categoryData.map((category) => ({
             ...category,
-            avatars: avatarData.filter((avatar) => avatar.category.includes(category.name)),
+            avatars: avatarData.filter((avatar) => avatar.categories.includes(category.name)),
           }))
         );
       } catch (error) {
@@ -141,7 +144,16 @@ export default function ProfileScene() {
             className="adding-profile-button"
             onClick={(e) => {
               e.preventDefault();
-              if (!addingProfileRef.current?.value) return;
+              if (
+                !addingProfileRef.current?.value ||
+                currentUser?.profiles
+                  .map((profile) => {
+                    if (profile.profileName === addingProfileRef.current?.value) return true;
+                    return false;
+                  })
+                  .includes(true)
+              )
+                return;
               setNewProfileName(addingProfileRef.current?.value);
               setIsAddingProfile(false);
               setIsChoosingAvatar(!isChoosingAvatar);
@@ -152,7 +164,7 @@ export default function ProfileScene() {
         </form>
       </div>
     ),
-    [isChoosingAvatar]
+    [currentUser?.profiles, isChoosingAvatar]
   );
 
   const renderChoosingAvatar = useCallback(
@@ -163,7 +175,9 @@ export default function ProfileScene() {
             if (!category.avatars.length) return null;
             return (
               <div className="avatar-category-div" key={category._id}>
-                <h3 className="avatar-category-title">{category.name}</h3>
+                <div className="avatar-category-title">
+                  <h3 className="avatar-category-title-text">{category.name}</h3>
+                </div>
                 <div className="swiper-container">
                   <Swiper
                     slidesPerView={swiperSlidesPerView || 1}
