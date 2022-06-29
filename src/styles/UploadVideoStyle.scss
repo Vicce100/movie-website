@@ -3,6 +3,10 @@
 :root {
   @include custom-light-blue-scrollbar;
   color: $white;
+  button:hover {
+    filter: brightness(1.06);
+    box-shadow: 0px 0px 10px rgba(100, 100, 100, 0.4);
+  }
 }
 
 .upload-video-container {
@@ -43,55 +47,21 @@
       @include centerFlex;
       flex-direction: column;
       justify-content: space-between;
-      height: 90%;
+      height: 100%;
       width: 100%;
 
-      .submit-filed-div {
-        display: flex;
-        flex-direction: row-reverse;
-        justify-content: center;
-        align-items: center;
-        width: 99.7%;
-        height: 15%;
-        background-color: #3d424d;
-        // border: 1px solid rgba(200, 200, 200, 0.5);
-        box-shadow: 0px 0px 5px rgba(200, 200, 200, 0.2);
-        margin-bottom: 1px;
-
-        .submit-avatar-upload-button {
-          @include centerFlex;
-          cursor: pointer;
-          flex-direction: row;
-          width: 28%;
-          height: 50%;
-          border-radius: 10px;
-          background-color: $header-color2;
-          color: $white;
-          font-family: $Roboto-Slab, 'Roboto', sans-serif;
-          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(0, 0, 0, 0.4);
-          &:hover {
-            transition: 0.2s;
-            filter: brightness(1.05);
-            box-shadow: 0px 0px 10px rgba(50, 50, 50, 0.4);
-            border: 1px solid rgba(0, 0, 0, 0.3);
-          }
-        }
-      }
       .render-upload-section {
         @include centerFlex;
         flex-direction: column;
-        min-height: 80%;
-        width: 80%;
+        min-height: 100%;
+        width: 100%;
 
         .single-upload-section {
           @include custom-light-blue-scrollbar;
           display: flex;
           justify-content: center;
-          overflow-y: scroll;
           height: 100%;
           width: 100%;
-          border-radius: 10px;
           box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
 
           .video-preview-section {
@@ -99,6 +69,7 @@
             flex-direction: row;
             align-items: center;
             justify-content: center;
+            width: 100%;
 
             .single-display-picture-input + label {
               display: flex;
@@ -141,6 +112,8 @@
             }
             .video-preview-input-fields {
               @include centerFlex;
+              justify-content: flex-start;
+              height: 300px;
               flex-direction: column;
 
               .release-date-div {
@@ -150,6 +123,7 @@
                 width: 100%;
                 div {
                   flex-direction: row;
+                  width: 118%;
                   margin: 0;
                   padding: 0;
                   label {
@@ -157,7 +131,7 @@
                   }
                   input[type='date'] {
                     @include input-field-test;
-                    width: 80%;
+                    width: 60%;
                     height: 24px;
                     border-radius: 10px;
                     padding: 5px 15px;
@@ -168,12 +142,13 @@
                     cursor: text;
                   }
                   button {
-                    background-color: rgba(0, 0, 0, 0.2);
+                    background-color: rgba(124, 124, 154, 0.2);
                     border: none;
-                    box-shadow: 0px 0px 10px rgba(200, 200, 200, 0.3);
+                    border: 1px solid rgba(255, 255, 255, 0.4);
                     cursor: pointer;
                     transition: all 250ms;
                     &:hover {
+                      border: 1px solid rgba(200, 200, 200, 0.45);
                       box-shadow: 0px 0px 10px rgba(200, 200, 200, 0.45);
                       filter: brightness(1.08);
                       transform: scale(1.04);
@@ -228,6 +203,117 @@
                   &::before {
                     margin-right: 2.5%;
                     content: '\01F3A5';
+                  }
+                }
+              }
+            }
+          }
+          .video-addon-info {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+
+            .description {
+              display: flex;
+              flex-direction: column;
+              width: 30%;
+              height: 300px;
+              margin: 10px;
+              padding: 10px;
+
+              .description-input {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                align-items: flex-end;
+                text-align: flex-end;
+                border-radius: 12px;
+                border: 1px solid rgba(40, 40, 40, 0.7);
+                width: 100%;
+                height: 100%;
+                margin: 10px 0 0 10px;
+                padding: 10px 0;
+              }
+            }
+            .categories-selection {
+              display: flex;
+              flex-wrap: wrap;
+              align-items: flex-start;
+              flex-direction: row;
+              width: 38.7%;
+
+              .single-categories-div {
+                margin: 5px;
+                display: flex;
+                transition: all 250ms;
+                .single-categories-checkbox {
+                  display: none;
+
+                  &:checked + label {
+                    border-radius: 12px;
+                    background-color: #fc7ae2;
+                  }
+                }
+                .single-categories-checkbox + label {
+                  cursor: pointer;
+                  border-radius: 12px;
+                  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+                  border: 1px solid rgba(0, 0, 0, 0.3);
+                  padding: 8px 8px;
+                  transition: all 250ms;
+                  &:hover {
+                    filter: brightness(1.1);
+                    box-shadow: 0px 0px 10px rgba(100, 100, 100, 0.4);
+                    border: 1px solid rgba(0, 0, 0, 0.5);
+                  }
+                }
+              }
+            }
+          }
+          .submit-video-button-div {
+            @include centerFlex;
+            width: 100%;
+            .submit-video-button {
+              cursor: pointer;
+              height: 50px;
+              background-color: #3b404a;
+              box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+              border: 1px solid rgba(255, 255, 255, 0.4);
+              &:disabled {
+                cursor: not-allowed;
+                color: #777;
+                opacity: 0.7;
+                background-color: #222;
+                color: #777;
+                opacity: 0.7;
+                box-shadow: 0px 0px 10px rgba(80, 80, 80, 0.3);
+                border: 1px solid rgba(80, 80, 80, 0.4);
+              }
+              .submit-video-button-loader {
+                display: flex;
+                justify-content: center;
+
+                &::after {
+                  content: '';
+                  height: 16px;
+                  width: 16px;
+                  border: 10px solid #dddddd;
+                  border-top-color: #009579;
+                  border-radius: 50%;
+                  transform: rotate(0.16turn);
+                  animation: loading 1s cubic-bezier(0.7, 0.9, 0.9, 0.8) infinite;
+                }
+
+                @keyframes loading {
+                  /* Safari support */
+                  from {
+                    transform: rotate(0turn);
+                  }
+
+                  to {
+                    transform: rotate(1turn);
                   }
                 }
               }

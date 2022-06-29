@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { usePageTitle } from '../hooks/index';
 import AddAvatar from '../component/AddAvatar';
 import AddCategories from '../component/AddCategories';
@@ -11,11 +13,21 @@ export default function AdminScene() {
   const [showAddUser, setShowAddUser] = useState<boolean>(false);
   const { setPageTitle } = usePageTitle();
 
+  const navigate = useNavigate();
+
   useEffect(() => setPageTitle('Admin'), [setPageTitle]);
 
   return (
     <div className="admin-container">
       <div className="options-menu">
+        <button
+          type="button"
+          className="options-button-box"
+          id="options-button-box-go-home"
+          onClick={() => navigate('/')}
+        >
+          <h3 className="options-box-heading">Go To Home</h3>
+        </button>
         <button
           style={{
             border: showAddCategories ? '1px solid #fff' : 'none',

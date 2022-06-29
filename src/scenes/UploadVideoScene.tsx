@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -5,54 +6,78 @@ import { usePageTitle } from '../hooks/index';
 import Header from '../component/Header';
 import { ReactComponent as Play } from '../svg/play.svg';
 import '../styles/UploadVideoStyle.scss';
+import { CategorySchemaType } from '../utils/types';
+import { getAllCategory } from '../services/index';
 
 // create state for storing file in
 export default function PostFile() {
-  const [multipleUpload, setMultipleUpload] = useState<boolean>(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [singleDisplayPicture, setSingleDisplayPicture] = useState<File | null>(null);
-  const [singlePicturePreview, setSinglePicturePreview] = useState<string | undefined>(undefined);
-  const [singleTitle, setSingleTitle] = useState<string>('');
-  const [singleUploadReleaseDate, setSingleUploadReleaseDate] = useState<string>('');
-  // const navigate = useNavigate();
+  const [displayPicture, setDisplayPicture] = useState<File | null>(null);
+  const [picturePreview, setPicturePreview] = useState<string | undefined>(undefined);
+  const [title, setTitle] = useState<string>('');
+  const [uploadReleaseDate, setUploadReleaseDate] = useState<string>('');
+  const [categories, setCategories] = useState<string[]>([]);
+  const [description, setDescription] = useState<string>('');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  const [allCategories, setAllCategories] = useState<CategorySchemaType[] | null>(null);
+
   const { setPageTitle } = usePageTitle();
 
   useEffect(() => setPageTitle('Upload Video'), [setPageTitle]);
+
+  useEffect(() => {
+    getAllCategory()
+      .then((res) => (res.status === 200 ? setAllCategories(res.data) : null))
+      .catch((e) => console.log(e));
+  }, []);
+
+  useEffect(() => setUploadReleaseDate(dayjs().format().split('T')[0]), []);
 
   const submitSingleUpload = useCallback(
     async (
       e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
       e.preventDefault();
-      if (!videoFile || !singleDisplayPicture || !singleUploadReleaseDate || !singleTitle) return;
+      if (!videoFile || !displayPicture || !uploadReleaseDate || !title || !description) return;
+
       const formData = new FormData();
       formData.append('videoFile', videoFile);
-      formData.append('displayPicture', singleDisplayPicture);
-      formData.append('releaseDate', dayjs(singleUploadReleaseDate).format());
-      formData.append('title', singleTitle);
-      // formData.append('album')
-      // formData.append('description');
-      // formData.append('categories');
+      formData.append('displayPicture', displayPicture);
+      formData.append('releaseDate', dayjs(uploadReleaseDate).format());
+      formData.append('title', title);
+      formData.append('description', description);
+      categories.forEach((category) => formData.append('categories', category));
 
       const options: RequestInit = { method: 'POST', credentials: 'include', body: formData };
       try {
+        setIsUploading(true);
         const res = await (
           await fetch('http://localhost:5050/video/upload/singe/public', options)
         ).json();
-        const response = await res;
-        console.log(response);
+        console.log(await res);
+        setIsUploading(false);
+        setVideoFile(null);
+        setDisplayPicture(null);
+        setPicturePreview(undefined);
+        setTitle('');
+        setUploadReleaseDate(dayjs().format().split('T')[0]);
+        setCategories([]);
+        setDescription('');
       } catch (error) {
         console.log(error);
+        setIsUploading(false);
       }
     },
-    [videoFile, singleDisplayPicture, singleUploadReleaseDate, singleTitle]
+    [videoFile, displayPicture, uploadReleaseDate, title, description, categories]
   );
 
-  const aaa = useCallback((value: File) => {
+  useEffect(() => {
+    if (!displayPicture) return;
     const reader = new FileReader();
-    reader.onloadend = () => setSinglePicturePreview(reader.result as string);
-    reader.readAsDataURL(value);
-  }, []);
+    reader.onloadend = () => setPicturePreview(reader.result as string);
+    reader.readAsDataURL(displayPicture);
+  }, [displayPicture]);
 
   const renderSingleUpload = useCallback(
     () => (
@@ -66,16 +91,10 @@ export default function PostFile() {
               name="displayPicture"
               id="displayPicture"
               accept="image/*"
-              onChange={(e) => {
-                setSingleDisplayPicture(e.target.files && e.target.files[0]);
-                const a = e.target.files && e.target.files[0];
-                if (a) aaa(a);
-              }}
+              onChange={(e) => setDisplayPicture(e.target.files && e.target.files[0])}
             />
             <label htmlFor="displayPicture">
-              {singlePicturePreview ? (
-                <img src={singlePicturePreview || undefined} alt="preview" />
-              ) : null}
+              {picturePreview ? <img src={picturePreview || undefined} alt="preview" /> : null}
               <div className="preview-play-div">
                 <Play className="svg-play" />
               </div>
@@ -87,9 +106,10 @@ export default function PostFile() {
                   type="text"
                   name="title"
                   id="title"
+                  value={title}
                   placeholder="Title"
                   className="title-input"
-                  onChange={(e) => setSingleTitle(e.target.value)}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
               <div>
@@ -105,63 +125,90 @@ export default function PostFile() {
               </div>
               <div className="release-date-div">
                 <label htmlFor="ReleaseData">Release Data</label>
-                <div>
-                  <input
-                    type="date"
-                    name="ReleaseData"
-                    id="ReleaseData"
-                    accept="video/*"
-                    value={singleUploadReleaseDate}
-                    className="title-input"
-                    onChange={(e) => setSingleUploadReleaseDate(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setSingleUploadReleaseDate(dayjs().format().split('T')[0])}
-                  >
-                    This Date
-                  </button>
-                </div>
+                <input
+                  type="date"
+                  name="ReleaseData"
+                  id="ReleaseData"
+                  accept="video/*"
+                  value={uploadReleaseDate}
+                  className="title-input"
+                  onChange={(e) => setUploadReleaseDate(e.target.value)}
+                />
               </div>
             </div>
+          </div>
+          <div className="video-addon-info">
+            <div className="description">
+              <label htmlFor="description-input">description</label>
+              <input
+                type="text"
+                className="description-input"
+                id="description-input"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={400}
+              />
+            </div>
+            <div className="categories-selection">
+              {allCategories &&
+                allCategories.map((category) => (
+                  <div
+                    key={category._id}
+                    className="single-categories-div"
+                    // style={{
+                    //   backgroundColor: checkSelectedCategories(categories, category.name),
+                    // }}
+                  >
+                    <input
+                      className="single-categories-checkbox"
+                      type="checkbox"
+                      name="category"
+                      value={category.name}
+                      id={category._id}
+                      onChange={() => {
+                        if (!categories.includes(category.name))
+                          setCategories([...categories, category.name]);
+                        else setCategories(categories.filter((c) => c !== category.name));
+                      }}
+                    />
+                    <label htmlFor={category._id}>{category.name}</label>
+                  </div>
+                ))}
+            </div>
+          </div>
+          <div className="submit-video-button-div">
+            <button
+              type="submit"
+              className="submit-video-button"
+              disabled={!!isUploading}
+              onClick={(e) => {
+                submitSingleUpload(e);
+              }}
+            >
+              {!isUploading ? <p>Submit</p> : <div className="submit-video-button-loader" />}
+            </button>
           </div>
         </form>
       </div>
     ),
-    [submitSingleUpload, singlePicturePreview, singleUploadReleaseDate, aaa]
-  );
-
-  const renderMultipleUpload = useCallback(
-    () => (
-      <div>
-        <h2>renderMultipleUpload</h2>
-      </div>
-    ),
-    []
+    [
+      submitSingleUpload,
+      uploadReleaseDate,
+      picturePreview,
+      allCategories,
+      isUploading,
+      description,
+      categories,
+    ]
   );
 
   return (
     <div className="upload-video-container">
       <Header />
       <div className="upload-video-section">
-        <div className="select-upload-formate">
-          <h2 className="upload-selection-title">Single Upload</h2>
-          <input
-            className="switch-input"
-            type="checkbox"
-            name="switch-input"
-            id="switch-input"
-            onChange={(e) => setMultipleUpload(e.target.checked)}
-            // disabled
-          />
-          <label htmlFor="switch-input" />
-          <h2 className="upload-selection-title">Multiple Upload</h2>
-        </div>
         <div className="main-content">
-          <div className="render-upload-section">
-            {!multipleUpload ? renderSingleUpload() : renderMultipleUpload()}
-          </div>
-          <div className="submit-filed-div">
+          <div className="render-upload-section">{renderSingleUpload()}</div>
+          {/* <div className="submit-filed-div">
             <button
               type="button"
               className="submit-avatar-upload-button"
@@ -180,7 +227,7 @@ export default function PostFile() {
                 Add Field
               </button>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
