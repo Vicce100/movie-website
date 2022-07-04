@@ -277,6 +277,7 @@
               &:hover {
                 background-color: $transparent;
                 border: none;
+                box-shadow: none;
                 & > img {
                   filter: brightness(1.1);
                   transform: scale(1.04);

@@ -4,10 +4,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { usePageTitle } from '../hooks/index';
 import Header from '../component/Header';
-import { ReactComponent as Play } from '../svg/play.svg';
-import '../styles/UploadVideoStyle.scss';
 import { CategorySchemaType } from '../utils/types';
 import { getAllCategory } from '../services/index';
+
+import { ReactComponent as Play } from '../asset/svg/videoPlayer/play.svg';
+
+import '../styles/UploadVideoStyle.scss';
 
 // create state for storing file in
 export default function PostFile() {

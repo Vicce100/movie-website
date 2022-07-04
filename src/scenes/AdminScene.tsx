@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/index';
 import AddAvatar from '../component/AddAvatar';
 import AddCategories from '../component/AddCategories';
+import { checkAuthRole } from '../services/userService';
+import { useCurrentUserContext } from '../contexts/UserAuth';
+
 import '../styles/AdminStyle.scss';
 
 export default function AdminScene() {
@@ -11,11 +14,19 @@ export default function AdminScene() {
   const [showAddAvatar, setShowAddAvatar] = useState<boolean>(false);
   const [showVideo, setShowVideo] = useState<boolean>(false);
   const [showAddUser, setShowAddUser] = useState<boolean>(false);
+
   const { setPageTitle } = usePageTitle();
+  const { currentUser } = useCurrentUserContext();
 
   const navigate = useNavigate();
 
   useEffect(() => setPageTitle('Admin'), [setPageTitle]);
+  useEffect(() => {
+    if (!currentUser || !currentUser.role) return;
+    const run = async () =>
+      !(await checkAuthRole(currentUser.role)).data.access ? navigate('/') : null;
+    run();
+  }, [currentUser, navigate]);
 
   return (
     <div className="admin-container">

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/SignupStyle.scss';
 import { signUp } from '../services/userService';
 import { useSetCurrentUser } from '../contexts/UserAuth';
+
+import '../styles/SignupStyle.scss';
 
 const SignUp = () => {
   const [email, setEmail] = useState<string | null>(null);

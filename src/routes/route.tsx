@@ -6,9 +6,9 @@ import Login from '../scenes/Login';
 import SignUp from '../scenes/SignUp';
 import HomeScene from '../scenes/HomeScene';
 import UploadVideo from '../scenes/UploadVideoScene';
-import AvatarScene from '../scenes/AvatarScene';
 import AdminScene from '../scenes/AdminScene';
 import ProfileScene from '../scenes/ProfileScene';
+import VideoPlayerScene from '../scenes/VideoPlayerScene';
 
 function Router() {
   const { currentUser } = useCurrentUserContext();
@@ -20,17 +20,16 @@ function Router() {
         <Routes>
           {!activeProfile ? (
             <React.Fragment>
-              <Route path="/" element={<Navigate replace to="/Profile" />} />
+              <Route path="*" element={<Navigate replace to="/Profile" />} />
               {/* add outer components */}
             </React.Fragment>
           ) : (
             <React.Fragment>
               <Route path="/" element={<HomeScene />} />
-              <Route path="/UploadVideo" element={<UploadVideo />} />
+              <Route path="/upload/video" element={<UploadVideo />} />
+              <Route path="/player/:videoId" element={<VideoPlayerScene />} />
             </React.Fragment>
           )}
-          {/* <Route path="/" element={<HomeScene />} /> */}
-          <Route path="/Avatar" element={<AvatarScene />} />
           <Route path="/Profile" element={<ProfileScene />} />
           {currentUser.role === (userRole.admin || userRole.superAdmin) && (
             <Route path="/Admin" element={<AdminScene />} />

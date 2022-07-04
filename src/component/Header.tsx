@@ -11,18 +11,18 @@ import {
 } from '../contexts/UserAuth';
 import { logout, refreshToken } from '../services/userService';
 
-import { ReactComponent as LogoutWhite } from '../svg/logout_white_36dp.svg';
-import { ReactComponent as Plus } from '../svg/plus.svg';
-import { ReactComponent as DownArrow } from '../svg/down-arrow-white.svg';
-import { ReactComponent as SettingsWhite } from '../svg/settings_white_36dp.svg';
-import { ReactComponent as RightArrowWhite } from '../svg/right-arrow-white.svg';
-import { ReactComponent as LeftArrowWhite } from '../svg/left-arrow-white.svg';
-import { ReactComponent as Manager } from '../svg/manager-9650.svg';
-import { ReactComponent as Cookie } from '../svg/cookie.svg';
-import { ReactComponent as Home } from '../svg/home_white_36dp.svg';
+import { ReactComponent as LogoutWhite } from '../asset/svg/logout_white_36dp.svg';
+import { ReactComponent as Plus } from '../asset/svg/plus.svg';
+import { ReactComponent as DownArrow } from '../asset/svg/down-arrow-white.svg';
+import { ReactComponent as SettingsWhite } from '../asset/svg/settings_white_36dp.svg';
+import { ReactComponent as RightArrowWhite } from '../asset/svg/right-arrow-white.svg';
+import { ReactComponent as LeftArrowWhite } from '../asset/svg/left-arrow-white.svg';
+import { ReactComponent as Manager } from '../asset/svg/manager-9650.svg';
+import { ReactComponent as Cookie } from '../asset/svg/cookie.svg';
+import { ReactComponent as Home } from '../asset/svg/home_white_36dp.svg';
 
-import { ReactComponent as ArrowIcon } from '../svg/arrow.svg';
-import { ReactComponent as BoltIcon } from '../svg/bolt.svg';
+import { ReactComponent as ArrowIcon } from '../asset/svg/arrow.svg';
+import { ReactComponent as BoltIcon } from '../asset/svg/bolt.svg';
 
 import { userRole } from '../utils/types';
 import '../styles/HeaderStyle.scss';

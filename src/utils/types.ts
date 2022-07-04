@@ -1,15 +1,47 @@
 export const userRole: {
   superAdmin: 'superAdmin';
   admin: 'admin';
+  moderator: 'moderator';
   user: 'user';
 } = {
   superAdmin: 'superAdmin',
   admin: 'admin',
+  moderator: 'moderator',
   user: 'user',
 };
 
-type UsersRolesType = 'superAdmin' | 'admin' | 'user';
-type UserStatusType = 'active' | 'disabled';
+export type UsersRolesType = 'user' | 'moderator' | 'admin' | 'superAdmin';
+export type UserStatusType = 'active' | 'disabled';
+
+export type ReturnedVideoDataByCategory = {
+  _id: string;
+  title: string;
+  displayPicture: string;
+}[];
+
+export type ReturnedVideoData = {
+  _id: string;
+  isMovie: boolean;
+  title: string;
+  episodeTitle: string | undefined;
+  session: number | undefined;
+  episode: number | undefined;
+  seriesId: string | undefined;
+  videoUrl: string;
+  displayPicture: string;
+};
+
+export interface MovieSchemaType {
+  title: string;
+  videoUrl: string;
+  displayPicture: string;
+  // album: string[];
+  categories: string[];
+  description: string;
+  creatorsId: string;
+  uploadDate: string;
+  releaseDate: string;
+}
 
 export interface CategorySchemaType {
   _id: string;
