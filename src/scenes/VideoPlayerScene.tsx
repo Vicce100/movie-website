@@ -1,21 +1,25 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { getSingleVIdeoData } from '../services/index';
 import { url } from '../services/apiService';
 import { ReturnedVideoData } from '../utils/types';
 import { usePageTitle } from '../hooks';
 
+import { ReactComponent as PlayIcon } from '../asset/svg/videoPlayer/play.svg';
+import { ReactComponent as PauseIcon } from '../asset/svg/videoPlayer/pause.svg';
+import { ReactComponent as GoBack } from '../asset/svg/left-arrow-white.svg';
+
 import '../styles/VideoPlayerStyle.scss';
 
 export default function VideoPlayerScene() {
   const [videoData, setVideoData] = useState<ReturnedVideoData | null>(null);
+  const [videoIsPlaying, setVideoIsPlaying] = useState<boolean>(false);
 
   const videoContainer = useRef<HTMLDivElement | null>(null);
   const video = useRef<HTMLVideoElement | null>(null);
 
+  const navigate = useNavigate();
   const { videoId } = useParams();
   const { setPageTitle } = usePageTitle();
 
@@ -30,7 +34,6 @@ export default function VideoPlayerScene() {
         console.log(error);
       }
     };
-
     fetchVideoData();
   }, [videoId]);
 
@@ -39,6 +42,12 @@ export default function VideoPlayerScene() {
     if (video.current.paused) video.current.play();
     else video.current.pause();
   }, [video]);
+
+  useEffect(() => () => video.current?.addEventListener('play', () => setVideoIsPlaying(true)), []);
+  useEffect(
+    () => () => video.current?.addEventListener('pause', () => setVideoIsPlaying(false)),
+    []
+  );
 
   useEffect(() => video.current?.addEventListener('click', togglePlay), [togglePlay]);
   useEffect(() => videoContainer.current?.addEventListener('click', togglePlay), [togglePlay]);
@@ -88,6 +97,7 @@ export default function VideoPlayerScene() {
   const keyPress = useCallback(
     (e: KeyboardEvent) => {
       if (document.activeElement?.tagName.toLowerCase() === 'input') return;
+      if (document.activeElement?.tagName.toLowerCase() === 'button') return;
       switch (e.key.toLowerCase()) {
         case ' ': // a space should be the space key
           if (document.activeElement?.tagName.toLowerCase() === 'button') return;
@@ -165,9 +175,33 @@ export default function VideoPlayerScene() {
     return () => document.removeEventListener('keydown', keyPress);
   }, [keyPress]);
 
+  const renderPlayIcon = useCallback(() => {
+    if (videoIsPlaying) return <PauseIcon className="play-pause-icon" />;
+    return <PlayIcon className="play-pause-icon" />;
+  }, [videoIsPlaying]);
+
   return (
     <div className="video-container" ref={videoContainer}>
-      <div className="video-controls-container" />
+      {video.current && (
+        <div className="video-controls-container">
+          <div className="navigate-back-to-home">
+            <button type="button" className="go-back" onClick={() => navigate(-1)}>
+              <GoBack className="go-back-icon" />
+            </button>
+            <div className="title-div">
+              {videoData && <h1 className="title">{videoData.title}</h1>}
+              {videoData?.episodeTitle && (
+                <h2 className="episode-title">{videoData.episodeTitle}</h2>
+              )}
+            </div>
+          </div>
+          <div className="controls">
+            <button type="button" className="play-pause-button">
+              {renderPlayIcon()}
+            </button>
+          </div>
+        </div>
+      )}
       <video ref={video} id="videoPlayer" width="650" autoPlay>
         {videoId ? <source src={`${url}/video/${videoId}`} type="video/mp4" /> : null}
         <track kind="captions" src="assets/subtitles.vtt" />

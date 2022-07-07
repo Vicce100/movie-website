@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useCurrentUserContext, useProfileContext } from '../contexts/UserAuth';
 import { userRole } from '../utils/types';
@@ -19,16 +19,17 @@ function Router() {
       {currentUser ? (
         <Routes>
           {!activeProfile ? (
-            <React.Fragment>
+            <Fragment>
               <Route path="*" element={<Navigate replace to="/Profile" />} />
               {/* add outer components */}
-            </React.Fragment>
+            </Fragment>
           ) : (
-            <React.Fragment>
+            <Fragment>
               <Route path="/" element={<HomeScene />} />
+              <Route path="/home" element={<Navigate replace to="/" />} />
               <Route path="/upload/video" element={<UploadVideo />} />
               <Route path="/player/:videoId" element={<VideoPlayerScene />} />
-            </React.Fragment>
+            </Fragment>
           )}
           <Route path="/Profile" element={<ProfileScene />} />
           {currentUser.role === (userRole.admin || userRole.superAdmin) && (

@@ -7,7 +7,7 @@ import Header from '../component/Header';
 import { CategorySchemaType } from '../utils/types';
 import { getAllCategory } from '../services/index';
 
-import { ReactComponent as Play } from '../asset/svg/videoPlayer/play.svg';
+import { ReactComponent as PlayCircle } from '../asset/svg/videoPlayer/playCircle.svg';
 
 import '../styles/UploadVideoStyle.scss';
 
@@ -98,7 +98,7 @@ export default function PostFile() {
             <label htmlFor="displayPicture">
               {picturePreview ? <img src={picturePreview || undefined} alt="preview" /> : null}
               <div className="preview-play-div">
-                <Play className="svg-play" />
+                <PlayCircle className="svg-play" />
               </div>
             </label>
             <div className="video-preview-input-fields">

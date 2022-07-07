@@ -25,7 +25,7 @@ export type ReturnedVideoData = {
   title: string;
   episodeTitle: string | undefined;
   session: number | undefined;
-  episode: number | undefined;
+  episodeNr: number | undefined;
   seriesId: string | undefined;
   videoUrl: string;
   displayPicture: string;
