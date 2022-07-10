@@ -24,7 +24,7 @@ export type ReturnedVideoData = {
   isMovie: boolean;
   title: string;
   episodeTitle: string | undefined;
-  session: number | undefined;
+  sessionNr: number | undefined;
   episodeNr: number | undefined;
   seriesId: string | undefined;
   videoUrl: string;

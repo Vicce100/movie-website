@@ -15,9 +15,12 @@ import '../styles/VideoPlayerStyle.scss';
 export default function VideoPlayerScene() {
   const [videoData, setVideoData] = useState<ReturnedVideoData | null>(null);
   const [videoIsPlaying, setVideoIsPlaying] = useState<boolean>(false);
+  const [hoverOverVideo, setHoverOverVideo] = useState<boolean>(false);
 
   const videoContainer = useRef<HTMLDivElement | null>(null);
   const video = useRef<HTMLVideoElement | null>(null);
+  const middleControllerRef = useRef<HTMLButtonElement | null>(null);
+  const playButton = useRef<HTMLButtonElement | null>(null);
 
   const navigate = useNavigate();
   const { videoId } = useParams();
@@ -42,15 +45,6 @@ export default function VideoPlayerScene() {
     if (video.current.paused) video.current.play();
     else video.current.pause();
   }, [video]);
-
-  useEffect(() => () => video.current?.addEventListener('play', () => setVideoIsPlaying(true)), []);
-  useEffect(
-    () => () => video.current?.addEventListener('pause', () => setVideoIsPlaying(false)),
-    []
-  );
-
-  useEffect(() => video.current?.addEventListener('click', togglePlay), [togglePlay]);
-  useEffect(() => videoContainer.current?.addEventListener('click', togglePlay), [togglePlay]);
 
   const toggleFullScreenMode = useCallback(() => {
     if (!videoContainer.current) return;
@@ -171,7 +165,7 @@ export default function VideoPlayerScene() {
   );
 
   useEffect(() => {
-    document.addEventListener('keyup', keyPress);
+    document.addEventListener('keydown', keyPress);
     return () => document.removeEventListener('keydown', keyPress);
   }, [keyPress]);
 
@@ -183,7 +177,14 @@ export default function VideoPlayerScene() {
   return (
     <div className="video-container" ref={videoContainer}>
       {video.current && (
-        <div className="video-controls-container">
+        <div
+          onMouseOver={() => setHoverOverVideo(true)}
+          onFocus={() => setHoverOverVideo(true)}
+          onMouseOut={() => setHoverOverVideo(false)}
+          onBlur={() => setHoverOverVideo(false)}
+          className="video-controls-container"
+          style={{ opacity: video.current?.paused || hoverOverVideo ? 1 : 0 }}
+        >
           <div className="navigate-back-to-home">
             <button type="button" className="go-back" onClick={() => navigate(-1)}>
               <GoBack className="go-back-icon" />
@@ -195,14 +196,41 @@ export default function VideoPlayerScene() {
               )}
             </div>
           </div>
+          <button
+            type="button"
+            ref={middleControllerRef}
+            onClick={() => {
+              togglePlay();
+              middleControllerRef.current?.blur();
+              setHoverOverVideo(true);
+            }}
+            className="middle-controller"
+          >
+            <div />
+          </button>
           <div className="controls">
-            <button type="button" className="play-pause-button">
+            <button
+              ref={playButton}
+              type="button"
+              className="play-pause-button"
+              onClick={() => {
+                togglePlay();
+                playButton.current?.blur();
+              }}
+            >
               {renderPlayIcon()}
             </button>
           </div>
         </div>
       )}
-      <video ref={video} id="videoPlayer" width="650" autoPlay>
+      <video
+        ref={video}
+        id="videoPlayer"
+        width="650"
+        autoPlay
+        onPlay={() => setVideoIsPlaying(true)}
+        onPause={() => setVideoIsPlaying(false)}
+      >
         {videoId ? <source src={`${url}/video/${videoId}`} type="video/mp4" /> : null}
         <track kind="captions" src="assets/subtitles.vtt" />
       </video>
