@@ -9,6 +9,7 @@ import {
   getAllAvatars as allAvatarGet,
   getSingleVIdeoData as singleVIdeoDataGet,
   getVideoByCategory as videoByCategoryGet,
+  generateFFmpeg as ffmpegGenerate,
 } from './apiService';
 
 type LoginErrorType = { message: string; status: string; currentUser?: CurrentUserType | null };
@@ -64,6 +65,13 @@ export const getSingleVIdeoData = (videoId: string) =>
 
 export const getVideoByCategory = (categoryName: string) =>
   videoByCategoryGet(categoryName)
+    .then((res) => res)
+    .catch((error: AxiosError<LoginErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const generateFFmpeg = (videoId: string) =>
+  ffmpegGenerate(videoId)
     .then((res) => res)
     .catch((error: AxiosError<LoginErrorType>) => {
       throw new Error(error.response?.data.message);

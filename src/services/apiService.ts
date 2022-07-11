@@ -89,6 +89,13 @@ export const getVideoByCategory = (categoryName: string) =>
     path: `/video/data/category/${categoryName}`,
   });
 
+export const generateFFmpeg = (videoId: string) =>
+  getRequest<{ success: boolean }>({
+    host,
+    port,
+    path: `/video/ffmpeg/${videoId}`,
+  });
+
 export const checkAuth = () =>
   getRequest<{ isLoggedIn: false }>({ host, port, path: `/user/checkAuth` });
 

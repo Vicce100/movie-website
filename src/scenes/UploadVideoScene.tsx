@@ -183,9 +183,7 @@ export default function PostFile() {
               type="submit"
               className="submit-video-button"
               disabled={!!isUploading}
-              onClick={(e) => {
-                submitSingleUpload(e);
-              }}
+              onClick={submitSingleUpload}
             >
               {!isUploading ? <p>Submit</p> : <div className="submit-video-button-loader" />}
             </button>
