@@ -4,10 +4,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { usePageTitle } from '../hooks/index';
 import Header from '../component/Header';
-import { ReactComponent as Play } from '../svg/play.svg';
-import '../styles/UploadVideoStyle.scss';
 import { CategorySchemaType } from '../utils/types';
 import { getAllCategory } from '../services/index';
+
+import { ReactComponent as PlayCircle } from '../asset/svg/videoPlayer/playCircle.svg';
+
+import '../styles/UploadVideoStyle.scss';
 
 // create state for storing file in
 export default function PostFile() {
@@ -96,7 +98,7 @@ export default function PostFile() {
             <label htmlFor="displayPicture">
               {picturePreview ? <img src={picturePreview || undefined} alt="preview" /> : null}
               <div className="preview-play-div">
-                <Play className="svg-play" />
+                <PlayCircle className="svg-play" />
               </div>
             </label>
             <div className="video-preview-input-fields">
@@ -181,9 +183,7 @@ export default function PostFile() {
               type="submit"
               className="submit-video-button"
               disabled={!!isUploading}
-              onClick={(e) => {
-                submitSingleUpload(e);
-              }}
+              onClick={submitSingleUpload}
             >
               {!isUploading ? <p>Submit</p> : <div className="submit-video-button-loader" />}
             </button>

@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper';
 
+import { ReactComponent as Plus } from '../asset/svg/plus.svg';
+import { ReactComponent as Home } from '../asset/svg/home_white_36dp.svg';
+
 import {
   useCurrentUserContext,
   useSetActiveProfile,
@@ -15,10 +18,7 @@ import { getAllAvatars, getAllCategory } from '../services';
 import { useWindowDimensions, usePageTitle } from '../hooks/index';
 import { ReturnAvatarType, ProfileType } from '../utils/types';
 
-import { ReactComponent as Plus } from '../svg/plus.svg';
-import { ReactComponent as Home } from '../svg/home_white_36dp.svg';
 import '../styles/ProfileStyle.scss';
-
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/bundle';

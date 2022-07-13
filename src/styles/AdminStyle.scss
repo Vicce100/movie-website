@@ -640,5 +640,75 @@
         }
       }
     }
+    .ffmpeg-container {
+      height: 100%;
+      @include centerFlex;
+
+      form {
+        display: flex;
+        flex-direction: column;
+
+        label {
+          margin: 10px;
+        }
+        input {
+          width: 250px;
+          height: 30px;
+          border-radius: 12px;
+          padding: 5px 15px;
+          border: 1px solid rgba(150, 150, 150, 0.7);
+
+          &:focus {
+            outline: none;
+            border: none;
+            border: 1px solid rgba(25, 25, 25, 0.9);
+          }
+        }
+        button {
+          margin: 10px 0;
+          color: $white;
+          border-radius: 8px;
+          border: 1px solid rgba(200, 200, 200, 0.5);
+          background-color: rgba(59, 65, 84, 0.9);
+          transition: all 250ms;
+          cursor: pointer;
+
+          &:hover {
+            border: 1px solid rgba(200, 200, 200, 0.5);
+            box-shadow: 0 0 10px rgba(146, 134, 134, 0.762);
+          }
+          &:disabled {
+            cursor: not-allowed;
+          }
+
+          .submit-video-button-loader {
+            display: flex;
+            justify-content: center;
+
+            &::after {
+              content: '';
+              height: 16px;
+              width: 16px;
+              border: 10px solid #dddddd;
+              border-top-color: #009579;
+              border-radius: 50%;
+              transform: rotate(0.16turn);
+              animation: loading 1s cubic-bezier(0.7, 0.9, 0.9, 0.8) infinite;
+            }
+
+            @keyframes loading {
+              /* Safari support */
+              from {
+                transform: rotate(0turn);
+              }
+
+              to {
+                transform: rotate(1turn);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

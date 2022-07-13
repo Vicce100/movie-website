@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/userService';
 // import { useWindowDimensions } from '../hooks';
-import '../styles/LoginStyle.scss';
 import { useSetCurrentUser } from '../contexts/UserAuth';
+
+import '../styles/LoginStyle.scss';
 
 const Login = () => {
   const [email, setEmail] = useState<string | null>(null);

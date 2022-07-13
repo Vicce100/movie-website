@@ -1,6 +1,7 @@
 import React, { useState, useCallback, FormEvent } from 'react';
 import { v4 as uuidV4 } from 'uuid';
 import { uploadMultipleCategory } from '../services/index';
+
 import '../styles/AdminStyle.scss';
 
 export default function AddCategories() {
