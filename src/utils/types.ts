@@ -22,6 +22,7 @@ export type ReturnedVideoDataByCategory = {
 export type ReturnedVideoData = {
   _id: string;
   isMovie: boolean;
+  previewImagesUrl: string[];
   title: string;
   episodeTitle: string | undefined;
   sessionNr: number | undefined;
