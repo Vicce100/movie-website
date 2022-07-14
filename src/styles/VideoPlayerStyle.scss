@@ -49,6 +49,7 @@
 
       .title-div {
         margin-left: 20px;
+        user-select: none;
 
         .title {
           font-size: 28px;
@@ -144,11 +145,14 @@
           .duration-container {
             @include centerFlex;
             cursor: default;
+            user-select: none;
             flex-direction: row;
-            .current-time {
-            }
-            .total-time {
-            }
+            // .current-time {
+            //   user-select: none;
+            // }
+            // .total-time {
+            //   user-select: none;
+            // }
           }
           .fullscreen-button {
             width: 36px;
@@ -202,7 +206,7 @@
         box-shadow: none;
         border-radius: 28px;
 
-        &:hover .timeline .preview-img {
+        &:hover .timeline .preview-img-div {
           display: block;
         }
         &:hover .timeline {
@@ -244,16 +248,27 @@
             background-color: red;
           }
 
-          .preview-img {
+          .preview-img-div {
             position: absolute;
-            height: 80px;
-            aspect-ratio: 16 / 9;
-            top: -1rem;
+            top: -0.8rem;
             transform: translate(-50%, -100%);
             left: calc(var(--preview-position) * 100%);
-            border-radius: 0.25rem;
-            border: 1px solid rgba(180, 180, 180, 0.5);
+            background-color: rgb(40, 40, 40);
+            box-shadow: 0 0 10px rgba(10, 10, 10, 0.8);
             display: none;
+            img {
+              border: 1px solid rgba(100, 100, 100, 0.5);
+              border-bottom: none;
+              aspect-ratio: 16 / 9;
+              height: 120px;
+              width: 100%;
+              border-radius: 0.25rem;
+            }
+            .preview-image-duration {
+              width: 100%;
+              border-radius: 0.25rem;
+              background-color: rgb(40, 40, 40);
+            }
           }
           .thumb-indicator {
             --scale: 0;

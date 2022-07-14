@@ -31,6 +31,7 @@ export default function VideoPlayerScene() {
   const [videoCurrentTime, setVideoCurrentTime] = useState<number>(0);
   const [isScrubbing, setIsScrubbing] = useState<boolean>(false);
   const [previewImageIndex, setPreviewImageIndex] = useState<number>(0);
+  const [previewImageDuration, setPreviewImageDuration] = useState<number>(0);
 
   const videoContainer = useRef<HTMLDivElement | null>(null);
   const video = useRef<HTMLVideoElement | null>(null);
@@ -236,6 +237,7 @@ export default function VideoPlayerScene() {
       if (!timelineContainer.current || !video.current) return;
       const rect = timelineContainer.current.getBoundingClientRect();
       const percent = Math.min(Math.max(0, e.clientX - rect.x), rect.width) / rect.width;
+      setPreviewImageDuration(percent * video.current.duration);
       setPreviewImageIndex(Math.max(1, Math.floor((percent * video.current.duration) / 10)));
       timelineContainer.current.style.setProperty('--preview-position', String(percent));
 
@@ -331,13 +333,13 @@ export default function VideoPlayerScene() {
             <div className="main-controls">
               <div className="main-controls-section">
                 <div className="duration-container" ref={durationContainer}>
-                  <div className="current-time">
+                  <p className="current-time">
                     {videoCurrentTime ? formatDuration(videoCurrentTime) : '0:00'}
-                  </div>
-                  <div>/</div>
-                  <div className="total-time" ref={totalTimeRef}>
+                  </p>
+                  <p>/</p>
+                  <p className="total-time" ref={totalTimeRef}>
                     {formatDuration(videoDuration)}
-                  </div>
+                  </p>
                 </div>
                 <div className="volume-container">
                   <button type="button" className="volume-button" onClick={toggleMute}>
@@ -422,12 +424,14 @@ export default function VideoPlayerScene() {
               onMouseDown={toggleScrubbing}
             >
               <div className="timeline">
-                <img
-                  className="preview-img"
-                  ref={previewImageRef}
-                  src={videoData ? videoData.previewImagesUrl[previewImageIndex] : '*'}
-                  alt={videoData ? videoData.previewImagesUrl[previewImageIndex] : '*'}
-                />
+                <div className="preview-img-div">
+                  <img
+                    ref={previewImageRef}
+                    src={videoData ? videoData.previewImagesUrl[previewImageIndex] : '*'}
+                    alt={videoData ? videoData.previewImagesUrl[previewImageIndex] : '*'}
+                  />
+                  <h4 className="preview-image-duration">{formatDuration(previewImageDuration)}</h4>
+                </div>
                 <div className="thumb-indicator" />
               </div>
             </button>
