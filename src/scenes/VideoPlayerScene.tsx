@@ -41,7 +41,8 @@ export default function VideoPlayerScene() {
   const durationContainer = useRef<HTMLDivElement | null>(null);
   const timelineContainer = useRef<HTMLButtonElement | null>(null);
   const previewImageRef = useRef<HTMLImageElement | null>(null);
-  const skipButtonRef = useRef<HTMLButtonElement | null>(null);
+  const skipBackwardButtonRef = useRef<HTMLButtonElement | null>(null);
+  const skipForwardButtonRef = useRef<HTMLButtonElement | null>(null);
   const mouseMoveRef = useRef<NodeJS.Timeout | null>(null);
 
   const navigate = useNavigate();
@@ -119,13 +120,23 @@ export default function VideoPlayerScene() {
     [video]
   );
 
+  const onMouseInactivity = useCallback(() => {
+    if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
+    mouseMoveRef.current = setTimeout(() => setHoverOverVideo(false), 3000);
+  }, []);
+
   const keyPress = useCallback(
     (e: KeyboardEvent) => {
       if (document.activeElement?.tagName.toLowerCase() === 'input') return;
       if (document.activeElement?.tagName.toLowerCase() === 'button') return;
+      setHoverOverVideo(true);
+      onMouseInactivity();
       switch (e.key.toLowerCase()) {
         case ' ': // a space should be the space key
-          if (document.activeElement?.tagName.toLowerCase() === 'button') return;
+          if (document.activeElement?.tagName.toLowerCase() === 'button') {
+            if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
+            return;
+          }
           togglePlay();
           break;
         case 'k':
@@ -133,12 +144,6 @@ export default function VideoPlayerScene() {
           break;
         case 'f':
           toggleFullScreenMode();
-          break;
-        case 't':
-          // toggleTheaterMode();
-          break;
-        case 'i':
-          // toggleMiniPlayerMode();
           break;
         case 'm':
           toggleMute();
@@ -157,6 +162,7 @@ export default function VideoPlayerScene() {
           break;
         case 'c':
           // toggleCaptions();
+          if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
           break;
         case '1':
           skipTo(0.1);
@@ -189,10 +195,20 @@ export default function VideoPlayerScene() {
           skipTo(0.0);
           break;
         default:
+          if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
           break;
       }
     },
-    [decreaseVolume, increaseVolume, skip, skipTo, toggleFullScreenMode, toggleMute, togglePlay]
+    [
+      decreaseVolume,
+      increaseVolume,
+      onMouseInactivity,
+      skip,
+      skipTo,
+      toggleFullScreenMode,
+      toggleMute,
+      togglePlay,
+    ]
   );
 
   useEffect(() => {
@@ -280,20 +296,13 @@ export default function VideoPlayerScene() {
       {video.current && (
         <div
           onMouseMove={() => {
-            if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
             setHoverOverVideo(true);
-            mouseMoveRef.current = setTimeout(() => setHoverOverVideo(false), 5000);
+            onMouseInactivity();
           }}
           // onMouseOver={() => setHoverOverVideo(true)}
           onFocus={() => setHoverOverVideo(true)}
-          onMouseLeave={() => {
-            setHoverOverVideo(false);
-            if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
-          }}
-          onBlur={() => {
-            setHoverOverVideo(false);
-            if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
-          }}
+          onMouseLeave={onMouseInactivity}
+          onBlur={onMouseInactivity}
           className="video-controls-container"
           style={{ opacity: video.current?.paused || hoverOverVideo ? 1 : 0 }}
         >
@@ -352,12 +361,12 @@ export default function VideoPlayerScene() {
               </div>
               <div className="main-controls-section">
                 <button
-                  ref={skipButtonRef}
+                  ref={skipForwardButtonRef}
                   className="skip-button"
                   type="button"
                   onClick={() => {
                     skip(-10);
-                    skipButtonRef.current?.blur();
+                    skipForwardButtonRef.current?.blur();
                   }}
                 >
                   <SkipBackward className="skip-icon-button" />
@@ -375,12 +384,12 @@ export default function VideoPlayerScene() {
                   {renderPlayIcon()}
                 </button>
                 <button
-                  ref={skipButtonRef}
+                  ref={skipBackwardButtonRef}
                   className="skip-button"
                   type="button"
                   onClick={() => {
                     skip(10);
-                    skipButtonRef.current?.blur();
+                    skipBackwardButtonRef.current?.blur();
                     setHoverOverVideo(true);
                   }}
                 >
