@@ -96,6 +96,13 @@ export const generateFFmpeg = (videoId: string) =>
     path: `/video/ffmpeg/${videoId}`,
   });
 
+export const removeFFmpeg = (videoId: string) =>
+  getRequest<{ success: boolean }>({
+    host,
+    port,
+    path: `/video/ffmpeg/remove/${videoId}`,
+  });
+
 export const checkAuth = () =>
   getRequest<{ isLoggedIn: false }>({ host, port, path: `/user/checkAuth` });
 

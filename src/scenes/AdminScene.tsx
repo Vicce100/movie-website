@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { generateFFmpeg } from '../services/index';
+import { generateFFmpeg, removeFFmpeg as fetchRemoveFFmpeg } from '../services/index';
 import { usePageTitle } from '../hooks/index';
 import AddAvatar from '../component/AddAvatar';
 import AddCategories from '../component/AddCategories';
@@ -15,6 +15,7 @@ export default function AdminScene() {
   const [showAddAvatar, setShowAddAvatar] = useState<boolean>(false);
   const [showVideo, setShowVideo] = useState<boolean>(false);
   const [showFFmpeg, setShowFFmpeg] = useState<boolean>(false);
+  const [showRemoveFFmpeg, setShowRemoveFFmpeg] = useState<boolean>(false);
   const [showAddUser, setShowAddUser] = useState<boolean>(false);
 
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -69,6 +70,53 @@ export default function AdminScene() {
     [isUploading]
   );
 
+  const removeFFmpeg = useCallback(
+    () => (
+      <div className="ffmpeg-container">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!ffmpegVideoIdRef.current?.value) return;
+            setIsUploading(true);
+            fetchRemoveFFmpeg(ffmpegVideoIdRef.current.value)
+              .finally(() => setIsUploading(false))
+              .then(({ data }) => {
+                if (data.success && ffmpegVideoIdRef.current?.value)
+                  ffmpegVideoIdRef.current.value = '';
+              });
+          }}
+        >
+          <label htmlFor="ffmpegForm">Video Id</label>
+          <input
+            type="text"
+            name="ffmpeg"
+            id="ffmpegForm"
+            placeholder="Video Id"
+            ref={ffmpegVideoIdRef}
+          />
+          <button type="submit" disabled={!!isUploading}>
+            {!isUploading ? <p>Submit</p> : <div className="submit-video-button-loader" />}
+          </button>
+        </form>
+      </div>
+    ),
+    [isUploading]
+  );
+
+  const selectField = useCallback(
+    // eslint-disable-next-line no-unused-vars
+    (setValue: (value: React.SetStateAction<boolean>) => void, value: boolean) => {
+      setShowRemoveFFmpeg(false);
+      setShowFFmpeg(false);
+      setShowAddUser(false);
+      setShowAddAvatar(false);
+      setShowVideo(false);
+      setShowAddCategories(false);
+      setValue(!value);
+    },
+    []
+  );
+
   return (
     <div className="admin-container">
       <div className="options-menu">
@@ -81,82 +129,50 @@ export default function AdminScene() {
           <h3 className="options-box-heading">Go To Home</h3>
         </button>
         <button
-          style={{
-            border: showAddCategories ? '1px solid #fff' : 'none',
-          }}
+          style={{ border: showAddCategories ? '1px solid #fff' : 'none' }}
           type="button"
           className="options-button-box"
-          onClick={() => {
-            setShowAddCategories(!showAddCategories);
-            setShowAddUser(false);
-            setShowVideo(false);
-            setShowAddAvatar(false);
-            setShowFFmpeg(false);
-          }}
+          onClick={() => selectField(setShowAddCategories, showAddCategories)}
         >
           <h3 className="options-box-heading">Add categories</h3>
         </button>
         <button
-          style={{
-            border: showAddAvatar ? '1px solid #fff' : 'none',
-          }}
+          style={{ border: showAddAvatar ? '1px solid #fff' : 'none' }}
           type="button"
           className="options-button-box"
-          onClick={() => {
-            setShowAddAvatar(!showAddAvatar);
-            setShowAddUser(false);
-            setShowVideo(false);
-            setShowAddCategories(false);
-            setShowFFmpeg(false);
-          }}
+          onClick={() => selectField(setShowAddAvatar, showAddAvatar)}
         >
           <h3 className="options-box-heading">Add Avatars</h3>
         </button>
         <button
-          style={{
-            border: showVideo ? '1px solid #fff' : 'none',
-          }}
+          style={{ border: showVideo ? '1px solid #fff' : 'none' }}
           type="button"
           className="options-button-box"
-          onClick={() => {
-            setShowVideo(!showVideo);
-            setShowAddUser(false);
-            setShowAddAvatar(false);
-            setShowAddCategories(false);
-            setShowFFmpeg(false);
-          }}
+          onClick={() => selectField(setShowVideo, showVideo)}
         >
           <h3 className="options-box-heading">Add Video</h3>
         </button>
         <button
-          style={{
-            border: showFFmpeg ? '1px solid #fff' : 'none',
-          }}
+          style={{ border: showFFmpeg ? '1px solid #fff' : 'none' }}
           type="button"
           className="options-button-box"
-          onClick={() => {
-            setShowFFmpeg(!showFFmpeg);
-            setShowAddUser(false);
-            setShowAddAvatar(false);
-            setShowVideo(false);
-            setShowAddCategories(false);
-          }}
+          onClick={() => selectField(setShowFFmpeg, showFFmpeg)}
         >
           <h3 className="options-box-heading">Add ffmpeg to video</h3>
         </button>
         <button
-          style={{
-            border: showAddUser ? '1px solid #fff' : 'none',
-          }}
+          style={{ border: showRemoveFFmpeg ? '1px solid #fff' : 'none' }}
           type="button"
           className="options-button-box"
-          onClick={() => {
-            setShowAddUser(!showAddUser);
-            setShowAddAvatar(false);
-            setShowVideo(false);
-            setShowAddCategories(false);
-            setShowFFmpeg(false);
-          }}
+          onClick={() => selectField(setShowRemoveFFmpeg, showRemoveFFmpeg)}
+        >
+          <h3 className="options-box-heading">Add ffmpeg to video</h3>
+        </button>
+        <button
+          style={{ border: showAddUser ? '1px solid #fff' : 'none' }}
+          type="button"
+          className="options-button-box"
+          onClick={() => selectField(setShowAddUser, showAddUser)}
         >
           <h3 className="options-box-heading">Add User</h3>
         </button>
@@ -167,6 +183,7 @@ export default function AdminScene() {
         {/* {showVideo && <AddVideo />} */}
         {/* {showAddUser && <AddUser />} */}
         {showFFmpeg && addFFmpeg()}
+        {showRemoveFFmpeg && removeFFmpeg()}
       </div>
     </div>
   );

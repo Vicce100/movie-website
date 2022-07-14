@@ -58,7 +58,6 @@ export default function PostFile() {
           await fetch('http://localhost:5050/video/upload/singe/public', options)
         ).json();
         console.log(await res);
-        setIsUploading(false);
         setVideoFile(null);
         setDisplayPicture(null);
         setPicturePreview(undefined);
@@ -68,8 +67,8 @@ export default function PostFile() {
         setDescription('');
       } catch (error) {
         console.log(error);
-        setIsUploading(false);
       }
+      setIsUploading(false);
     },
     [videoFile, displayPicture, uploadReleaseDate, title, description, categories]
   );
