@@ -14,6 +14,8 @@ import { ReactComponent as VolumeLow } from '../asset/svg/videoPlayer/volumeLow.
 import { ReactComponent as VolumeMuted } from '../asset/svg/videoPlayer/volumeMuted.svg';
 import { ReactComponent as OpenFullScreen } from '../asset/svg/videoPlayer/openFullScreen.svg';
 import { ReactComponent as CloseFullScreen } from '../asset/svg/videoPlayer/closeFullScreen.svg';
+import { ReactComponent as SkipBackward } from '../asset/svg/videoPlayer/skipBackward.svg';
+import { ReactComponent as SkipForward } from '../asset/svg/videoPlayer/skipForward.svg';
 
 import '../styles/VideoPlayerStyle.scss';
 
@@ -39,6 +41,8 @@ export default function VideoPlayerScene() {
   const durationContainer = useRef<HTMLDivElement | null>(null);
   const timelineContainer = useRef<HTMLButtonElement | null>(null);
   const previewImageRef = useRef<HTMLImageElement | null>(null);
+  const skipButtonRef = useRef<HTMLButtonElement | null>(null);
+  const mouseMoveRef = useRef<NodeJS.Timeout | null>(null);
 
   const navigate = useNavigate();
   const { videoId } = useParams();
@@ -140,10 +144,10 @@ export default function VideoPlayerScene() {
           toggleMute();
           break;
         case 'arrowleft':
-          skip(-5);
+          skip(-10);
           break;
         case 'arrowright':
-          skip(5);
+          skip(10);
           break;
         case 'arrowup':
           increaseVolume();
@@ -275,10 +279,21 @@ export default function VideoPlayerScene() {
     <div className="video-container" ref={videoContainer}>
       {video.current && (
         <div
-          onMouseOver={() => setHoverOverVideo(true)}
+          onMouseMove={() => {
+            if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
+            setHoverOverVideo(true);
+            mouseMoveRef.current = setTimeout(() => setHoverOverVideo(false), 5000);
+          }}
+          // onMouseOver={() => setHoverOverVideo(true)}
           onFocus={() => setHoverOverVideo(true)}
-          onMouseOut={() => setHoverOverVideo(false)}
-          onBlur={() => setHoverOverVideo(false)}
+          onMouseLeave={() => {
+            setHoverOverVideo(false);
+            if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
+          }}
+          onBlur={() => {
+            setHoverOverVideo(false);
+            if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
+          }}
           className="video-controls-container"
           style={{ opacity: video.current?.paused || hoverOverVideo ? 1 : 0 }}
         >
@@ -305,57 +320,86 @@ export default function VideoPlayerScene() {
           </button>
           <div className="controls">
             <div className="main-controls">
-              <button
-                ref={playButton}
-                type="button"
-                className="play-pause-button"
-                onClick={() => {
-                  togglePlay();
-                  playButton.current?.blur();
-                }}
-              >
-                {renderPlayIcon()}
-              </button>
-              <div className="volume-container">
-                <button type="button" className="volume-button" onClick={toggleMute}>
-                  {renderVolumeIcon()}
-                </button>
-                <input
-                  className="volume-slider"
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="any"
-                  onChange={(e) => {
-                    if (Number(e.target.value) <= 0.001) toggleMute();
-                    else if (video.current?.muted === true) video.current.muted = false;
-                    if (video.current) video.current.volume = Number(e.target.value);
-                    setVolumeCount(Number(e.target.value) <= 0.001 ? 0 : Number(e.target.value));
+              <div className="main-controls-section">
+                <div className="duration-container" ref={durationContainer}>
+                  <div className="current-time">
+                    {videoCurrentTime ? formatDuration(videoCurrentTime) : '0:00'}
+                  </div>
+                  <div>/</div>
+                  <div className="total-time" ref={totalTimeRef}>
+                    {formatDuration(videoDuration)}
+                  </div>
+                </div>
+                <div className="volume-container">
+                  <button type="button" className="volume-button" onClick={toggleMute}>
+                    {renderVolumeIcon()}
+                  </button>
+                  <input
+                    className="volume-slider"
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="any"
+                    onChange={(e) => {
+                      if (Number(e.target.value) <= 0.001) toggleMute();
+                      else if (video.current?.muted === true) video.current.muted = false;
+                      if (video.current) video.current.volume = Number(e.target.value);
+                      setVolumeCount(Number(e.target.value) <= 0.001 ? 0 : Number(e.target.value));
+                    }}
+                    value={volumeCount}
+                  />
+                </div>
+              </div>
+              <div className="main-controls-section">
+                <button
+                  ref={skipButtonRef}
+                  className="skip-button"
+                  type="button"
+                  onClick={() => {
+                    skip(-10);
+                    skipButtonRef.current?.blur();
                   }}
-                  value={volumeCount}
-                />
+                >
+                  <SkipBackward className="skip-icon-button" />
+                </button>
+                <button
+                  ref={playButton}
+                  type="button"
+                  className="play-pause-button"
+                  onClick={() => {
+                    togglePlay();
+                    playButton.current?.blur();
+                    setHoverOverVideo(true);
+                  }}
+                >
+                  {renderPlayIcon()}
+                </button>
+                <button
+                  ref={skipButtonRef}
+                  className="skip-button"
+                  type="button"
+                  onClick={() => {
+                    skip(10);
+                    skipButtonRef.current?.blur();
+                    setHoverOverVideo(true);
+                  }}
+                >
+                  <SkipForward className="skip-icon-button" />
+                </button>
               </div>
-
-              <div className="duration-container" ref={durationContainer}>
-                <div className="current-time">
-                  {videoCurrentTime ? formatDuration(videoCurrentTime) : '0:00'}
-                </div>
-                <div>/</div>
-                <div className="total-time" ref={totalTimeRef}>
-                  {formatDuration(videoDuration)}
-                </div>
+              <div className="main-controls-section fullscreen-section">
+                <button
+                  ref={fullscreenButton}
+                  type="button"
+                  className="fullscreen-button"
+                  onClick={() => {
+                    toggleFullScreenMode();
+                    fullscreenButton.current?.blur();
+                  }}
+                >
+                  {renderFullscreenIcon()}
+                </button>
               </div>
-              <button
-                ref={fullscreenButton}
-                type="button"
-                className="fullscreen-button"
-                onClick={() => {
-                  toggleFullScreenMode();
-                  fullscreenButton.current?.blur();
-                }}
-              >
-                {renderFullscreenIcon()}
-              </button>
             </div>
             <button
               type="button"
