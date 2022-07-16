@@ -137,7 +137,6 @@
               display: none;
               transition: all 250ms;
               cursor: pointer;
-              background-color: #b00b00;
               border: 1px solid rgb(255, 255, 255);
               margin: 15px 20px 15px 0;
             }
@@ -261,7 +260,7 @@
               border-bottom: none;
               aspect-ratio: 16 / 9;
               height: 120px;
-              width: 100%;
+              width: 100%; // this scales .preview-img-div to the right border
               border-radius: 0.25rem;
             }
             .preview-image-duration {

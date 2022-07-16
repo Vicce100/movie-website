@@ -54,6 +54,24 @@ export const usePageTitle = () => {
   return { setPageTitle };
 };
 
+export const useFormateTime = () => {
+  const formateTimeFromMilliseconds = useCallback((timeInMilliseconds: number) => {
+    const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
+      minimumIntegerDigits: 2,
+    });
+
+    const seconds = Math.floor(timeInMilliseconds % 60);
+    const minutes = Math.floor(timeInMilliseconds / 60) % 60;
+    const hours = Math.floor(timeInMilliseconds / 3600);
+    if (hours === 0) return `${minutes}:${leadingZeroFormatter.format(seconds)}`;
+
+    return `${hours}:${leadingZeroFormatter.format(minutes)}:${leadingZeroFormatter.format(
+      seconds
+    )}`;
+  }, []);
+  return { formateTime: formateTimeFromMilliseconds };
+};
+
 export const useAsync = (callback: () => Promise<unknown>, dependencies: unknown[] = []) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<unknown>(null);

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getSingleVIdeoData } from '../services/index';
 import { url } from '../services/apiService';
 import { ReturnedVideoData } from '../utils/types';
-import { usePageTitle } from '../hooks';
+import { usePageTitle, useFormateTime } from '../hooks';
 
 import { ReactComponent as PlayIcon } from '../asset/svg/videoPlayer/play.svg';
 import { ReactComponent as PauseIcon } from '../asset/svg/videoPlayer/pause.svg';
@@ -49,6 +49,7 @@ export default function VideoPlayerScene() {
   const navigate = useNavigate();
   const { videoId } = useParams();
   const { setPageTitle } = usePageTitle();
+  const { formateTime } = useFormateTime();
 
   useEffect(() => setPageTitle('video player'), [setPageTitle]);
 
@@ -217,21 +218,6 @@ export default function VideoPlayerScene() {
     return () => document.removeEventListener('keydown', keyPress);
   }, [keyPress]);
 
-  const formatDuration = useCallback((time) => {
-    const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
-      minimumIntegerDigits: 2,
-    });
-
-    const seconds = Math.floor(time % 60);
-    const minutes = Math.floor(time / 60) % 60;
-    const hours = Math.floor(time / 3600);
-    if (hours === 0) return `${minutes}:${leadingZeroFormatter.format(seconds)}`;
-
-    return `${hours}:${leadingZeroFormatter.format(minutes)}:${leadingZeroFormatter.format(
-      seconds
-    )}`;
-  }, []);
-
   const handleTimelineUpdate = useCallback(
     (e: MouseEvent | React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       if (!timelineContainer.current || !video.current) return;
@@ -326,6 +312,7 @@ export default function VideoPlayerScene() {
               setHoverOverVideo(true);
             }}
             className="middle-controller"
+            style={{ cursor: hoverOverVideo ? 'default' : 'none' }}
           >
             <div />
           </button>
@@ -334,11 +321,11 @@ export default function VideoPlayerScene() {
               <div className="main-controls-section">
                 <div className="duration-container" ref={durationContainer}>
                   <p className="current-time">
-                    {videoCurrentTime ? formatDuration(videoCurrentTime) : '0:00'}
+                    {videoCurrentTime ? formateTime(videoCurrentTime) : '0:00'}
                   </p>
                   <p>/</p>
                   <p className="total-time" ref={totalTimeRef}>
-                    {formatDuration(videoDuration)}
+                    {formateTime(videoDuration)}
                   </p>
                 </div>
                 <div className="volume-container">
@@ -430,7 +417,7 @@ export default function VideoPlayerScene() {
                     src={videoData ? videoData.previewImagesUrl[previewImageIndex] : '*'}
                     alt={videoData ? videoData.previewImagesUrl[previewImageIndex] : '*'}
                   />
-                  <h4 className="preview-image-duration">{formatDuration(previewImageDuration)}</h4>
+                  <h4 className="preview-image-duration">{formateTime(previewImageDuration)}</h4>
                 </div>
                 <div className="thumb-indicator" />
               </div>
