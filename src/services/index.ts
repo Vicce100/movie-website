@@ -10,6 +10,7 @@ import {
   getVideoByCategory as videoByCategoryGet,
   generateFFmpeg as ffmpegGenerate,
   removeFFmpeg as ffmpegRemove,
+  addView as viewAdd,
 } from './apiService';
 
 type ErrorType = { message: string; status: string };
@@ -79,6 +80,13 @@ export const generateFFmpeg = (videoId: string) =>
 
 export const removeFFmpeg = (videoId: string) =>
   ffmpegRemove(videoId)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const addView = (data: { videoId: string; isMovie: boolean }) =>
+  viewAdd(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);

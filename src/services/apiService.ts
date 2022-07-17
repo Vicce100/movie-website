@@ -108,3 +108,6 @@ export const checkAuth = () =>
 
 export const checkAuthRole = (roleType: UsersRolesType) =>
   getRequest<{ access: boolean }>({ host, port, path: `/user/checkAuth/${roleType}` });
+
+export const addView = (data: { videoId: string; isMovie: boolean }) =>
+  postRequest<{ success: true }>({ host, port, path: '/video/addView' }, data);

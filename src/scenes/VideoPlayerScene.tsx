@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import { getSingleVIdeoData } from '../services/index';
+import { getSingleVIdeoData, addView } from '../services/index';
 import { url } from '../services/apiService';
 import { ReturnedVideoData } from '../utils/types';
 import { usePageTitle, useFormateTime } from '../hooks';
@@ -32,6 +32,7 @@ export default function VideoPlayerScene() {
   const [isScrubbing, setIsScrubbing] = useState<boolean>(false);
   const [previewImageIndex, setPreviewImageIndex] = useState<number>(0);
   const [previewImageDuration, setPreviewImageDuration] = useState<number>(0);
+  const [watchTime, setWatchTime] = useState<number>(0);
 
   const videoContainer = useRef<HTMLDivElement | null>(null);
   const video = useRef<HTMLVideoElement | null>(null);
@@ -45,6 +46,7 @@ export default function VideoPlayerScene() {
   const skipBackwardButtonRef = useRef<HTMLButtonElement | null>(null);
   const skipForwardButtonRef = useRef<HTMLButtonElement | null>(null);
   const mouseMoveRef = useRef<NodeJS.Timeout | null>(null);
+  const watchTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const navigate = useNavigate();
   const { videoId } = useParams();
@@ -65,6 +67,31 @@ export default function VideoPlayerScene() {
     fetchVideoData();
   }, [videoId]);
 
+  const startWatchTimer = useCallback(() => {
+    let i = watchTime;
+    watchTimerRef.current = setInterval(() => {
+      i += 1;
+      setWatchTime(i);
+    }, 1000);
+  }, [watchTime]);
+
+  useEffect(
+    () => () => startWatchTimer(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  useEffect(() => {
+    (() => {
+      if (watchTime >= 120 && videoData) {
+        const { _id, isMovie } = videoData;
+        if (watchTimerRef.current) clearInterval(watchTimerRef.current);
+        // const response = (await addView({ videoId: _id, isMovie })).data;
+        addView({ videoId: _id, isMovie });
+      }
+    })();
+  }, [videoData, watchTime]);
+
   useEffect(
     () => () =>
       document.addEventListener('fullscreenchange', () =>
@@ -75,9 +102,14 @@ export default function VideoPlayerScene() {
 
   const togglePlay = useCallback(() => {
     if (!video.current) return;
-    if (video.current.paused) video.current.play();
-    else video.current.pause();
-  }, [video]);
+    if (video.current.paused) {
+      video.current.play();
+      if (watchTime <= 120) startWatchTimer();
+    } else {
+      video.current.pause();
+      if (watchTimerRef.current) clearInterval(watchTimerRef.current);
+    }
+  }, [startWatchTimer, watchTime]);
 
   const toggleFullScreenMode = useCallback(() => {
     if (!videoContainer.current) return;
@@ -295,7 +327,14 @@ export default function VideoPlayerScene() {
           style={{ opacity: video.current?.paused || hoverOverVideo ? 1 : 0 }}
         >
           <div className="navigate-back-to-home">
-            <button type="button" className="go-back" onClick={() => navigate(-1)}>
+            <button
+              type="button"
+              className="go-back"
+              onClick={() => {
+                navigate(-1);
+                // if (watchTimerRef.current) clearInterval(watchTimerRef.current);
+              }}
+            >
               <GoBack className="go-back-icon" />
             </button>
             <div className="title-div">
