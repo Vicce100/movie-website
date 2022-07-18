@@ -90,7 +90,8 @@ export default function VideoPlayerScene() {
         addView({ videoId: _id, isMovie });
       }
     })();
-  }, [videoData, watchTime]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchTime]);
 
   useEffect(
     () => () =>

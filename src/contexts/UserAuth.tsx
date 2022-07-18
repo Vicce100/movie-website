@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useMemo, useContext, useCallback } from 'react';
+import React, { useState, useMemo, useContext, useCallback, useEffect } from 'react';
 import { useLocalStorage, useSessionStorage } from '../hooks/index';
-import { CurrentUserType, ActiveProfileType } from '../utils/types';
+import { CurrentUserType, ActiveProfileType, ProfileType } from '../utils/types';
 
 export interface TempActiveProfileType {
   activeProfile: ActiveProfileType | null;
@@ -83,6 +83,17 @@ export function UserAuth({ children }: { children?: React.ReactNode }): JSX.Elem
     },
     [removeSessionStorage, setSessionStorage]
   );
+
+  useEffect(() => {
+    if (currentUser && activeProfile) {
+      updateActiveProfile(
+        currentUser.currentUser.profiles.fund(
+          ({ _id }: { _id: string }) => _id === activeProfile._id
+        )
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
 
   return (
     <UserContext.Provider value={authState}>

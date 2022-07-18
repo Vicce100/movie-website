@@ -75,6 +75,8 @@ export type ProfileType = {
   _id: string;
   profileName: string;
   avatarURL: string;
+  savedList: string;
+  hasWatch: string;
 }[];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
