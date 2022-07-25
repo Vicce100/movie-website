@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useCurrentUserContext, useProfileContext } from '../contexts/UserAuth';
-import { userRole } from '../utils/types';
+import { userRoles } from '../utils/types';
 import Login from '../scenes/Login';
 import SignUp from '../scenes/SignUp';
 import HomeScene from '../scenes/HomeScene';
@@ -28,11 +28,11 @@ function Router() {
               <Route path="/" element={<HomeScene />} />
               <Route path="/home" element={<Navigate replace to="/" />} />
               <Route path="/upload/video" element={<UploadVideo />} />
-              <Route path="/player/:videoId" element={<VideoPlayerScene />} />
+              <Route path="/player/:videoId" element={<VideoPlayerScene isMovie />} />
             </Fragment>
           )}
           <Route path="/Profile" element={<ProfileScene />} />
-          {currentUser.role === (userRole.admin || userRole.superAdmin) && (
+          {currentUser.role === (userRoles.admin || userRoles.superAdmin) && (
             <Route path="/Admin" element={<AdminScene />} />
           )}
           {/* <Route path="*" element={<ErrorPage />} /> */}

@@ -8,8 +8,9 @@ import { ReactComponent as Plus } from '../asset/svg/plus.svg';
 
 import { usePageTitle, useWindowDimensions } from '../hooks/index';
 import Header from '../component/Header';
-import { getAllCategory, getVideoByCategory } from '../services';
-import { CategorySchemaType, ReturnedVideoDataByCategory } from '../utils/types';
+import { getAllCategory } from '../services';
+import { getMovieByCategory, getSeriesByCategory } from '../services/videoService';
+import { CategorySchemaType, MovieSchemaType, SeriesSchemaType } from '../utils/types';
 
 import '../styles/HomeSceneStyle.scss';
 
@@ -19,7 +20,7 @@ import 'swiper/css/bundle';
 
 export default function HomeScene() {
   const [allCategories, setAllCategories] = useState<CategorySchemaType[] | null>(null);
-  const [actionCategory, setActionCategory] = useState<ReturnedVideoDataByCategory | null>(null);
+  const [actionCategory, setActionCategory] = useState<MovieSchemaType[] | null>(null);
 
   const navigate = useNavigate();
   const { width } = useWindowDimensions();
@@ -38,7 +39,7 @@ export default function HomeScene() {
   useEffect(() => {
     const name = allCategories?.find((category) => category.name === 'Action')?.name;
     if (!name) return;
-    getVideoByCategory(name)
+    getMovieByCategory({ categoryName1: name })
       .then((res) => (res.status === 200 ? setActionCategory(res.data) : null))
       .catch((e) => console.log(e));
   }, [allCategories]);
@@ -86,7 +87,7 @@ export default function HomeScene() {
                     <button
                       type="button"
                       className="single-video-element"
-                      onClick={() => navigate(`/player/${movie._id}`)}
+                      onClick={() => navigate(`/player/${movie._id}`, { state: { isMovie: true } })}
                     >
                       <img className="avatar-img" src={movie.displayPicture} alt={movie.title} />
                     </button>

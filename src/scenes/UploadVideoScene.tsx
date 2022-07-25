@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -190,6 +189,7 @@ export default function PostFile() {
         </form>
       </div>
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       submitSingleUpload,
       uploadReleaseDate,

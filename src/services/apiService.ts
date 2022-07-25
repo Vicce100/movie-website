@@ -6,9 +6,12 @@ import {
   CategorySchemaType,
   CurrentUserType,
   ReturnAvatarType,
-  ReturnedVideoData,
-  ReturnedVideoDataByCategory,
   UsersRolesType,
+  routesString as rs,
+  MovieSchemaType,
+  EpisodeSchemaType,
+  SeriesSchemaType,
+  queryPathsString,
 } from '../utils/types';
 
 type EndpointType = { host: string; port: string; path: string };
@@ -36,6 +39,8 @@ const nonDataPostRequest = async <T>(endpoint: EndpointType): Promise<AxiosRespo
 
 // ---------- local ---------- //
 
+// ---------- user ---------- //
+
 export const loginUser = async (data: { email: string; password: string }) =>
   postRequest<CurrentUserType>({ host, port, path: '/user/login' }, data);
 
@@ -61,11 +66,20 @@ export const getUser = () =>
 export const addProfile = (data: { profileName: string; avatarURL: string }) =>
   postRequest({ host, port, path: '/user/addProfile' }, data);
 
+// auth
+export const checkAuth = () =>
+  getRequest<{ isLoggedIn: false }>({ host, port, path: `/user/checkAuth` });
+
+export const checkAuthRole = (roleType: UsersRolesType) =>
+  getRequest<{ access: boolean }>({ host, port, path: `/user/checkAuth/${roleType}` });
+
+// ---------- category ---------- //
+
 export const uploadSingleCategory = (data: { category: string }) =>
   postRequest({ host, port, path: '/category/upload/single' }, data);
 
 export const uploadMultipleCategory = (data: { categories: string[] }) =>
-  postRequest({ host, port, path: '/category/upload/multiple' }, data);
+  postRequest<{ success: boolean }>({ host, port, path: '/category/upload/multiple' }, data);
 
 export const getSingleCategory = (categoryId: string) =>
   getRequest<CategorySchemaType>({ host, port, path: `/category/${categoryId}` });
@@ -73,22 +87,80 @@ export const getSingleCategory = (categoryId: string) =>
 export const getAllCategory = () =>
   getRequest<CategorySchemaType[]>({ host, port, path: '/category/get/multiple' });
 
+// ---------- franchise ---------- //
+
+export const uploadMultipleFranchise = (data: { franchises: string[] }) =>
+  postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.franchise}/${rs.upload}/${rs.multiple}` },
+    data
+  );
+
+// ---------- avatar ---------- //
+
 export const getSingleAvatar = (avatarId: string) =>
-  getRequest<ReturnAvatarType>({ host, port, path: `/avatar/${avatarId}` });
+  getRequest<ReturnAvatarType>({ host, port, path: `/${rs.avatar}/${avatarId}` });
 
 export const getAllAvatars = () =>
   getRequest<ReturnAvatarType[]>({ host, port, path: '/avatar/get/multiple' });
 
-export const getSingleVIdeoData = (videoId: string) =>
-  getRequest<ReturnedVideoData>({ host, port, path: `/video/data/${videoId}` });
+// ---------- video ---------- //
 
-export const getVideoByCategory = (categoryName: string) =>
-  getRequest<ReturnedVideoDataByCategory>({
+export const getVideosData = (data: { queryName: queryPathsString; profileId: string }) =>
+  postRequest<unknown[]>(
+    {
+      host,
+      port,
+      path: `/${rs.video}/${rs.data}}`,
+    },
+    data
+  );
+
+export const getMovieData = (movieId: string) =>
+  getRequest<MovieSchemaType>({
     host,
     port,
-    path: `/video/data/category/${categoryName}`,
+    path: `/${rs.video}/${rs.movie}/${rs.data}/${movieId}`,
   });
 
+export const getEpisodeData = (episodeId: string) =>
+  getRequest<EpisodeSchemaType>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.episode}/${rs.data}/${episodeId}`,
+  });
+
+export const getMovieByCategory = (data: {
+  categoryName1: string;
+  categoryName2?: string;
+  categoryName3?: string;
+}) =>
+  postRequest<MovieSchemaType[]>(
+    {
+      host,
+      port,
+      path: `/${rs.video}/${rs.movie}/${rs.data}/${rs.category}`,
+    },
+    data
+  );
+
+export const getSeriesByCategory = (data: {
+  categoryName1: string;
+  categoryName2?: string;
+  categoryName3?: string;
+}) =>
+  postRequest<SeriesSchemaType[]>(
+    {
+      host,
+      port,
+      path: `/${rs.video}/${rs.series}/${rs.data}/${rs.category}`,
+    },
+    data
+  );
+
+export const addView = (data: { videoId: string; isMovie: boolean }) =>
+  postRequest<{ success: true }>({ host, port, path: `/${rs.video}/${rs.addView}` }, data);
+
+// ffmpeg
 export const generateFFmpeg = (videoId: string) =>
   getRequest<{ success: boolean }>({
     host,
@@ -102,12 +174,3 @@ export const removeFFmpeg = (videoId: string) =>
     port,
     path: `/video/ffmpeg/remove/${videoId}`,
   });
-
-export const checkAuth = () =>
-  getRequest<{ isLoggedIn: false }>({ host, port, path: `/user/checkAuth` });
-
-export const checkAuthRole = (roleType: UsersRolesType) =>
-  getRequest<{ access: boolean }>({ host, port, path: `/user/checkAuth/${roleType}` });
-
-export const addView = (data: { videoId: string; isMovie: boolean }) =>
-  postRequest<{ success: true }>({ host, port, path: '/video/addView' }, data);

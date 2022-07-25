@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { signUp } from '../services/userService';
 import { useSetCurrentUser } from '../contexts/UserAuth';
 
-import '../styles/SignupStyle.scss';
+import '../styles/SignUpStyle.scss';
 
 const SignUp = () => {
   const [email, setEmail] = useState<string | null>(null);
