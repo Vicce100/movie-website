@@ -12,6 +12,7 @@ import {
   EpisodeSchemaType,
   SeriesSchemaType,
   queryPathsString,
+  FranchiseSchemaType,
 } from '../utils/types';
 
 type EndpointType = { host: string; port: string; path: string };
@@ -89,11 +90,24 @@ export const getAllCategory = () =>
 
 // ---------- franchise ---------- //
 
+export const uploadSingleFranchise = (data: { Franchise: string }) =>
+  postRequest({ host, port, path: `/${rs.franchise}/${rs.upload}/${rs.single}` }, data);
+
 export const uploadMultipleFranchise = (data: { franchises: string[] }) =>
   postRequest<{ success: boolean }>(
     { host, port, path: `/${rs.franchise}/${rs.upload}/${rs.multiple}` },
     data
   );
+
+export const getSingleFranchise = (franchiseId: string) =>
+  getRequest<FranchiseSchemaType>({ host, port, path: `/${rs.franchise}/${franchiseId}` });
+
+export const getAllFranchise = () =>
+  getRequest<FranchiseSchemaType[]>({
+    host,
+    port,
+    path: `/${rs.franchiseId}/${rs.get}/${rs.multiple}`,
+  });
 
 // ---------- avatar ---------- //
 

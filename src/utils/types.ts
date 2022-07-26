@@ -36,6 +36,7 @@ export const routesString = Object.freeze({
   episodeId: 'episodesId',
   seriesId: 'seriesId',
   categoryId: 'categoryId',
+  franchiseId: 'franchiseId',
   avatarId: 'avatarId',
   categoryName: 'categoryName',
   roleType: 'roleType',
@@ -148,6 +149,11 @@ export interface CategorySchemaType {
   _id: string;
   name: string;
   // url: string;
+}
+
+export interface FranchiseSchemaType {
+  _id: string;
+  name: string;
 }
 
 export interface ReturnAvatarType {
