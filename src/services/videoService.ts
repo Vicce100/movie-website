@@ -1,4 +1,5 @@
 import { AxiosError } from 'axios';
+import { queryPathsString } from '../utils/types';
 import {
   getVideosData as videosDataGet,
   getMovieData as movieDataGet,
@@ -11,6 +12,14 @@ import {
 } from './apiService';
 
 type ErrorType = { message: string; status: string };
+
+export const getVideosData = <T>(data: { queryName: queryPathsString; profileId?: string }) =>
+  videosDataGet<T>(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      console.log(error);
+      throw new Error(error.response?.data.message);
+    });
 
 export const getMovieData = (movieId: string) =>
   movieDataGet(movieId)
@@ -27,22 +36,14 @@ export const getEpisodeData = (movieId: string) =>
       throw new Error(error.response?.data.message);
     });
 
-export const getSeriesByCategory = (data: {
-  categoryName1: string;
-  categoryName2?: string;
-  categoryName3?: string;
-}) =>
+export const getSeriesByCategory = (data: { categoryNames: string[] }) =>
   seriesByCategoryGet(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);
     });
 
-export const getMovieByCategory = (data: {
-  categoryName1: string;
-  categoryName2?: string;
-  categoryName3?: string;
-}) =>
+export const getMovieByCategory = (data: { categoryNames: string[] }) =>
   movieByCategoryGet(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {

@@ -77,16 +77,23 @@ export const checkAuthRole = (roleType: UsersRolesType) =>
 // ---------- category ---------- //
 
 export const uploadSingleCategory = (data: { category: string }) =>
-  postRequest({ host, port, path: '/category/upload/single' }, data);
+  postRequest({ host, port, path: `/${rs.category}/${rs.upload}/${rs.single}` }, data);
 
 export const uploadMultipleCategory = (data: { categories: string[] }) =>
-  postRequest<{ success: boolean }>({ host, port, path: '/category/upload/multiple' }, data);
+  postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.category}/${rs.upload}/${rs.multiple}` },
+    data
+  );
 
 export const getSingleCategory = (categoryId: string) =>
-  getRequest<CategorySchemaType>({ host, port, path: `/category/${categoryId}` });
+  getRequest<CategorySchemaType>({ host, port, path: `/${rs.category}/${categoryId}` });
 
 export const getAllCategory = () =>
-  getRequest<CategorySchemaType[]>({ host, port, path: '/category/get/multiple' });
+  getRequest<CategorySchemaType[]>({
+    host,
+    port,
+    path: `/${rs.category}/${rs.get}/${rs.multiple}`,
+  });
 
 // ---------- franchise ---------- //
 
@@ -106,7 +113,7 @@ export const getAllFranchise = () =>
   getRequest<FranchiseSchemaType[]>({
     host,
     port,
-    path: `/${rs.franchiseId}/${rs.get}/${rs.multiple}`,
+    path: `/${rs.franchise}/${rs.get}/${rs.multiple}`,
   });
 
 // ---------- avatar ---------- //
@@ -119,12 +126,12 @@ export const getAllAvatars = () =>
 
 // ---------- video ---------- //
 
-export const getVideosData = (data: { queryName: queryPathsString; profileId: string }) =>
-  postRequest<unknown[]>(
+export const getVideosData = <T>(data: { queryName: queryPathsString; profileId?: string }) =>
+  postRequest<T>(
     {
       host,
       port,
-      path: `/${rs.video}/${rs.data}}`,
+      path: `/${rs.video}/${rs.data}`,
     },
     data
   );
@@ -143,11 +150,7 @@ export const getEpisodeData = (episodeId: string) =>
     path: `/${rs.video}/${rs.episode}/${rs.data}/${episodeId}`,
   });
 
-export const getMovieByCategory = (data: {
-  categoryName1: string;
-  categoryName2?: string;
-  categoryName3?: string;
-}) =>
+export const getMovieByCategory = (data: { categoryNames: string[] }) =>
   postRequest<MovieSchemaType[]>(
     {
       host,
@@ -157,11 +160,7 @@ export const getMovieByCategory = (data: {
     data
   );
 
-export const getSeriesByCategory = (data: {
-  categoryName1: string;
-  categoryName2?: string;
-  categoryName3?: string;
-}) =>
+export const getSeriesByCategory = (data: { categoryNames: string[] }) =>
   postRequest<SeriesSchemaType[]>(
     {
       host,
@@ -179,12 +178,12 @@ export const generateFFmpeg = (videoId: string) =>
   getRequest<{ success: boolean }>({
     host,
     port,
-    path: `/video/ffmpeg/${videoId}`,
+    path: `/${rs.video}/${rs.ffmpeg}/${videoId}`,
   });
 
 export const removeFFmpeg = (videoId: string) =>
   getRequest<{ success: boolean }>({
     host,
     port,
-    path: `/video/ffmpeg/remove/${videoId}`,
+    path: `/${rs.video}/${rs.ffmpeg}/${rs.remove}/${videoId}`,
   });

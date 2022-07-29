@@ -42,20 +42,20 @@ export const routesString = Object.freeze({
   roleType: 'roleType',
 });
 
-export const queryPaths = Object.freeze({
-  myList: 'myList',
-  continueWatching: 'continueWatching',
-  watchAged: 'watchAged',
-  becauseYouWatch: 'becauseYouWatch',
-  becauseYouLiked: 'becauseYouLiked',
-  forYou: 'forYou',
-  newlyAdded: 'newlyAdded',
-  popular: 'popular',
-  top10movies: 'top10movies',
-  top10series: 'top10series',
-  randomMovie: 'randomMovie',
-  randomSeries: 'randomSeries',
-});
+export const queryPaths = {
+  myList: 'myList' as const,
+  continueWatching: 'continueWatching' as const,
+  watchAged: 'watchAged' as const,
+  becauseYouWatch: 'becauseYouWatch' as const,
+  becauseYouLiked: 'becauseYouLiked' as const,
+  forYou: 'forYou' as const,
+  newlyAdded: 'newlyAdded' as const,
+  popular: 'popular' as const,
+  top10movies: 'top10movies' as const,
+  top10series: 'top10series' as const,
+  randomMovie: 'randomMovie' as const,
+  randomSeries: 'randomSeries' as const,
+};
 
 export type queryPathsString =
   | 'myList'
@@ -75,6 +75,12 @@ export type UsersRolesType = 'user' | 'moderator' | 'admin' | 'superAdmin';
 export type UserStatusType = 'active' | 'disabled';
 
 export type ReturnedVideoDataByCategory = {
+  _id: string;
+  title: string;
+  displayPicture: string;
+}[];
+
+export type returnVideosArray = {
   _id: string;
   title: string;
   displayPicture: string;

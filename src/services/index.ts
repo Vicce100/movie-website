@@ -4,7 +4,10 @@ import {
   uploadMultipleCategory as multipleCategory,
   getSingleCategory as singleCategoryGet,
   getAllCategory as allCategoryGet,
+  uploadSingleFranchise as singleFranchiseUpload,
   uploadMultipleFranchise as multipleFranchiseUpload,
+  getSingleFranchise as singleFranchiseGet,
+  getAllFranchise as allFranchiseGet,
   getSingleAvatar as singleAvatarGet,
   getAllAvatars as allAvatarGet,
 } from './apiService';
@@ -39,8 +42,29 @@ export const getAllCategory = () =>
       throw new Error(error.response?.data.message);
     });
 
+export const uploadSingleFranchise = (data: { Franchise: string }) =>
+  singleFranchiseUpload(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
 export const uploadMultipleFranchise = (data: { franchises: string[] }) =>
   multipleFranchiseUpload(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getSingleFranchise = (franchiseId: string) =>
+  singleFranchiseGet(franchiseId)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getAllFranchise = () =>
+  allFranchiseGet()
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);
