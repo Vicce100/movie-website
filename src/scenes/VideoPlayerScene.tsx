@@ -1,9 +1,11 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import { getSingleVIdeoData, addView } from '../services/index';
+import { assertsValueToType } from '../utils/assert';
+import { getMovieData, addView } from '../services/videoService';
 import { url } from '../services/apiService';
-import { ReturnedVideoData } from '../utils/types';
+import { EpisodeSchemaType, MovieSchemaType, routesString as rs } from '../utils/types';
 import { usePageTitle, useFormateTime } from '../hooks';
 
 import { ReactComponent as PlayIcon } from '../asset/svg/videoPlayer/play.svg';
@@ -19,8 +21,8 @@ import { ReactComponent as SkipForward } from '../asset/svg/videoPlayer/skipForw
 
 import '../styles/VideoPlayerStyle.scss';
 
-export default function VideoPlayerScene() {
-  const [videoData, setVideoData] = useState<ReturnedVideoData | null>(null);
+export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
+  const [videoData, setVideoData] = useState<MovieSchemaType | EpisodeSchemaType | null>(null);
 
   const [volumeStatus, setVolumeStatus] = useState<'high' | 'low' | 'muted'>('high');
   const [volumeCount, setVolumeCount] = useState<number>(1);
@@ -59,7 +61,7 @@ export default function VideoPlayerScene() {
     if (!videoId) return;
     const fetchVideoData = async () => {
       try {
-        setVideoData((await getSingleVIdeoData(videoId)).data);
+        setVideoData((await getMovieData(videoId)).data);
       } catch (error) {
         console.log(error);
       }
@@ -84,10 +86,9 @@ export default function VideoPlayerScene() {
   useEffect(() => {
     (() => {
       if (watchTime >= 120 && videoData) {
-        const { _id, isMovie } = videoData;
         if (watchTimerRef.current) clearInterval(watchTimerRef.current);
         // const response = (await addView({ videoId: _id, isMovie })).data;
-        addView({ videoId: _id, isMovie });
+        addView({ videoId: videoData._id, isMovie });
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -312,6 +313,27 @@ export default function VideoPlayerScene() {
     return <CloseFullScreen className="fullscreen-icon" />;
   }, [videoIsFullscreen]);
 
+  const renderTitle = useCallback(() => {
+    if (isMovie && videoData) {
+      assertsValueToType<MovieSchemaType>(videoData);
+      return (
+        <div className="title-div">
+          <h1 className="title">{videoData.title}</h1>
+        </div>
+      );
+    }
+    if (videoData) {
+      assertsValueToType<EpisodeSchemaType>(videoData);
+      return (
+        <div className="title-div">
+          <h1 className="title">{videoData.seriesTitle}</h1>
+          <h2 className="episode-title">{videoData?.episodeTitle}</h2>
+        </div>
+      );
+    }
+    return undefined;
+  }, [isMovie, videoData]);
+
   return (
     <div className="video-container" ref={videoContainer}>
       {video.current && (
@@ -338,10 +360,7 @@ export default function VideoPlayerScene() {
             >
               <GoBack className="go-back-icon" />
             </button>
-            <div className="title-div">
-              {videoData && <h1 className="title">{videoData.title}</h1>}
-              {!videoData?.isMovie && <h2 className="episode-title">{videoData?.episodeTitle}</h2>}
-            </div>
+            {renderTitle()}
           </div>
           <button
             type="button"
@@ -486,7 +505,13 @@ export default function VideoPlayerScene() {
           else setVolumeStatus('low');
         }}
       >
-        {videoId ? <source src={`${url}/video/${videoId}`} type="video/mp4" /> : null}
+        {videoId ? (
+          isMovie ? (
+            <source src={`${url}/${rs.video}/${rs.movie}/${videoId}`} type="video/mp4" />
+          ) : (
+            <source src={`${url}/${rs.video}/${rs.episode}/${videoId}`} type="video/mp4" />
+          )
+        ) : null}
         <track kind="captions" src="assets/subtitles.vtt" />
       </video>
     </div>

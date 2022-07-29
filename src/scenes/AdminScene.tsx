@@ -1,18 +1,20 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { generateFFmpeg, removeFFmpeg as fetchRemoveFFmpeg } from '../services/index';
+import { generateFFmpeg, removeFFmpeg as fetchRemoveFFmpeg } from '../services/videoService';
 import { usePageTitle } from '../hooks/index';
 import AddAvatar from '../component/AddAvatar';
 import AddCategories from '../component/AddCategories';
 import { checkAuthRole } from '../services/userService';
 import { useCurrentUserContext } from '../contexts/UserAuth';
+import AddFranchise from '../component/AddFranchise';
 
 import '../styles/AdminStyle.scss';
 
 export default function AdminScene() {
   const [showAddCategories, setShowAddCategories] = useState<boolean>(false);
   const [showAddAvatar, setShowAddAvatar] = useState<boolean>(false);
+  const [showFranchise, setShowFranchise] = useState<boolean>(false);
   const [showVideo, setShowVideo] = useState<boolean>(false);
   const [showFFmpeg, setShowFFmpeg] = useState<boolean>(false);
   const [showRemoveFFmpeg, setShowRemoveFFmpeg] = useState<boolean>(false);
@@ -108,6 +110,7 @@ export default function AdminScene() {
     (setValue: (value: React.SetStateAction<boolean>) => void, value: boolean) => {
       setShowRemoveFFmpeg(false);
       setShowFFmpeg(false);
+      setShowFranchise(false);
       setShowAddUser(false);
       setShowAddAvatar(false);
       setShowVideo(false);
@@ -135,6 +138,14 @@ export default function AdminScene() {
           onClick={() => selectField(setShowAddCategories, showAddCategories)}
         >
           <h3 className="options-box-heading">Add categories</h3>
+        </button>
+        <button
+          style={{ border: showFranchise ? '1px solid #fff' : 'none' }}
+          type="button"
+          className="options-button-box"
+          onClick={() => selectField(setShowFranchise, showFranchise)}
+        >
+          <h3 className="options-box-heading">Add Franchise</h3>
         </button>
         <button
           style={{ border: showAddAvatar ? '1px solid #fff' : 'none' }}
@@ -179,6 +190,7 @@ export default function AdminScene() {
       </div>
       <div className="main-section">
         {showAddCategories && <AddCategories />}
+        {showFranchise && <AddFranchise />}
         {showAddAvatar && <AddAvatar />}
         {/* {showVideo && <AddVideo />} */}
         {/* {showAddUser && <AddUser />} */}

@@ -7,6 +7,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap');
 // Quicksand
 
+:root {
+  --slider-padding: 5rem;
+  --scrollbar-width: 10px;
+}
+
 $main-color: #24272e;
 $header-color: #373c46;
 $header-color2: #4d535e;
@@ -14,7 +19,7 @@ $white: #ffffff;
 $black: #000;
 $transparent: rgba(0, 0, 0, 0);
 $link-text-color: #03b1fc;
-$widthMinusScroll: calc(100vw - 10px);
+$widthMinusScroll: calc(100vw - var(--scrollbar-width));
 
 $Roboto-Slab: 'Roboto Slab';
 $Ubuntu: 'Ubuntu';
@@ -53,7 +58,7 @@ $Quicksand: 'Quicksand';
 
 @mixin custom-light-blue-scrollbar {
   &::-webkit-scrollbar {
-    width: 10px;
+    width: var(--scrollbar-width);
   }
   &::-webkit-scrollbar-track {
     background-color: #3b3e46;

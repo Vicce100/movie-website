@@ -4,13 +4,12 @@ import {
   uploadMultipleCategory as multipleCategory,
   getSingleCategory as singleCategoryGet,
   getAllCategory as allCategoryGet,
+  uploadSingleFranchise as singleFranchiseUpload,
+  uploadMultipleFranchise as multipleFranchiseUpload,
+  getSingleFranchise as singleFranchiseGet,
+  getAllFranchise as allFranchiseGet,
   getSingleAvatar as singleAvatarGet,
   getAllAvatars as allAvatarGet,
-  getSingleVIdeoData as singleVIdeoDataGet,
-  getVideoByCategory as videoByCategoryGet,
-  generateFFmpeg as ffmpegGenerate,
-  removeFFmpeg as ffmpegRemove,
-  addView as viewAdd,
 } from './apiService';
 
 type ErrorType = { message: string; status: string };
@@ -43,6 +42,34 @@ export const getAllCategory = () =>
       throw new Error(error.response?.data.message);
     });
 
+export const uploadSingleFranchise = (data: { Franchise: string }) =>
+  singleFranchiseUpload(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const uploadMultipleFranchise = (data: { franchises: string[] }) =>
+  multipleFranchiseUpload(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getSingleFranchise = (franchiseId: string) =>
+  singleFranchiseGet(franchiseId)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getAllFranchise = () =>
+  allFranchiseGet()
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
 export const getSingleAvatar = (avatarId: string) =>
   singleAvatarGet(avatarId)
     .then((res) => res)
@@ -52,41 +79,6 @@ export const getSingleAvatar = (avatarId: string) =>
 
 export const getAllAvatars = () =>
   allAvatarGet()
-    .then((res) => res)
-    .catch((error: AxiosError<ErrorType>) => {
-      throw new Error(error.response?.data.message);
-    });
-
-export const getSingleVIdeoData = (videoId: string) =>
-  singleVIdeoDataGet(videoId)
-    .then((res) => res)
-    .catch((error: AxiosError<ErrorType>) => {
-      throw new Error(error.response?.data.message);
-    });
-
-export const getVideoByCategory = (categoryName: string) =>
-  videoByCategoryGet(categoryName)
-    .then((res) => res)
-    .catch((error: AxiosError<ErrorType>) => {
-      throw new Error(error.response?.data.message);
-    });
-
-export const generateFFmpeg = (videoId: string) =>
-  ffmpegGenerate(videoId)
-    .then((res) => res)
-    .catch((error: AxiosError<ErrorType>) => {
-      throw new Error(error.response?.data.message);
-    });
-
-export const removeFFmpeg = (videoId: string) =>
-  ffmpegRemove(videoId)
-    .then((res) => res)
-    .catch((error: AxiosError<ErrorType>) => {
-      throw new Error(error.response?.data.message);
-    });
-
-export const addView = (data: { videoId: string; isMovie: boolean }) =>
-  viewAdd(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);

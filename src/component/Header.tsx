@@ -25,7 +25,7 @@ import { ReactComponent as Home } from '../asset/svg/home_white_36dp.svg';
 import { ReactComponent as ArrowIcon } from '../asset/svg/arrow.svg';
 import { ReactComponent as BoltIcon } from '../asset/svg/bolt.svg';
 
-import { userRole } from '../utils/types';
+import { userRoles } from '../utils/types';
 import '../styles/HeaderStyle.scss';
 
 type MenuTypes = 'main' | 'profiles' | 'settings';
@@ -146,7 +146,7 @@ function DropdownMenu() {
           <DropdownItem displayIcon={<Cookie />} functionCall={callRefreshToken}>
             Update Auth Cookie
           </DropdownItem>
-          {currentUser?.role === userRole.admin && (
+          {currentUser?.role === userRoles.admin && (
             <DropdownItem displayIcon={<Manager />} functionCall={() => navigate('/admin')}>
               Admin Page
             </DropdownItem>

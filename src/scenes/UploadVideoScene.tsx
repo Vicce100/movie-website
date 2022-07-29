@@ -1,11 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { url } from '../services/apiService';
 import { usePageTitle } from '../hooks/index';
 import Header from '../component/Header';
-import { CategorySchemaType } from '../utils/types';
-import { getAllCategory } from '../services/index';
+import { CategorySchemaType, FranchiseSchemaType, routesString as rs } from '../utils/types';
+import { getAllCategory, getAllFranchise } from '../services/index';
 
 import { ReactComponent as PlayCircle } from '../asset/svg/videoPlayer/playCircle.svg';
 
@@ -23,6 +23,7 @@ export default function PostFile() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const [allCategories, setAllCategories] = useState<CategorySchemaType[] | null>(null);
+  const [allFranchise, setAllFranchise] = useState<FranchiseSchemaType[] | null>(null);
 
   const { setPageTitle } = usePageTitle();
 
@@ -31,6 +32,12 @@ export default function PostFile() {
   useEffect(() => {
     getAllCategory()
       .then((res) => (res.status === 200 ? setAllCategories(res.data) : null))
+      .catch((e) => console.log(e));
+  }, []);
+
+  useEffect(() => {
+    getAllFranchise()
+      .then((res) => (res.status === 200 ? setAllFranchise(res.data) : null))
       .catch((e) => console.log(e));
   }, []);
 
@@ -54,10 +61,10 @@ export default function PostFile() {
       const options: RequestInit = { method: 'POST', credentials: 'include', body: formData };
       try {
         setIsUploading(true);
-        const res = await (
-          await fetch('http://localhost:5050/video/upload/singe/public', options)
+        const res: { success: boolean } = await (
+          await fetch(`${url}/${rs.video}/${rs.movie}/${rs.upload}`, options)
         ).json();
-        console.log(await res);
+        console.log(res);
         setVideoFile(null);
         setDisplayPicture(null);
         setPicturePreview(undefined);
@@ -175,6 +182,30 @@ export default function PostFile() {
                     <label htmlFor={category._id}>{category.name}</label>
                   </div>
                 ))}
+              {allFranchise &&
+                allFranchise.map((franchise) => (
+                  <div
+                    key={franchise._id}
+                    className="single-categories-div"
+                    // style={{
+                    //   backgroundColor: checkSelectedCategories(categories, franchise.name),
+                    // }}
+                  >
+                    <input
+                      className="single-categories-checkbox"
+                      type="checkbox"
+                      name="franchise"
+                      value={franchise.name}
+                      id={franchise._id}
+                      onChange={() => {
+                        if (!categories.includes(franchise.name))
+                          setCategories([...categories, franchise.name]);
+                        else setCategories(categories.filter((c) => c !== franchise.name));
+                      }}
+                    />
+                    <label htmlFor={franchise._id}>{franchise.name}</label>
+                  </div>
+                ))}
             </div>
           </div>
           <div className="submit-video-button-div">
@@ -190,6 +221,7 @@ export default function PostFile() {
         </form>
       </div>
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       submitSingleUpload,
       uploadReleaseDate,
