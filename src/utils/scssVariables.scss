@@ -20,6 +20,7 @@ $black: #000;
 $transparent: rgba(0, 0, 0, 0);
 $link-text-color: #03b1fc;
 $widthMinusScroll: calc(100vw - var(--scrollbar-width));
+$heightMinusHeader: calc(100vh - 9vh);
 
 $Roboto-Slab: 'Roboto Slab';
 $Ubuntu: 'Ubuntu';

@@ -177,7 +177,7 @@ export default function AdminScene() {
           className="options-button-box"
           onClick={() => selectField(setShowRemoveFFmpeg, showRemoveFFmpeg)}
         >
-          <h3 className="options-box-heading">Add ffmpeg to video</h3>
+          <h3 className="options-box-heading">Remove ffmpeg to video</h3>
         </button>
         <button
           style={{ border: showAddUser ? '1px solid #fff' : 'none' }}

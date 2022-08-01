@@ -1,8 +1,6 @@
 /* eslint-disable import/no-unresolved */
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper';
 
 import { ReactComponent as Plus } from '../asset/svg/plus.svg';
 
@@ -20,24 +18,26 @@ import {
 
 import '../styles/HomeSceneStyle.scss';
 
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/bundle';
-
 export default function HomeScene() {
   const [allCategories, setAllCategories] = useState<CategorySchemaType[] | null>(null);
 
   const [actionCategory, setActionCategory] = useState<MovieSchemaType[] | null>(null);
   const [randomMovie, setRandomMovie] = useState<returnVideosArray | null>(null);
+  const [actionAndAdventure, setActionAndAdventure] = useState<returnVideosArray | null>(null);
   const [romCom, setRomCom] = useState<returnVideosArray | null>(null);
+  const [familyWeekEndMovie, setFamilyWeekEndMovie] = useState<returnVideosArray | null>(null);
 
   const [randomMoviePage, setRandomMoviePage] = useState<number>(0);
+  const [actionAndAdventurePage, setActionAndAdventurePage] = useState<number>(0);
   const [romComPage, setRomComPage] = useState<number>(0);
+  const [familyWeekEndMoviePage, setFamilyWeekEndMoviePage] = useState<number>(0);
 
   const [itemPerPage, setItemPerPage] = useState<number>(6);
 
   const rowVideoContainerRef1 = useRef<HTMLDivElement | null>(null);
   const rowVideoContainerRef2 = useRef<HTMLDivElement | null>(null);
+  const rowVideoContainerRef3 = useRef<HTMLDivElement | null>(null);
+  const rowVideoContainerRef4 = useRef<HTMLDivElement | null>(null);
 
   const navigate = useNavigate();
   const { width } = useWindowDimensions();
@@ -52,19 +52,6 @@ export default function HomeScene() {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await getVideosData<returnVideosArray>({
-          queryName: queryPaths.randomMovie,
-        });
-        setRandomMovie(data);
-      } catch (error) {
-        console.log(error);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
     const name = allCategories?.find((category) => category.name === 'Action')?.name;
     if (!name) return;
     getMovieByCategory({ categoryNames: [name] })
@@ -73,10 +60,40 @@ export default function HomeScene() {
   }, [allCategories]);
 
   useEffect(() => {
+    getVideosData<returnVideosArray>({ queryName: queryPaths.randomMovie })
+      .then((res) => (res.status === 200 ? setRandomMovie(res.data) : null))
+      .catch((e) => console.log(e));
+
+    getMovieByCategory({ categoryNames: ['Action', 'Adventure'] })
+      .then((res) => (res.status === 200 ? setActionAndAdventure(res.data) : null))
+      .catch((e) => console.log(e));
+
     getMovieByCategory({ categoryNames: ['Comedy', 'Romance'] })
       .then((res) => (res.status === 200 ? setRomCom(res.data) : null))
       .catch((e) => console.log(e));
-  }, [allCategories]);
+
+    getMovieByCategory({ categoryNames: ['Family', 'Kids'] })
+      .then((res) => (res.status === 200 ? setFamilyWeekEndMovie(res.data) : null))
+      .catch((e) => console.log(e));
+  }, []);
+
+  // useEffect(() => {
+  //   getMovieByCategory({ categoryNames: ['Superhero'] })
+  //     .then((res) => (res.status === 200 ? setSuperheroMovies(res.data) : null))
+  //     .catch((e) => console.log(e));
+  // }, [allCategories]);
+
+  // useEffect(() => {
+  //   getSeriesByCategory({ categoryNames: ['Documentary'] })
+  //     .then((res) => (res.status === 200 ? setMiniDocumentary(res.data) : null))
+  //     .catch((e) => console.log(e));
+  // }, [allCategories]);
+
+  // useEffect(() => {
+  //   getSeriesByCategory({ categoryNames: ['Teenage'] })
+  //     .then((res) => (res.status === 200 ? setTeenageSeries(res.data) : null))
+  //     .catch((e) => console.log(e));
+  // }, [allCategories]);
 
   useEffect(() => {
     if (width >= 1800) setItemPerPage(8);
@@ -102,12 +119,18 @@ export default function HomeScene() {
   );
 
   useEffect(() => {
-    setItemsPerPage(rowVideoContainerRef1);
-  }, [itemPerPage, rowVideoContainerRef1, setItemsPerPage]);
-
-  useEffect(() => {
-    setItemsPerPage(rowVideoContainerRef2);
-  }, [itemPerPage, rowVideoContainerRef2, setItemsPerPage]);
+    if (rowVideoContainerRef1) setItemsPerPage(rowVideoContainerRef1);
+    if (rowVideoContainerRef2) setItemsPerPage(rowVideoContainerRef2);
+    if (rowVideoContainerRef3) setItemsPerPage(rowVideoContainerRef3);
+    if (rowVideoContainerRef4) setItemsPerPage(rowVideoContainerRef4);
+  }, [
+    itemPerPage,
+    rowVideoContainerRef1,
+    rowVideoContainerRef2,
+    rowVideoContainerRef3,
+    rowVideoContainerRef4,
+    setItemsPerPage,
+  ]);
 
   const skipBack = useCallback(
     (
@@ -195,6 +218,7 @@ export default function HomeScene() {
             </div>
             <div className="row-content">
               <button
+                style={{ visibility: randomMovie.length < itemPerPage ? 'hidden' : 'visible' }}
                 className="handle left-handle"
                 type="button"
                 onClick={() => skipBack(randomMovie, randomMoviePage, setRandomMoviePage)}
@@ -207,13 +231,14 @@ export default function HomeScene() {
               >
                 {randomMovie.map((movie) => (
                   <div key={movie._id} className="single-video">
-                    <Link to={`/player/${movie._id}`}>
+                    <Link to={`/player/${movie._id}`} state={{ isMovie: true }}>
                       <img src={movie.displayPicture} alt={movie.title} />
                     </Link>
                   </div>
                 ))}
               </div>
               <button
+                style={{ visibility: randomMovie.length < itemPerPage ? 'hidden' : 'visible' }}
                 className="handle right-handle"
                 type="button"
                 onClick={() => skipForward(randomMovie, randomMoviePage, setRandomMoviePage)}
@@ -224,9 +249,62 @@ export default function HomeScene() {
           </div>
         )}
 
-        {romCom && (
+        {actionAndAdventure && (
           <div
             ref={rowVideoContainerRef2}
+            onChange={() => console.log('change')}
+            className="row-video-container"
+          >
+            <div className="row-header">
+              <h2 className="row-header-text">Action And Adventure</h2>
+              <div className="progress-bar">
+                {renderProgressBar(actionAndAdventure.length, actionAndAdventurePage)}
+              </div>
+            </div>
+            <div className="row-content">
+              <button
+                style={{
+                  visibility: actionAndAdventure.length < itemPerPage ? 'hidden' : 'visible',
+                }}
+                className="handle left-handle"
+                type="button"
+                onClick={() =>
+                  skipBack(actionAndAdventure, actionAndAdventurePage, setActionAndAdventurePage)
+                }
+              >
+                <p />
+              </button>
+              <div
+                className="slider"
+                style={{ transform: `translateX(-${actionAndAdventurePage * 100}%)` }}
+              >
+                {actionAndAdventure.map((movie) => (
+                  <div key={movie._id} className="single-video">
+                    <Link to={`/player/${movie._id}`} state={{ isMovie: true }}>
+                      <img src={movie.displayPicture} alt={movie.title} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+              <button
+                style={{
+                  visibility: actionAndAdventure.length < itemPerPage ? 'hidden' : 'visible',
+                }}
+                className="handle right-handle"
+                type="button"
+                onClick={() =>
+                  skipForward(actionAndAdventure, actionAndAdventurePage, setActionAndAdventurePage)
+                }
+              >
+                <p />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {romCom && (
+          <div
+            ref={rowVideoContainerRef3}
             onChange={() => console.log('change')}
             className="row-video-container"
           >
@@ -236,6 +314,7 @@ export default function HomeScene() {
             </div>
             <div className="row-content">
               <button
+                style={{ visibility: romCom.length < itemPerPage ? 'hidden' : 'visible' }}
                 className="handle left-handle"
                 type="button"
                 onClick={() => skipBack(romCom, romComPage, setRomComPage)}
@@ -245,13 +324,14 @@ export default function HomeScene() {
               <div className="slider" style={{ transform: `translateX(-${romComPage * 100}%)` }}>
                 {romCom.map((movie) => (
                   <div key={movie._id} className="single-video">
-                    <Link to={`/player/${movie._id}`}>
+                    <Link to={`/player/${movie._id}`} state={{ isMovie: true }}>
                       <img src={movie.displayPicture} alt={movie.title} />
                     </Link>
                   </div>
                 ))}
               </div>
               <button
+                style={{ visibility: romCom.length < itemPerPage ? 'hidden' : 'visible' }}
                 className="handle right-handle"
                 type="button"
                 onClick={() => skipForward(romCom, romComPage, setRomComPage)}
@@ -262,17 +342,58 @@ export default function HomeScene() {
           </div>
         )}
 
-        <div className="category-section">
-          <div className="category-title">
-            <h2 className="category-title-text">My Videos</h2>
+        {familyWeekEndMovie && (
+          <div
+            ref={rowVideoContainerRef4}
+            onChange={() => console.log('change')}
+            className="row-video-container"
+          >
+            <div className="row-header">
+              <h2 className="row-header-text">Week End Family Movies</h2>
+              <div className="progress-bar">
+                {renderProgressBar(familyWeekEndMovie.length, familyWeekEndMoviePage)}
+              </div>
+            </div>
+            <div className="row-content">
+              <button
+                style={{
+                  visibility: familyWeekEndMovie.length < itemPerPage ? 'hidden' : 'visible',
+                }}
+                className="handle left-handle"
+                type="button"
+                onClick={() =>
+                  skipBack(familyWeekEndMovie, familyWeekEndMoviePage, setFamilyWeekEndMoviePage)
+                }
+              >
+                <p />
+              </button>
+              <div
+                className="slider"
+                style={{ transform: `translateX(-${familyWeekEndMoviePage * 100}%)` }}
+              >
+                {familyWeekEndMovie.map((movie) => (
+                  <div key={movie._id} className="single-video">
+                    <Link to={`/player/${movie._id}`} state={{ isMovie: true }}>
+                      <img src={movie.displayPicture} alt={movie.title} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+              <button
+                style={{
+                  visibility: familyWeekEndMovie.length < itemPerPage ? 'hidden' : 'visible',
+                }}
+                className="handle right-handle"
+                type="button"
+                onClick={() =>
+                  skipForward(familyWeekEndMovie, familyWeekEndMoviePage, setFamilyWeekEndMoviePage)
+                }
+              >
+                <p />
+              </button>
+            </div>
           </div>
-          <div className="video-element-div">
-            <div className="single-video-element" />
-            <div className="single-video-element" />
-            <div className="single-video-element" />
-            <div className="single-video-element" />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

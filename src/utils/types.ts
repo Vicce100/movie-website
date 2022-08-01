@@ -22,6 +22,7 @@ export const routesString = Object.freeze({
   addView: 'addView',
   ffmpeg: 'ffmpeg',
   create: 'create',
+  add: 'add',
   login: 'login',
   logout: 'logout',
   refreshToken: 'refreshToken',

@@ -2,8 +2,6 @@
 /* eslint-disable arrow-body-style */
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Navigation } from 'swiper';
 
 import { ReactComponent as Plus } from '../asset/svg/plus.svg';
 import { ReactComponent as Home } from '../asset/svg/home_white_36dp.svg';
@@ -19,9 +17,6 @@ import { useWindowDimensions, usePageTitle } from '../hooks/index';
 import { ReturnAvatarType, ProfileType } from '../utils/types';
 
 import '../styles/ProfileStyle.scss';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/bundle';
 
 type AvatarType = {
   _id: string;
@@ -179,7 +174,7 @@ export default function ProfileScene() {
                   <h3 className="avatar-category-title-text">{category.name}</h3>
                 </div>
                 <div className="swiper-container">
-                  <Swiper
+                  {/* <Swiper
                     slidesPerView={swiperSlidesPerView || 1}
                     slidesPerGroup={swiperSlidesPerView || 1}
                     spaceBetween={20}
@@ -207,14 +202,14 @@ export default function ProfileScene() {
                         </SwiperSlide>
                       );
                     })}
-                  </Swiper>
+                  </Swiper> */}
                 </div>
               </div>
             );
           })}
       </div>
     ),
-    [avatarsFormCategories, handleAddProfile, newProfileName, swiperSlidesPerView]
+    [avatarsFormCategories]
   );
 
   const renderEditing = useCallback(

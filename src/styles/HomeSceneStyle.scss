@@ -10,6 +10,7 @@
 .home-container {
   display: flex;
   min-width: $widthMinusScroll;
+  padding-bottom: 0.8rem;
   .videos-container {
     display: flex;
     align-items: center;
@@ -25,6 +26,7 @@
       #31343a 100%
     );
     margin-top: 9vh;
+    padding-bottom: 2.5rem;
 
     .row-video-container {
       display: flex;
