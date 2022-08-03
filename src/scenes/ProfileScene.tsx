@@ -141,6 +141,7 @@ export default function ProfileScene() {
               e.preventDefault();
               if (
                 !addingProfileRef.current?.value ||
+                !currentUser?.profiles ||
                 currentUser?.profiles
                   .map((profile) => {
                     if (profile.profileName === addingProfileRef.current?.value) return true;

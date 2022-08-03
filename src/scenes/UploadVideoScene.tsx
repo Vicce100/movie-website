@@ -1,10 +1,19 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { url } from '../services/apiService';
+import { getSeriesData, searchSeries } from '../services/videoService';
 import { usePageTitle } from '../hooks/index';
 import Header from '../component/Header';
-import { CategorySchemaType, FranchiseSchemaType, routesString as rs } from '../utils/types';
+import {
+  CategorySchemaType,
+  FranchiseSchemaType,
+  ReturnedSeriesSchemaType,
+  returnVideos,
+  returnVideosArray,
+  routesString as rs,
+  descriptionMaxLength,
+} from '../utils/types';
 import { getAllCategory, getAllFranchise } from '../services/index';
 
 import { ReactComponent as PlayCircle } from '../asset/svg/videoPlayer/playCircle.svg';
@@ -49,9 +58,31 @@ export default function PostFile() {
     franchise: [],
   });
 
+  const [addEpisodeIndex, setAddEpisodeIndex] = useState<number>(0);
+  const [searchString, setSearchString] = useState<string>('');
+  const [searchResponse, setSearchResponse] = useState<returnVideosArray | undefined>(undefined);
+  const [seriesToAddEpisode, setSeriesToAddEpisode] = useState<returnVideos>({
+    _id: '',
+    title: '',
+    isMovie: true,
+    displayPicture: '',
+  });
+  const [seriesData, setSeriesData] = useState<ReturnedSeriesSchemaType | null>(null);
+  const [selectedSeason, setSelectedSeason] = useState<number>(0);
+
+  const [episodeDisplayPicture, setEpisodeDisplayPicture] = useState<File | null>(null);
+  const [episodePicturePreview, setEpisodePicturePreview] = useState<string | undefined>(undefined);
+
   const [allCategories, setAllCategories] = useState<CategorySchemaType[] | null>(null);
   const [allFranchise, setAllFranchise] = useState<FranchiseSchemaType[] | null>(null);
+  const [addEpisodeVideoFile, setAddEpisodeVideoFile] = useState<File | null>(null);
+  const [addEpisodeCreationDate, setAddEpisodeCreationDate] = useState<string>(
+    dayjs().format().split('T')[0]
+  );
+  const [episodeDescription, setEpisodeDescription] = useState<string>('');
+  const [episodeTitle, setEpisodeTitle] = useState<string>('');
 
+  const reactId = useId();
   const { setPageTitle } = usePageTitle();
   const navigate = useNavigate();
 
@@ -68,6 +99,20 @@ export default function PostFile() {
       .then((res) => (res.status === 200 ? setAllFranchise(res.data) : null))
       .catch((e) => console.log(e));
   }, []);
+
+  useEffect(() => {
+    if (!searchString) return;
+    searchSeries(searchString)
+      .then((res) => (res.status === 200 ? setSearchResponse(res.data) : null))
+      .catch((e) => console.log(e));
+  }, [searchString]);
+
+  useEffect(() => {
+    if (!seriesToAddEpisode || !seriesToAddEpisode._id) return;
+    getSeriesData(seriesToAddEpisode._id)
+      .then((res) => (res.status === 200 ? setSeriesData(res.data) : null))
+      .catch((e) => console.log(e));
+  }, [seriesToAddEpisode]);
 
   const uploadMovieCall = useCallback(
     async (
@@ -92,7 +137,7 @@ export default function PostFile() {
         const res: { success: boolean } = await (
           await fetch(`${url}/${rs.video}/${rs.movie}/${rs.create}`, options)
         ).json();
-        console.log(res);
+        // console.log(res);
         setVideoFile(null);
         setDisplayPicture(null);
         setPicturePreview(undefined);
@@ -181,7 +226,7 @@ export default function PostFile() {
                 id="description-input"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                maxLength={400}
+                maxLength={descriptionMaxLength}
               />
             </div>
             <div className="categories-selection">
@@ -308,14 +353,13 @@ export default function PostFile() {
         ).json();
         console.log(res);
         setCreateSeries({
+          ...createSeries,
           title: '',
           description: '',
           displayPicture: null,
           isPublic: true,
           creationDate: dayjs().format().split('T')[0],
           latestDate: dayjs().format().split('T')[0],
-          category: [],
-          franchise: [],
         });
         setSeriesPicturePreview(undefined);
       } catch (error) {
@@ -395,7 +439,7 @@ export default function PostFile() {
                   accept="video/*"
                   value={createSeries.latestDate}
                   className="title-input"
-                  onChange={(e) => setCreateSeries({ ...createSeries, title: e.target.value })}
+                  onChange={(e) => setCreateSeries({ ...createSeries, latestDate: e.target.value })}
                 />
               </div>
             </div>
@@ -518,6 +562,300 @@ export default function PostFile() {
     [allCategories, allFranchise, createSeries, createSeriesCall, isUploading, seriesPicturePreview]
   );
 
+  const shuffleArray = useCallback(
+    (series: returnVideosArray) =>
+      series
+        .map((value) => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value),
+    []
+  );
+
+  const renderSearchEpisode = useCallback(
+    () => (
+      <div className="search-container">
+        <input
+          type="text"
+          name="search-value"
+          id="search-value"
+          placeholder="Search for movies and series..."
+          value={searchString}
+          onChange={(e) => setSearchString(e.target.value)}
+        />
+        {searchResponse && (
+          <div className="search-value-container">
+            {shuffleArray(searchResponse).map((video: returnVideos) => (
+              <div className="search-value-element" key={video._id}>
+                <button
+                  type="button"
+                  className="search-value-element-button"
+                  onClick={() => {
+                    setSeriesToAddEpisode(video);
+                    setAddEpisodeIndex(addEpisodeIndex + 1);
+                  }}
+                >
+                  <img src={video.displayPicture} alt={video.title} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    ),
+    [addEpisodeIndex, searchResponse, searchString, shuffleArray]
+  );
+
+  useEffect(() => {
+    if (!episodeDisplayPicture) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setEpisodePicturePreview(reader.result as string);
+    reader.readAsDataURL(episodeDisplayPicture);
+  }, [episodeDisplayPicture]);
+
+  const uploadEpisode = useCallback(
+    async (
+      e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => {
+      e.preventDefault();
+
+      if (
+        !seriesData ||
+        !addEpisodeVideoFile ||
+        !episodeDisplayPicture ||
+        !episodeDescription ||
+        !episodeTitle
+      )
+        return;
+
+      let episodeNr = 1;
+
+      if (seriesData.episodes[selectedSeason] && seriesData.episodes[selectedSeason].length)
+        episodeNr = seriesData.episodes[selectedSeason].length + 1;
+
+      const formData = new FormData();
+
+      formData.append('videoFile', addEpisodeVideoFile);
+      formData.append('displayPicture', episodeDisplayPicture);
+
+      formData.append('seriesId', seriesData?._id);
+      formData.append('episodeTitle', episodeTitle);
+      formData.append('description', episodeDescription);
+      formData.append('releaseDate', dayjs(addEpisodeCreationDate).format());
+      formData.append('seasonNr', String(seriesData.episodes.length ? selectedSeason + 1 : 1));
+      formData.append('episodeNr', String(episodeNr));
+
+      const options: RequestInit = { method: 'POST', credentials: 'include', body: formData };
+      try {
+        setIsUploading(true);
+        const res: { success: boolean } = await (
+          await fetch(`${url}/${rs.video}/${rs.episode}/${rs.add}`, options)
+        ).json();
+        console.log(res);
+        setAddEpisodeVideoFile(null);
+        setSeriesData(null);
+        setEpisodeDescription('');
+        setEpisodeTitle('');
+      } catch (error) {
+        console.log(error);
+      }
+      setIsUploading(false);
+      setAddEpisodeIndex(0);
+    },
+    [
+      addEpisodeCreationDate,
+      addEpisodeVideoFile,
+      episodeDisplayPicture,
+      episodeDescription,
+      episodeTitle,
+      selectedSeason,
+      seriesData,
+    ]
+  );
+
+  const renderSeriesInfo = useCallback(
+    () =>
+      seriesData ? (
+        <div className="series-data-container">
+          <div className="series-data">
+            <div className="title-div">
+              <h4 className="field-text">{seriesData.title}</h4>
+            </div>
+            <div className="series-info">
+              <div className="displayPicture">
+                <img src={seriesData.displayPicture} alt="preview" />
+              </div>
+              <div className="fields">
+                <div className="fields">
+                  <h4 className="field-text">{seriesData.description}</h4>
+                </div>
+              </div>
+            </div>
+            <div className="seasons-and-episodes">
+              <div className="seasons">
+                {seriesData.episodes.map((_season, index) => (
+                  <button
+                    type="button"
+                    style={{ backgroundColor: selectedSeason === index ? '#03b1fc' : '#fc7ae2' }}
+                    key={`${reactId}-season-button`}
+                    className="seasons-button"
+                    onClick={() => setSelectedSeason(index)}
+                  >
+                    <p>{index + 1}</p>
+                  </button>
+                ))}
+                <button
+                  style={{
+                    backgroundColor:
+                      selectedSeason === seriesData.episodes.length ? '#03b1fc' : '#fc7ae2',
+                  }}
+                  className="seasons-button"
+                  type="button"
+                  onClick={() => setSelectedSeason(seriesData.episodes.length)}
+                >
+                  +
+                </button>
+              </div>
+              <div className="episodes">
+                {seriesData.episodes[selectedSeason] &&
+                  seriesData.episodes[selectedSeason].map((episode, index) => (
+                    <div className="episode-div" key={episode.episodeId}>
+                      <div className="episode-div-header">
+                        <div className="text-div">
+                          <p className="text episode-index">{index + 1}</p>
+                          <p className="text">{episode.episodeTitle}</p>
+                        </div>
+                        <div className="remaining" />
+                      </div>
+                      <div className="episode-content">
+                        <img
+                          src={episode.episodeDisplayPicture}
+                          alt={`${episode.episodeTitle}-img`}
+                          className="episode-display-image"
+                        />
+                        <div className="episode-description">
+                          <p>{episode.episodeDescription}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                <form onSubmit={uploadEpisode} className="episode-div">
+                  <div className="episode-div-header">
+                    <div className="text-div">
+                      <p className="text episode-index">
+                        {seriesData.episodes[selectedSeason] &&
+                        seriesData.episodes[selectedSeason].length
+                          ? seriesData.episodes[selectedSeason].length + 1
+                          : 1}
+                      </p>
+                      <input
+                        type="text"
+                        name="newEpisodeTitle"
+                        id="newEpisodeTitle"
+                        placeholder="Episode Title"
+                        value={episodeTitle}
+                        onChange={(e) => setEpisodeTitle(e.target.value)}
+                      />
+                      <p className="move-left">Video File</p>
+                      <input
+                        className="episode-video-file"
+                        style={{ display: 'none' }}
+                        type="file"
+                        name="addEpisodeVideoFile"
+                        id="addEpisodeVideoFile"
+                        accept="video/mp4"
+                        onChange={(e) =>
+                          setAddEpisodeVideoFile(e.target.files && e.target.files[0])
+                        }
+                      />
+                      <label htmlFor="addEpisodeVideoFile" />
+
+                      <label className="move-left" htmlFor="creationDate">
+                        Creation Date
+                      </label>
+                      <input
+                        type="date"
+                        name="creationDate"
+                        id="creationDate"
+                        accept="video/*"
+                        value={addEpisodeCreationDate}
+                        className="creation-date move-left"
+                        onChange={(e) => setAddEpisodeCreationDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="remaining" />
+                  </div>
+                  <div className="episode-content">
+                    <input
+                      className="display-picture-input"
+                      style={{ display: 'none' }}
+                      type="file"
+                      name="displayPicture"
+                      id="displayPicture"
+                      accept="image/*"
+                      onChange={(e) =>
+                        setEpisodeDisplayPicture(e.target.files && e.target.files[0])
+                      }
+                    />
+                    <label htmlFor="displayPicture">
+                      {episodePicturePreview && (
+                        <img
+                          className="episode-display-image"
+                          src={episodePicturePreview}
+                          alt="preview"
+                        />
+                      )}
+                    </label>
+                    <div className="episode-description">
+                      <textarea
+                        value={episodeDescription}
+                        onChange={(e) => setEpisodeDescription(e.target.value)}
+                        placeholder="Description..."
+                        maxLength={descriptionMaxLength}
+                      />
+                    </div>
+                  </div>
+                  <div className="episode-div-header">
+                    <button
+                      className="submit-button"
+                      type="submit"
+                      onClick={uploadEpisode}
+                      disabled={!!isUploading}
+                    >
+                      {!isUploading ? (
+                        <p>Submit</p>
+                      ) : (
+                        <div className="submit-video-button-loader" />
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null,
+    [
+      seriesData,
+      selectedSeason,
+      uploadEpisode,
+      episodeTitle,
+      addEpisodeCreationDate,
+      episodePicturePreview,
+      episodeDescription,
+      reactId,
+      isUploading,
+    ]
+  );
+
+  const renderAddEpisode = useCallback(() => {
+    if (addEpisodeIndex === 0) return renderSearchEpisode();
+    if (addEpisodeIndex === 1) return renderSeriesInfo();
+    // if (addEpisodeIndex === 2) return renderAddSeason();
+    // if (addEpisodeIndex === 3) return renderAddSpecificEpisode();
+    return undefined;
+  }, [addEpisodeIndex, renderSearchEpisode, renderSeriesInfo]);
+
   const selectField = useCallback(
     // eslint-disable-next-line no-unused-vars
     (setValue: (value: React.SetStateAction<boolean>) => void, value: boolean) => {
@@ -571,7 +909,7 @@ export default function PostFile() {
         <div className="main-content">
           {showMovieUpload && <div className="render-upload-section">{renderMovieUpload()}</div>}
           {showCreateSeries && <div className="render-upload-section">{renderCreateSeries()}</div>}
-          {/* {showAddEpisode && <div className="render-upload-section">{renderAddEpisode()}</div>} */}
+          {showAddEpisode && <div className="render-upload-section">{renderAddEpisode()}</div>}
         </div>
       </div>
     </div>

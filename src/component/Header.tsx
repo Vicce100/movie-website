@@ -185,24 +185,25 @@ function DropdownMenu() {
           <DropdownItem displayIcon={<LeftArrowWhite />} goToMenu={menuOptions.main}>
             <strong>Profile</strong>
           </DropdownItem>
-          {currentUser?.profiles.map((profile) => (
-            <DropdownItem
-              key={profile._id}
-              displayIcon={
-                <img
-                  src={profile.avatarURL}
-                  alt={profile.profileName}
-                  className="menu-profile-avatar"
-                />
-              }
-              functionCall={() => {
-                SetProfileContext(profile);
-                window.location.reload();
-              }}
-            >
-              {profile.profileName}
-            </DropdownItem>
-          ))}
+          {currentUser?.profiles &&
+            currentUser?.profiles.map((profile) => (
+              <DropdownItem
+                key={profile._id}
+                displayIcon={
+                  <img
+                    src={profile.avatarURL}
+                    alt={profile.profileName}
+                    className="menu-profile-avatar"
+                  />
+                }
+                functionCall={() => {
+                  SetProfileContext(profile);
+                  window.location.reload();
+                }}
+              >
+                {profile.profileName}
+              </DropdownItem>
+            ))}
           <DropdownItem displayIcon={<Plus />} functionCall={() => navigate('/Profile')}>
             Add Profile
           </DropdownItem>

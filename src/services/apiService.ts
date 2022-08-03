@@ -13,6 +13,8 @@ import {
   SeriesSchemaType,
   queryPathsString,
   FranchiseSchemaType,
+  returnVideosArray,
+  ReturnedSeriesSchemaType,
 } from '../utils/types';
 
 type EndpointType = { host: string; port: string; path: string };
@@ -143,6 +145,13 @@ export const getMovieData = (movieId: string) =>
     path: `/${rs.video}/${rs.movie}/${rs.data}/${movieId}`,
   });
 
+export const getSeriesData = (seriesId: string) =>
+  getRequest<ReturnedSeriesSchemaType>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.series}/${rs.data}/${seriesId}`,
+  });
+
 export const getEpisodeData = (episodeId: string) =>
   getRequest<EpisodeSchemaType>({
     host,
@@ -151,7 +160,7 @@ export const getEpisodeData = (episodeId: string) =>
   });
 
 export const getMovieByCategory = (data: { categoryNames: string[] }) =>
-  postRequest<MovieSchemaType[]>(
+  postRequest<returnVideosArray>(
     {
       host,
       port,
@@ -161,7 +170,7 @@ export const getMovieByCategory = (data: { categoryNames: string[] }) =>
   );
 
 export const getSeriesByCategory = (data: { categoryNames: string[] }) =>
-  postRequest<SeriesSchemaType[]>(
+  postRequest<returnVideosArray>(
     {
       host,
       port,
@@ -169,6 +178,30 @@ export const getSeriesByCategory = (data: { categoryNames: string[] }) =>
     },
     data
   );
+
+export const searchVideo = (searchText: string) =>
+  getRequest<{
+    movies: returnVideosArray | undefined;
+    series: returnVideosArray | undefined;
+  }>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.search}?value=${searchText}`,
+  });
+
+export const searchMovie = (searchText: string) =>
+  getRequest<returnVideosArray | undefined>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.movie}/${rs.search}?value=${searchText}`,
+  });
+
+export const searchSeries = (searchText: string) =>
+  getRequest<returnVideosArray | undefined>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.series}/${rs.search}?value=${searchText}`,
+  });
 
 export const addView = (data: { videoId: string; isMovie: boolean }) =>
   postRequest<{ success: true }>({ host, port, path: `/${rs.video}/${rs.addView}` }, data);
