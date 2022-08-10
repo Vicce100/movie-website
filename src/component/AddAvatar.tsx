@@ -1,26 +1,26 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidV4 } from 'uuid';
-import { getAllCategory } from '../services/index';
-import { CategorySchemaType } from '../utils/types';
+import { getAllFranchise } from '../services/index';
+import { FranchiseSchemaType } from '../utils/types';
 
 import '../styles/AdminStyle.scss';
 
 export default function AddAvatar() {
   const [multipleUpload, setMultipleUpload] = useState<boolean>(false);
-  const [allCategories, setAllCategories] = useState<CategorySchemaType[] | null>(null);
+  const [allFranchise, setAllFranchise] = useState<FranchiseSchemaType[] | null>(null);
 
   const [singleAvatarFile, setSingleAvatarFile] = useState<string | Blob | null>(null);
   const [singleAvatarName, setSingleAvatarName] = useState<string>('');
-  const [singleAvatarCategories, setSingleAvatarCategories] = useState<string[]>([]);
+  const [singleAvatarFranchise, setSingleAvatarFranchise] = useState<string[]>([]);
 
   const [multipleAvatar, setMultipleAvatar] = useState<
     { id: string; file: string | Blob | null; name: string }[]
   >([{ id: uuidV4(), file: null, name: '' }]);
-  const [multipleAvatarCategories, setMultipleAvatarCategories] = useState<string[]>([]);
+  const [multipleAvatarFranchise, setMultipleAvatarFranchise] = useState<string[]>([]);
 
   useEffect(() => {
-    getAllCategory()
-      .then((res) => (res.status === 200 ? setAllCategories(res.data) : null))
+    getAllFranchise()
+      .then((res) => (res.status === 200 ? setAllFranchise(res.data) : null))
       .catch((e) => console.log(e));
   }, []);
 
@@ -34,11 +34,11 @@ export default function AddAvatar() {
       e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
       e.preventDefault();
-      if (!singleAvatarFile || !singleAvatarName || !singleAvatarCategories?.length) return;
+      if (!singleAvatarFile || !singleAvatarName || !singleAvatarFranchise?.length) return;
       const formData = new FormData();
       formData.append('avatarImage', singleAvatarFile);
       formData.append('name', singleAvatarName);
-      singleAvatarCategories.forEach((category) => {
+      singleAvatarFranchise.forEach((category) => {
         formData.append('category', category);
       });
       const options: RequestInit = { method: 'POST', body: formData, credentials: 'include' };
@@ -48,13 +48,13 @@ export default function AddAvatar() {
         if (res.status === 201) {
           setSingleAvatarFile(null);
           setSingleAvatarName('');
-          setSingleAvatarCategories([]);
+          setSingleAvatarFranchise([]);
         }
       } catch (error) {
         console.log(error);
       }
     },
-    [singleAvatarCategories, singleAvatarFile, singleAvatarName]
+    [singleAvatarFranchise, singleAvatarFile, singleAvatarName]
   );
 
   const uploadMultipleAvatars = useCallback(
@@ -62,27 +62,27 @@ export default function AddAvatar() {
       e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
       e.preventDefault();
-      if (!multipleAvatar[0].file || !multipleAvatar[0].name || !multipleAvatarCategories?.length)
+      if (!multipleAvatar[0].file || !multipleAvatar[0].name || !multipleAvatarFranchise?.length)
         return;
       const formData = new FormData();
       multipleAvatar.forEach((avatar) => {
         if (avatar.file) formData.append('avatarImage', avatar.file);
         formData.append('name', avatar.name);
       });
-      multipleAvatarCategories.forEach((category) => formData.append('categories', category));
+      multipleAvatarFranchise.forEach((category) => formData.append('categories', category));
 
       const options: RequestInit = { method: 'POST', body: formData, credentials: 'include' };
       try {
         const res = await fetch('http://localhost:5050/avatar/upload/multiple', options);
         if (res.status === 201) {
           setMultipleAvatar([{ id: uuidV4(), file: null, name: '' }]);
-          setMultipleAvatarCategories([]);
+          setMultipleAvatarFranchise([]);
         }
       } catch (error) {
         console.log(error);
       }
     },
-    [multipleAvatar, multipleAvatarCategories]
+    [multipleAvatar, multipleAvatarFranchise]
   );
 
   const renderSingleUpload = useCallback(
@@ -115,31 +115,31 @@ export default function AddAvatar() {
             />
           </div>
           <div className="single-form-upload-category-parent">
-            {allCategories &&
-              allCategories.map((category) => (
+            {allFranchise &&
+              allFranchise.map((franchise) => (
                 <div
-                  key={category._id}
+                  key={franchise._id}
                   className="single-form-upload-category-div"
                   style={{
-                    backgroundColor: checkSelectedCategories(singleAvatarCategories, category.name),
+                    backgroundColor: checkSelectedCategories(singleAvatarFranchise, franchise.name),
                   }}
                 >
                   <input
                     className="single-form-upload-category-checkbox"
                     type="checkbox"
                     name="category"
-                    value={category.name}
-                    id={category._id}
+                    value={franchise.name}
+                    id={franchise._id}
                     onChange={() => {
-                      if (!singleAvatarCategories.includes(category.name))
-                        setSingleAvatarCategories([...singleAvatarCategories, category.name]);
+                      if (!singleAvatarFranchise.includes(franchise.name))
+                        setSingleAvatarFranchise([...singleAvatarFranchise, franchise.name]);
                       else
-                        setSingleAvatarCategories(
-                          singleAvatarCategories.filter((c) => c !== category.name)
+                        setSingleAvatarFranchise(
+                          singleAvatarFranchise.filter((c) => c !== franchise.name)
                         );
                     }}
                   />
-                  <label htmlFor={category._id}>{category.name}</label>
+                  <label htmlFor={franchise._id}>{franchise.name}</label>
                 </div>
               ))}
           </div>
@@ -147,9 +147,9 @@ export default function AddAvatar() {
       </div>
     ),
     [
-      allCategories,
+      allFranchise,
       checkSelectedCategories,
-      singleAvatarCategories,
+      singleAvatarFranchise,
       singleAvatarName,
       uploadSingleAvatar,
     ]
@@ -197,15 +197,15 @@ export default function AddAvatar() {
                 />
               </div>
               <div className="multiple-form-upload-category-parent">
-                {allCategories &&
-                  allCategories.map((category) => (
+                {allFranchise &&
+                  allFranchise.map((franchise) => (
                     <div
-                      key={category._id}
+                      key={franchise._id}
                       className="multiple-form-upload-category-div"
                       style={{
                         backgroundColor: checkSelectedCategories(
-                          multipleAvatarCategories,
-                          `${index}/${category.name}`
+                          multipleAvatarFranchise,
+                          `${index}/${franchise.name}`
                         ),
                       }}
                     >
@@ -213,23 +213,23 @@ export default function AddAvatar() {
                         className="multiple-form-upload-category-checkbox"
                         type="checkbox"
                         name="category"
-                        value={`${index}/${category.name}`}
-                        id={index + category._id}
+                        value={`${index}/${franchise.name}`}
+                        id={index + franchise._id}
                         onChange={() => {
-                          if (!multipleAvatarCategories.includes(`${index}/${category.name}`))
-                            setMultipleAvatarCategories([
-                              ...multipleAvatarCategories,
-                              `${index}/${category.name}`,
+                          if (!multipleAvatarFranchise.includes(`${index}/${franchise.name}`))
+                            setMultipleAvatarFranchise([
+                              ...multipleAvatarFranchise,
+                              `${index}/${franchise.name}`,
                             ]);
                           else
-                            setMultipleAvatarCategories(
-                              multipleAvatarCategories.filter(
-                                (c) => c !== `${index}/${category.name}`
+                            setMultipleAvatarFranchise(
+                              multipleAvatarFranchise.filter(
+                                (c) => c !== `${index}/${franchise.name}`
                               )
                             );
                         }}
                       />
-                      <label htmlFor={index + category._id}>{category.name}</label>
+                      <label htmlFor={index + franchise._id}>{franchise.name}</label>
                     </div>
                   ))}
               </div>
@@ -253,10 +253,10 @@ export default function AddAvatar() {
       </div>
     ),
     [
-      allCategories,
+      allFranchise,
       checkSelectedCategories,
       multipleAvatar,
-      multipleAvatarCategories,
+      multipleAvatarFranchise,
       uploadSingleAvatar,
     ]
   );

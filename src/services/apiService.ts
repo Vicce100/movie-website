@@ -10,9 +10,10 @@ import {
   routesString as rs,
   MovieSchemaType,
   EpisodeSchemaType,
-  SeriesSchemaType,
   queryPathsString,
   FranchiseSchemaType,
+  returnVideosArray,
+  ReturnedSeriesSchemaType,
 } from '../utils/types';
 
 type EndpointType = { host: string; port: string; path: string };
@@ -143,6 +144,13 @@ export const getMovieData = (movieId: string) =>
     path: `/${rs.video}/${rs.movie}/${rs.data}/${movieId}`,
   });
 
+export const getSeriesData = (seriesId: string) =>
+  getRequest<ReturnedSeriesSchemaType>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.series}/${rs.data}/${seriesId}`,
+  });
+
 export const getEpisodeData = (episodeId: string) =>
   getRequest<EpisodeSchemaType>({
     host,
@@ -150,8 +158,8 @@ export const getEpisodeData = (episodeId: string) =>
     path: `/${rs.video}/${rs.episode}/${rs.data}/${episodeId}`,
   });
 
-export const getMovieByCategory = (data: { categoryNames: string[] }) =>
-  postRequest<MovieSchemaType[]>(
+export const getMovieByCategory = (data: { categoryNames: string[]; exudeArray?: string[] }) =>
+  postRequest<returnVideosArray>(
     {
       host,
       port,
@@ -160,8 +168,8 @@ export const getMovieByCategory = (data: { categoryNames: string[] }) =>
     data
   );
 
-export const getSeriesByCategory = (data: { categoryNames: string[] }) =>
-  postRequest<SeriesSchemaType[]>(
+export const getSeriesByCategory = (data: { categoryNames: string[]; exudeArray?: string[] }) =>
+  postRequest<returnVideosArray>(
     {
       host,
       port,
@@ -170,8 +178,41 @@ export const getSeriesByCategory = (data: { categoryNames: string[] }) =>
     data
   );
 
+export const searchVideo = (searchText: string) =>
+  getRequest<returnVideosArray>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.search}?value=${searchText}`,
+  });
+
+export const searchMovie = (searchText: string) =>
+  getRequest<returnVideosArray | undefined>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.movie}/${rs.search}?value=${searchText}`,
+  });
+
+export const searchSeries = (searchText: string) =>
+  getRequest<returnVideosArray | undefined>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.series}/${rs.search}?value=${searchText}`,
+  });
+
 export const addView = (data: { videoId: string; isMovie: boolean }) =>
   postRequest<{ success: true }>({ host, port, path: `/${rs.video}/${rs.addView}` }, data);
+
+export const addIdToSavedList = (data: { profileId: string; videoId: string }) =>
+  postRequest<{ success: true }>(
+    { host, port, path: `/${rs.video}/${rs.add}/${rs.savedList}` },
+    data
+  );
+
+export const removeIdFromSavedList = (data: { profileId: string; videoId: string }) =>
+  postRequest<{ success: true }>(
+    { host, port, path: `/${rs.video}/${rs.remove}/${rs.savedList}` },
+    data
+  );
 
 // ffmpeg
 export const generateFFmpeg = (videoId: string) =>

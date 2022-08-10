@@ -1,9 +1,9 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import { assertsValueToType } from '../utils/assert';
-import { getMovieData, addView } from '../services/videoService';
+import { getMovieData, addView, getEpisodeData } from '../services/videoService';
 import { url } from '../services/apiService';
 import { EpisodeSchemaType, MovieSchemaType, routesString as rs } from '../utils/types';
 import { usePageTitle, useFormateTime } from '../hooks';
@@ -21,7 +21,7 @@ import { ReactComponent as SkipForward } from '../asset/svg/videoPlayer/skipForw
 
 import '../styles/VideoPlayerStyle.scss';
 
-export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
+export default function VideoPlayerScene() {
   const [videoData, setVideoData] = useState<MovieSchemaType | EpisodeSchemaType | null>(null);
 
   const [volumeStatus, setVolumeStatus] = useState<'high' | 'low' | 'muted'>('high');
@@ -55,27 +55,48 @@ export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
   const { setPageTitle } = usePageTitle();
   const { formateTime } = useFormateTime();
 
+  const { state } = useLocation();
+  assertsValueToType<{ isMovie: boolean } | undefined>(state);
+
+  // useEffect(() => console.log(state), [state]);
+
   useEffect(() => setPageTitle('video player'), [setPageTitle]);
 
-  useEffect(() => {
-    if (!videoId) return;
-    const fetchVideoData = async () => {
-      try {
-        setVideoData((await getMovieData(videoId)).data);
-      } catch (error) {
-        console.log(error);
+  // useEffect(() => (typeof isMovie !== 'boolean' ? navigate('/') : undefined), [isMovie, navigate]);
+
+  useEffect(
+    () => () => {
+      if (!videoId || !state) {
+        navigate('/');
+        return;
       }
-    };
-    fetchVideoData();
-  }, [videoId]);
+      const callSeries = (value) =>
+        getEpisodeData(value)
+          .then((res) => (res.status === 200 ? setVideoData(res.data) : null))
+          .catch((e) => {
+            if (e) navigate('/');
+          });
+      const callMovie = (value) =>
+        getMovieData(value)
+          .then((res) => (res.status === 200 ? setVideoData(res.data) : null))
+          .catch(() => {
+            callSeries(value);
+            // setIsMovie(false);
+          });
+      if (state.isMovie) callMovie(videoId);
+      else callSeries(videoId);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [videoId]
+  );
 
   const startWatchTimer = useCallback(() => {
-    let i = watchTime;
-    watchTimerRef.current = setInterval(() => {
-      i += 1;
-      setWatchTime(i);
-    }, 1000);
-  }, [watchTime]);
+    // if (watchTime >= 120) return;
+    watchTimerRef.current = setInterval(() => setWatchTime((v) => v + 1), 1000);
+    // if (i >= 120 && watchTimerRef?.current) {
+    //   clearInterval(watchTimerRef.current);
+    // }
+  }, []);
 
   useEffect(
     () => () => startWatchTimer(),
@@ -85,10 +106,10 @@ export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
 
   useEffect(() => {
     (() => {
-      if (watchTime >= 120 && videoData) {
-        if (watchTimerRef.current) clearInterval(watchTimerRef.current);
-        // const response = (await addView({ videoId: _id, isMovie })).data;
-        addView({ videoId: videoData._id, isMovie });
+      if (watchTime === 120 && videoData && state !== undefined) {
+        // if (watchTimerRef.current) clearInterval(watchTimerRef.current);
+        // const response = (await addView({ videoId: _id, state?.isMovie })).data;
+        addView({ videoId: videoData._id, isMovie: state.isMovie });
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,12 +127,13 @@ export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
     if (!video.current) return;
     if (video.current.paused) {
       video.current.play();
-      if (watchTime <= 120) startWatchTimer();
+      // if (watchTime <= 120) startWatchTimer();
+      startWatchTimer();
     } else {
       video.current.pause();
       if (watchTimerRef.current) clearInterval(watchTimerRef.current);
     }
-  }, [startWatchTimer, watchTime]);
+  }, [startWatchTimer]);
 
   const toggleFullScreenMode = useCallback(() => {
     if (!videoContainer.current) return;
@@ -314,7 +336,7 @@ export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
   }, [videoIsFullscreen]);
 
   const renderTitle = useCallback(() => {
-    if (isMovie && videoData) {
+    if (state?.isMovie && videoData) {
       assertsValueToType<MovieSchemaType>(videoData);
       return (
         <div className="title-div">
@@ -332,7 +354,7 @@ export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
       );
     }
     return undefined;
-  }, [isMovie, videoData]);
+  }, [state?.isMovie, videoData]);
 
   return (
     <div className="video-container" ref={videoContainer}>
@@ -494,6 +516,9 @@ export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
           setVideoCurrentTime(video.current?.currentTime);
           const percent = video.current.currentTime / video.current.duration;
           timelineContainer.current?.style.setProperty('--progress-position', String(percent));
+
+          // const { duration } = video.current;
+          // const { currentTime } = video.current;
         }}
         onLoadedData={() => setVideoDuration(video.current?.duration || 0)}
         onPlay={() => setVideoIsPlaying(true)}
@@ -506,7 +531,7 @@ export default function VideoPlayerScene({ isMovie }: { isMovie: boolean }) {
         }}
       >
         {videoId ? (
-          isMovie ? (
+          state?.isMovie ? (
             <source src={`${url}/${rs.video}/${rs.movie}/${videoId}`} type="video/mp4" />
           ) : (
             <source src={`${url}/${rs.video}/${rs.episode}/${videoId}`} type="video/mp4" />

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import {
   useCurrentUserContext,
@@ -21,6 +21,7 @@ import { ReactComponent as LeftArrowWhite } from '../asset/svg/left-arrow-white.
 import { ReactComponent as Manager } from '../asset/svg/manager-9650.svg';
 import { ReactComponent as Cookie } from '../asset/svg/cookie.svg';
 import { ReactComponent as Home } from '../asset/svg/home_white_36dp.svg';
+import { ReactComponent as Search } from '../asset/svg/search.svg';
 
 import { ReactComponent as ArrowIcon } from '../asset/svg/arrow.svg';
 import { ReactComponent as BoltIcon } from '../asset/svg/bolt.svg';
@@ -185,24 +186,25 @@ function DropdownMenu() {
           <DropdownItem displayIcon={<LeftArrowWhite />} goToMenu={menuOptions.main}>
             <strong>Profile</strong>
           </DropdownItem>
-          {currentUser?.profiles.map((profile) => (
-            <DropdownItem
-              key={profile._id}
-              displayIcon={
-                <img
-                  src={profile.avatarURL}
-                  alt={profile.profileName}
-                  className="menu-profile-avatar"
-                />
-              }
-              functionCall={() => {
-                SetProfileContext(profile);
-                window.location.reload();
-              }}
-            >
-              {profile.profileName}
-            </DropdownItem>
-          ))}
+          {currentUser?.profiles &&
+            currentUser?.profiles.map((profile) => (
+              <DropdownItem
+                key={profile._id}
+                displayIcon={
+                  <img
+                    src={profile.avatarURL}
+                    alt={profile.profileName}
+                    className="menu-profile-avatar"
+                  />
+                }
+                functionCall={() => {
+                  SetProfileContext(profile);
+                  window.location.reload();
+                }}
+              >
+                {profile.profileName}
+              </DropdownItem>
+            ))}
           <DropdownItem displayIcon={<Plus />} functionCall={() => navigate('/Profile')}>
             Add Profile
           </DropdownItem>
@@ -225,14 +227,25 @@ export default function Header() {
         <button type="button" className="navigate-home-button" onClick={() => navigate('/')}>
           <Home />
         </button>
-        <button
-          type="button"
-          className="dropdown-button"
-          onClick={() => setOpenDropdown(!openDropdown)}
-        >
-          <DownArrow />
-        </button>
-        {openDropdown ? <DropdownMenu /> : null}
+        <div style={{ flexDirection: 'row', display: 'flex' }}>
+          <div className="search-link-div">
+            <Link
+              className="search-link"
+              to="/search"
+              onChange={(event) => event.nativeEvent.stopImmediatePropagation()}
+            >
+              <Search />
+            </Link>
+          </div>
+          <button
+            type="button"
+            className="dropdown-button"
+            onClick={() => setOpenDropdown(!openDropdown)}
+          >
+            <DownArrow />
+          </button>
+          {openDropdown ? <DropdownMenu /> : null}
+        </div>
       </div>
     </div>
   );

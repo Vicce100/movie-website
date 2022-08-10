@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useMemo, useContext, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useContext, useCallback } from 'react';
 import { useLocalStorage, useSessionStorage } from '../hooks/index';
 import { CurrentUserType, ActiveProfileType } from '../utils/types';
 
@@ -58,10 +58,8 @@ export function UserAuth({ children }: { children?: React.ReactNode }): JSX.Elem
     [getSessionStorage]
   );
 
-  const [currentUser, setCurrentUser] = useState<any | null>(getLocalStoredValue('currentUser'));
-  const [activeProfile, setActiveProfile] = useState<any | null>(
-    getSessionStoredValue('activeProfile')
-  );
+  const [currentUser, setCurrentUser] = useState<any>(getLocalStoredValue('currentUser'));
+  const [activeProfile, setActiveProfile] = useState<any>(getSessionStoredValue('activeProfile'));
 
   const authState = useMemo(() => ({ currentUser }), [currentUser]);
   const profileState = useMemo(() => ({ activeProfile }), [activeProfile]);

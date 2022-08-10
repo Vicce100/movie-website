@@ -6,41 +6,46 @@ export const userRoles = {
   superAdmin: 'superAdmin' as const,
 };
 
-export const routesString = Object.freeze({
-  video: 'video',
-  category: 'category',
-  franchise: 'franchise',
-  avatar: 'avatar',
-  user: 'user',
-  movie: 'movie',
-  episode: 'episode',
-  series: 'series',
-  upload: 'upload',
-  single: 'single',
-  multiple: 'multiple',
-  data: 'data',
-  addView: 'addView',
-  ffmpeg: 'ffmpeg',
-  create: 'create',
-  login: 'login',
-  logout: 'logout',
-  refreshToken: 'refreshToken',
-  addProfile: 'addProfile',
-  getCurrentUser: 'getCurrentUser',
-  checkAuth: 'checkAuth',
-  get: 'get',
-  delete: 'delete',
-  remove: 'remove',
-  videoId: 'videoId',
-  movieId: 'movieId',
-  episodeId: 'episodesId',
-  seriesId: 'seriesId',
-  categoryId: 'categoryId',
-  franchiseId: 'franchiseId',
-  avatarId: 'avatarId',
-  categoryName: 'categoryName',
-  roleType: 'roleType',
-});
+export const routesString = {
+  video: 'video' as const,
+  category: 'category' as const,
+  franchise: 'franchise' as const,
+  avatar: 'avatar' as const,
+  user: 'user' as const,
+  movie: 'movie' as const,
+  episode: 'episode' as const,
+  series: 'series' as const,
+  upload: 'upload' as const,
+  single: 'single' as const,
+  multiple: 'multiple' as const,
+  data: 'data' as const,
+  search: 'search' as const,
+  searchId: 'searchId' as const,
+  searchText: 'searchText' as const,
+  addView: 'addView' as const,
+  ffmpeg: 'ffmpeg' as const,
+  create: 'create' as const,
+  add: 'add' as const,
+  savedList: 'savedList' as const,
+  login: 'login' as const,
+  logout: 'logout' as const,
+  refreshToken: 'refreshToken' as const,
+  addProfile: 'addProfile' as const,
+  getCurrentUser: 'getCurrentUser' as const,
+  checkAuth: 'checkAuth' as const,
+  get: 'get' as const,
+  delete: 'delete' as const,
+  remove: 'remove' as const,
+  videoId: 'videoId' as const,
+  movieId: 'movieId' as const,
+  episodeId: 'episodeId' as const,
+  seriesId: 'seriesId' as const,
+  categoryId: 'categoryId' as const,
+  franchiseId: 'franchiseId' as const,
+  avatarId: 'avatarId' as const,
+  categoryName: 'categoryName' as const,
+  roleType: 'roleType' as const,
+};
 
 export const queryPaths = {
   myList: 'myList' as const,
@@ -56,6 +61,8 @@ export const queryPaths = {
   randomMovie: 'randomMovie' as const,
   randomSeries: 'randomSeries' as const,
 };
+
+export const descriptionMaxLength = 400;
 
 export type queryPathsString =
   | 'myList'
@@ -80,9 +87,17 @@ export type ReturnedVideoDataByCategory = {
   displayPicture: string;
 }[];
 
+export type returnVideos = {
+  _id: string;
+  title: string;
+  isMovie: boolean;
+  displayPicture: string;
+};
+
 export type returnVideosArray = {
   _id: string;
   title: string;
+  isMovie: boolean;
   displayPicture: string;
 }[];
 
@@ -92,12 +107,37 @@ export type ReturnedVideoData = {
   previewImagesUrl: string[];
   title: string;
   episodeTitle: string | undefined;
-  sessionNr: number | undefined;
-  episodeNr: number | undefined;
+  session: number | undefined;
+  episode: number | undefined;
   seriesId: string | undefined;
-  videoUrl: string;
-  displayPicture: string;
 };
+
+export interface ReturnedSeriesSchemaType {
+  _id: string;
+  title: string;
+  displayPicture: string;
+  views: number;
+  monthlyViews: number;
+  public: boolean;
+  categories: string[];
+  franchise: string[];
+  description: string;
+  uploadDate: string;
+  creationDate: string;
+  latestDate: string;
+  episodes: {
+    episodeId: string;
+    episodeTitle: string;
+    episodeDisplayPicture: string;
+    episodeDescription: string;
+    durationInMs: number;
+    seasonNr: number;
+    episodeNr: number;
+  }[][];
+  amountOfSessions: number;
+  amountOfEpisodes: number;
+  creatorsId: string;
+}
 
 export interface SeriesSchemaType {
   _id: string;
@@ -112,7 +152,13 @@ export interface SeriesSchemaType {
   uploadDate: string;
   creationDate: string;
   latestDate: string;
-  episodesId: string[];
+  episodes: {
+    episodeId: string;
+    episodeTitle: string;
+    episodeDisplayPicture: string;
+    seasonNr: number;
+    episodeNr: number;
+  }[];
   amountOfSessions: number;
   creatorsId: string;
 }
@@ -124,7 +170,9 @@ export interface EpisodeSchemaType {
   seriesId: string;
   seriesTitle: string;
   episodeTitle: string;
+  durationInMs: number;
   public: boolean;
+  views: number;
   videoUrl: string;
   previewImagesUrl: string[];
   displayPicture: string;
@@ -140,6 +188,7 @@ export interface MovieSchemaType {
   videoUrl: string;
   previewImagesUrl: string[];
   displayPicture: string;
+  durationInMs: number;
   public: boolean;
   categories: string[];
   franchise: string[];
@@ -154,7 +203,6 @@ export interface MovieSchemaType {
 export interface CategorySchemaType {
   _id: string;
   name: string;
-  // url: string;
 }
 
 export interface FranchiseSchemaType {
@@ -163,11 +211,10 @@ export interface FranchiseSchemaType {
 }
 
 export interface ReturnAvatarType {
-  id: string;
-  categories: string[];
+  _id: string;
   name: string;
   url: string;
-  urlPath: string;
+  franchise: string[];
 }
 
 export interface AvatarSchemaType {
@@ -181,16 +228,21 @@ export interface ActiveProfileType {
   _id: string;
   profileName: string;
   avatarURL: string;
-}
-
-export type ProfileType = {
-  _id: string;
-  profileName: string;
-  avatarURL: string;
   savedList?: string[];
   likedList?: string[];
   hasWatch?: string[];
-}[];
+}
+
+export type ProfileType =
+  | {
+      _id: string;
+      profileName: string;
+      avatarURL: string;
+      savedList?: string[];
+      likedList?: string[];
+      hasWatch?: string[];
+    }[]
+  | undefined;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface CurrentUserType {
@@ -204,5 +256,7 @@ export interface CurrentUserType {
     profiles: ProfileType;
     role: UsersRolesType;
     userStatus: UserStatusType;
+    moviesUploaded: string[];
+    seriesUploaded: string[];
   } | null;
 }

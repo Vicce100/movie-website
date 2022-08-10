@@ -1,0 +1,436 @@
+@import '../utils/scssVariables.scss';
+
+.video-info-container {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  width: 100vw;
+  min-height: 100vh;
+  z-index: 15;
+  background-color: rgba(30, 30, 30, 0.58);
+
+  .main-content {
+    @include custom-light-blue-scrollbar;
+    display: flex;
+    overflow-y: auto;
+    overflow-x: hidden;
+    justify-content: center;
+    width: 50%;
+    min-height: 80%;
+    // height: 120%;
+    margin: 3rem 0;
+    border-radius: 0.8rem;
+    z-index: 16;
+    background-color: rgb(80, 79, 79);
+
+    .movie-content-container {
+      width: 100%;
+
+      .display-img {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-end;
+        position: relative;
+        width: 100%;
+        color: $white;
+        font-size: 20px;
+        font-family: $Roboto-Slab;
+        font-weight: bold;
+        margin: 0;
+        padding: 0;
+        border-radius: 12px;
+        transition: all 250ms;
+
+        &:hover {
+          background-color: $transparent;
+          border: none;
+          box-shadow: none;
+        }
+        img {
+          aspect-ratio: 16 / 9;
+          height: 100%;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          border: none;
+          border-radius: 12px 12px 0 0;
+          transition: all 250ms;
+        }
+        .content-header {
+          display: flex;
+          height: 22%;
+          width: 100%;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          position: absolute;
+          color: lightskyblue;
+
+          background-position: bottom;
+          background: linear-gradient(
+            $transparent 0%,
+            rgba(80, 79, 79, 0.5) 20%,
+            rgba(80, 79, 79, 0.7) 50%,
+            rgba(80, 79, 79, 0.9) 80%,
+            rgb(80, 79, 79) 100%
+          );
+          .content-header-div {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+
+            .header-generale-content {
+              display: flex;
+              align-items: center;
+              flex-direction: row;
+              justify-content: flex-start;
+              width: 100%;
+
+              .header-play-link {
+                display: flex;
+                text-align: center;
+                width: 25%;
+                // padding-top: 0.4rem;
+                margin: 0.8rem 0.4rem;
+
+                .header-play-button {
+                  width: 100%;
+                  border-radius: 0.5rem;
+                  background-color: $white;
+                  color: rgb(0, 0, 0);
+                  text-decoration-line: none;
+                  .header-play-button-text {
+                    &::before {
+                      content: '\25BA';
+                    }
+                  }
+                }
+              }
+              .add-to-saved-list {
+                text-align: center;
+                justify-content: center;
+                align-items: center;
+                background-color: rgba(42, 42, 42, 0.6);
+                border-color: hsla(0, 0%, 100%, 0.5);
+                border-radius: 50%;
+                border-width: 2px;
+                margin: 0.4rem;
+                min-width: 36px;
+                max-width: 42px;
+                min-height: 36px;
+                max-height: 42px;
+                cursor: pointer;
+                transition: all 250ms;
+                &:hover {
+                  border-color: $white;
+                  // transform: scale(1.05);
+                }
+                p {
+                  width: 100%;
+                  height: 100%;
+                  color: rgb(255, 255, 255);
+                  font-size: 2.3rem;
+                }
+                svg {
+                  padding-top: 4px;
+                  width: auto;
+                }
+              }
+            }
+          }
+        }
+      }
+      .header-title-div {
+        display: flex;
+        .header-title {
+          color: #fff;
+          border-radius: 0.5rem;
+          padding: 0.3rem 0.6rem;
+          margin-left: 0.4rem;
+          cursor: default;
+        }
+      }
+      .small-info {
+        display: flex;
+        flex-direction: row;
+        padding: 0.2rem 0.8rem;
+        margin: 0.5rem;
+        border-radius: 0.2rem;
+
+        .date {
+          background-color: rgba(40, 40, 40, 0.75);
+          box-shadow: 0px 0px 10px rgba(180, 180, 180, 0.4);
+          padding: 0.3rem;
+          margin: 0 0.5rem;
+          border-radius: 0.2rem;
+          cursor: default;
+        }
+        .time {
+          background-color: rgba(40, 40, 40, 0.75);
+          box-shadow: 0px 0px 10px rgba(180, 180, 180, 0.4);
+          padding: 0.3rem;
+          margin: 0 0.5rem;
+          border-radius: 0.2rem;
+          cursor: default;
+        }
+      }
+      .description {
+        display: flex;
+        width: 50%;
+        padding: 0.2rem 0.8rem;
+        margin: 0.5rem;
+        font-size: 1.3rem;
+        font-family: $Nunito-Sans, 'Helvetica Neue', sans-serif;
+        cursor: default;
+      }
+    }
+
+    .series-content-container {
+      width: 100%;
+      .display-img {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-end;
+        position: relative;
+        width: 100%;
+        color: $white;
+        font-size: 20px;
+        font-family: $Roboto-Slab;
+        font-weight: bold;
+        margin: 0;
+        padding: 0;
+        border-radius: 12px;
+        transition: all 250ms;
+
+        &:hover {
+          background-color: $transparent;
+          border: none;
+          box-shadow: none;
+        }
+        img {
+          aspect-ratio: 16 / 9;
+          height: 100%;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          border: none;
+          border-radius: 12px 12px 0 0;
+          transition: all 250ms;
+        }
+        .content-header {
+          display: flex;
+          height: 22%;
+          width: 100%;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          position: absolute;
+          color: lightskyblue;
+
+          background-position: bottom;
+          background: linear-gradient(
+            $transparent 0%,
+            rgba(80, 79, 79, 0.5) 20%,
+            rgba(80, 79, 79, 0.7) 50%,
+            rgba(80, 79, 79, 0.9) 80%,
+            rgb(80, 79, 79) 100%
+          );
+          .content-header-div {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+
+            .header-generale-content {
+              display: flex;
+              align-items: center;
+              flex-direction: row;
+              justify-content: flex-start;
+              width: 100%;
+
+              .header-play-link {
+                display: flex;
+                text-align: center;
+                width: 25%;
+                // padding-top: 0.4rem;
+                margin: 0.8rem 0.4rem;
+
+                .header-play-button {
+                  width: 100%;
+                  border-radius: 0.5rem;
+                  background-color: $white;
+                  color: rgb(0, 0, 0);
+                  text-decoration-line: none;
+                  .header-play-button-text {
+                    &::before {
+                      content: '\25BA';
+                    }
+                  }
+                }
+              }
+              .add-to-saved-list {
+                text-align: center;
+                justify-content: center;
+                align-items: center;
+                background-color: rgba(42, 42, 42, 0.6);
+                border-color: hsla(0, 0%, 100%, 0.5);
+                border-radius: 50%;
+                border-width: 2px;
+                margin: 0.4rem;
+                min-width: 36px;
+                max-width: 42px;
+                min-height: 36px;
+                max-height: 42px;
+                cursor: pointer;
+                transition: all 250ms;
+                &:hover {
+                  border-color: $white;
+                  // transform: scale(1.05);
+                }
+                p {
+                  width: 100%;
+                  height: 100%;
+                  color: rgb(255, 255, 255);
+                  font-size: 2.3rem;
+                }
+                svg {
+                  padding-top: 4px;
+                  width: auto;
+                }
+              }
+            }
+          }
+        }
+      }
+      .header-title-div {
+        display: flex;
+        .header-title {
+          color: #fff;
+          border-radius: 0.5rem;
+          padding: 0.3rem 0.6rem;
+          margin-left: 0.4rem;
+          cursor: default;
+        }
+      }
+      .small-info {
+        display: flex;
+        flex-direction: row;
+        padding: 0.2rem 0.8rem;
+        margin: 0.5rem;
+        border-radius: 0.2rem;
+
+        .date {
+          background-color: rgba(40, 40, 40, 0.75);
+          box-shadow: 0px 0px 10px rgba(180, 180, 180, 0.4);
+          padding: 0.3rem;
+          margin: 0 0.5rem;
+          border-radius: 0.2rem;
+          cursor: default;
+        }
+        .time {
+          background-color: rgba(40, 40, 40, 0.75);
+          box-shadow: 0px 0px 10px rgba(180, 180, 180, 0.4);
+          padding: 0.3rem;
+          margin: 0 0.5rem;
+          border-radius: 0.2rem;
+          cursor: default;
+        }
+      }
+      .description {
+        display: flex;
+        width: 50%;
+        padding: 0.2rem 0.8rem;
+        margin: 0.5rem;
+        font-size: 1.3rem;
+        font-family: $Nunito-Sans, 'Helvetica Neue', sans-serif;
+        cursor: default;
+      }
+
+      .seasons {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        padding: 0.8rem;
+        .seasons-button {
+          @include centerFlex;
+          border: 1px solid rgba(80, 80, 80, 0.8);
+          border-radius: 0.3rem;
+          margin: 0.3rem;
+          background-color: rgba(80, 80, 80, 0.6);
+          transition: all 250ms;
+          &:hover {
+            border: 1px solid rgba(60, 60, 60, 0.6);
+            box-shadow: 0px 0px 10px rgba(50, 50, 50, 0.5);
+            cursor: pointer;
+          }
+        }
+      }
+
+      .episodes {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0.8rem;
+        .episode-div {
+          height: 120px;
+          display: flex;
+          flex-direction: column;
+          background-color: rgba(50, 50, 50, 0.6);
+          padding: 0.75rem 1rem;
+          margin: 0.5rem;
+          border-radius: 0.6rem;
+          text-decoration-line: none;
+
+          .episode-div-header {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            .text-div {
+              display: flex;
+              flex-direction: row;
+              margin-bottom: 0.2rem;
+              .text {
+                margin: 0 1.5rem 0 0.3rem;
+                font-size: 1.1em;
+                font-family: $Nunito-Sans, 'Roboto', sans-serif;
+                color: $white;
+              }
+              .episode-index::after {
+                content: '.';
+              }
+            }
+            // .remaining {
+            // }
+          }
+          .episode-content {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            .episode-display-image {
+              aspect-ratio: 16 / 9;
+              // width: 25%;
+              height: 68%;
+              margin: 10px;
+              padding: 0;
+              border: none;
+              border-radius: 0.3rem;
+              transition: all 250ms;
+            }
+            .episode-description {
+              display: flex;
+              width: 100%;
+              margin: 10px;
+              p {
+                width: 100%;
+                font-family: $Nunito-Sans, 'Roboto', sans-serif;
+                color: $white;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
