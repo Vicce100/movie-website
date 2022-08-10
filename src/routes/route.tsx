@@ -8,7 +8,9 @@ import HomeScene from '../scenes/HomeScene';
 import UploadVideo from '../scenes/UploadVideoScene';
 import AdminScene from '../scenes/AdminScene';
 import ProfileScene from '../scenes/ProfileScene';
+// import VideoInfoScene from '../scenes/VideoInfoScene';
 import VideoPlayerScene from '../scenes/VideoPlayerScene';
+import SearchScene from '../scenes/SearchScene';
 
 function Router() {
   const { currentUser } = useCurrentUserContext();
@@ -25,10 +27,14 @@ function Router() {
             </Fragment>
           ) : (
             <Fragment>
-              <Route path="/" element={<HomeScene />} />
-              <Route path="/home" element={<Navigate replace to="/" />} />
+              <Route path="/" element={<Navigate replace to="browse" />} />
+              {/* <Route path="/home" element={<HomeScene />} /> */}
+              <Route path="/browse" element={<HomeScene />} />
+              {/* <Route path=":id" element={<VideoInfoScene />} /> */}
+              {/* </Route> */}
               <Route path="/upload/video" element={<UploadVideo />} />
-              <Route path="/player/:videoId" element={<VideoPlayerScene isMovie />} />
+              <Route path="/player/:videoId" element={<VideoPlayerScene />} />
+              <Route path="/search" element={<SearchScene />} />
             </Fragment>
           )}
           <Route path="/Profile" element={<ProfileScene />} />

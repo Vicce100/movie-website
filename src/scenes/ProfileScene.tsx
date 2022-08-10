@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 /* eslint-disable arrow-body-style */
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { ReactComponent as Plus } from '../asset/svg/plus.svg';
 import { ReactComponent as Home } from '../asset/svg/home_white_36dp.svg';
@@ -12,21 +12,22 @@ import {
   useSetCurrentUser,
 } from '../contexts/UserAuth';
 import { addProfile, getCurrentUser } from '../services/userService';
-import { getAllAvatars, getAllCategory } from '../services';
+import { getAllAvatars, getAllFranchise } from '../services';
 import { useWindowDimensions, usePageTitle } from '../hooks/index';
-import { ReturnAvatarType, ProfileType } from '../utils/types';
+import { ReturnAvatarType, ProfileType, returnVideosArray } from '../utils/types';
 
 import '../styles/ProfileStyle.scss';
 
 type AvatarType = {
   _id: string;
   name: string;
+  activePage: number;
   avatars: ReturnAvatarType[];
 }[];
 
 export default function ProfileScene() {
   const [profiles, setProfiles] = useState<ProfileType | null>(null);
-  const [avatarsFormCategories, setAvatarsFormCategories] = useState<AvatarType | null>(null);
+  const [avatarsFormFranchise, setAvatarsFormFranchise] = useState<AvatarType | null>(null);
   const [newProfileName, setNewProfileName] = useState<string>('');
   const [profileToEdit, setProfileToEdit] = useState<ProfileType | null>(null);
 
@@ -34,7 +35,11 @@ export default function ProfileScene() {
   const [isEnditingProfiles, setIsEditingProfiles] = useState<boolean>(false);
   const [isChoosingAvatar, setIsChoosingAvatar] = useState<boolean>(false);
 
+  const [itemPerPage, setItemPerPage] = useState<number>(6);
+
   const addingProfileRef = useRef<HTMLInputElement | null>(null);
+
+  const rowVideoContainerRef1 = useRef<HTMLDivElement | null>(null);
 
   const { currentUser } = useCurrentUserContext();
   const [setActiveProfile] = useSetActiveProfile();
@@ -44,27 +49,52 @@ export default function ProfileScene() {
   const { setPageTitle } = usePageTitle();
   const navigate = useNavigate();
 
-  const swiperSlidesPerView = useMemo(() => Number(String(width / 250).split('.')[0]), [width]);
-
   useEffect(() => setPageTitle('Profile'), [setPageTitle]);
 
   useEffect(() => {
-    async function getAvatarsForCategories() {
+    if (width >= 1800) setItemPerPage(8);
+    else if (width >= 1500) setItemPerPage(7);
+    else if (width >= 1200) setItemPerPage(6);
+    else if (width >= 1000) setItemPerPage(5);
+    else if (width >= 800) setItemPerPage(4);
+    else if (width >= 500) setItemPerPage(3);
+    else if (width >= 360) setItemPerPage(2);
+  }, [width]);
+
+  const setItemsPerPage = useCallback(
+    (ref: React.MutableRefObject<HTMLDivElement | null>) => {
+      if (!ref || !ref.current) {
+        setTimeout(() => setItemsPerPage(ref), 150);
+        return;
+      }
+      const value = Number(ref.current.style.getPropertyValue('--item-per-page'));
+      if (value === itemPerPage) return;
+      ref.current.style.setProperty('--item-per-page', String(itemPerPage));
+    },
+    [itemPerPage]
+  );
+
+  useEffect(() => {
+    if (rowVideoContainerRef1) setItemsPerPage(rowVideoContainerRef1);
+  }, [itemPerPage, rowVideoContainerRef1, setItemsPerPage]);
+
+  useEffect(() => {
+    (async () => {
       try {
-        const { data: categoryData } = await getAllCategory();
+        const { data: FranchiseData } = await getAllFranchise();
         const { data: avatarData } = await getAllAvatars();
 
-        setAvatarsFormCategories(
-          categoryData.map((category) => ({
+        setAvatarsFormFranchise(
+          FranchiseData.map((category) => ({
             ...category,
-            avatars: avatarData.filter((avatar) => avatar.categories.includes(category.name)),
+            activePage: 0,
+            avatars: avatarData.filter((avatar) => avatar.franchise.includes(category.name)),
           }))
         );
       } catch (error) {
         console.log(error);
       }
-    }
-    getAvatarsForCategories();
+    })();
   }, []);
 
   useEffect(() => {
@@ -163,54 +193,131 @@ export default function ProfileScene() {
     [currentUser?.profiles, isChoosingAvatar]
   );
 
+  const skipBack = useCallback(
+    (
+      state: {
+        _id: string;
+        name: string;
+        activePage: number;
+        avatars: ReturnAvatarType[];
+      } | null
+    ) => {
+      if (!state || !avatarsFormFranchise) return;
+      const newAvatarsFormFranchise = [...avatarsFormFranchise];
+      const nrOfPages = String(state.avatars.length / itemPerPage).split('.');
+
+      if (state.activePage)
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage =
+          state.activePage - 1;
+      else if (!Number(nrOfPages[1]))
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage =
+          Number(nrOfPages[0]) - 1;
+      else
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage = Number(
+          nrOfPages[0]
+        );
+
+      setAvatarsFormFranchise(newAvatarsFormFranchise);
+    },
+    [avatarsFormFranchise, itemPerPage]
+  );
+
+  const skipForward = useCallback(
+    (
+      state: {
+        _id: string;
+        name: string;
+        activePage: number;
+        avatars: ReturnAvatarType[];
+      } | null
+    ) => {
+      if (!state || !avatarsFormFranchise) return;
+      const newAvatarsFormFranchise = [...avatarsFormFranchise];
+
+      const nrOfPages = String(state.avatars.length / itemPerPage).split('.');
+      const number = Number(nrOfPages[1]) ? 0 : 1;
+      if (state.activePage === Number(nrOfPages[0]) - number)
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage = 0;
+      else
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage =
+          state.activePage + 1;
+    },
+    [avatarsFormFranchise, itemPerPage]
+  );
+
+  const renderVideoContainer = useCallback(
+    (
+      state: {
+        _id: string;
+        name: string;
+        activePage: number;
+        avatars: ReturnAvatarType[];
+      } | null,
+      videoRef: React.MutableRefObject<HTMLDivElement | null>
+    ) =>
+      state?.avatars && (
+        <div
+          key={state._id}
+          ref={videoRef}
+          onChange={() => console.log('change')}
+          className="row-video-container"
+        >
+          <div className="row-header">
+            <h2 className="row-header-text">{state.name}</h2>
+          </div>
+          <div className="row-content">
+            <button
+              style={{ visibility: state.avatars.length < itemPerPage ? 'hidden' : 'visible' }}
+              className="handle left-handle"
+              type="button"
+              onClick={() => skipBack(state)}
+            >
+              <p />
+            </button>
+            <div
+              className="slider"
+              style={{ transform: `translateX(-${state.activePage * 100}%)` }}
+            >
+              {state.avatars.map((avatar) => (
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                <div
+                  tabIndex={0}
+                  role="button"
+                  key={avatar._id}
+                  className="single-video"
+                  // onClick={() => {
+                  //   document.documentElement.style.setProperty('--scroll-bar-visibility', 'hidden');
+                  // }}
+                >
+                  <img src={avatar.url} alt={avatar.name} />
+                </div>
+              ))}
+            </div>
+            <button
+              style={{ visibility: state.avatars.length < itemPerPage ? 'hidden' : 'visible' }}
+              className="handle right-handle"
+              type="button"
+              onClick={() => skipForward(state)}
+            >
+              <p />
+            </button>
+          </div>
+        </div>
+      ),
+    [itemPerPage, skipBack, skipForward]
+  );
+
   const renderChoosingAvatar = useCallback(
     () => (
       <div className="choose-avatar-container">
-        {avatarsFormCategories &&
-          avatarsFormCategories.map((category) => {
-            if (!category.avatars.length) return null;
-            return (
-              <div className="avatar-category-div" key={category._id}>
-                <div className="avatar-category-title">
-                  <h3 className="avatar-category-title-text">{category.name}</h3>
-                </div>
-                <div className="swiper-container">
-                  {/* <Swiper
-                    slidesPerView={swiperSlidesPerView || 1}
-                    slidesPerGroup={swiperSlidesPerView || 1}
-                    spaceBetween={20}
-                    pagination={{ clickable: true }}
-                    navigation
-                    modules={[Pagination, Navigation]}
-                    className="swiper-wrapper"
-                  >
-                    {category.avatars.map((avatar) => {
-                      if (!avatar || avatar === undefined) return null;
-                      return (
-                        <SwiperSlide
-                          key={String(avatar.id + category._id)}
-                          className="swiper-slide"
-                        >
-                          <button
-                            type="button"
-                            className="swiper-button"
-                            onClick={() => {
-                              if (newProfileName) handleAddProfile(avatar.urlPath);
-                            }}
-                          >
-                            <img className="avatar-img" src={avatar.url} alt={avatar.name} />
-                          </button>
-                        </SwiperSlide>
-                      );
-                    })}
-                  </Swiper> */}
-                </div>
-              </div>
-            );
+        {avatarsFormFranchise &&
+          avatarsFormFranchise.map((franchise) => {
+            if (!franchise.avatars.length) return null;
+            return renderVideoContainer(franchise, rowVideoContainerRef1);
           })}
       </div>
     ),
-    [avatarsFormCategories]
+    [avatarsFormFranchise, renderVideoContainer]
   );
 
   const renderEditing = useCallback(
@@ -254,9 +361,14 @@ export default function ProfileScene() {
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <button type="button" className="navigate-home-button" onClick={() => navigate('/')}>
+        <Link className="navigate-home-button" to="/" state={{ isMovie: true }}>
           <Home />
-        </button>
+        </Link>
+        {/* <button
+          type="button"
+          className="navigate-home-button"
+          onClick={() => navigate('/')}
+        ></button> */}
       </div>
       {componentToRender()}
     </div>

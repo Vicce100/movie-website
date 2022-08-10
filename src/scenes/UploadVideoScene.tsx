@@ -1,9 +1,10 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState, useCallback, useEffect, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { url } from '../services/apiService';
 import { getSeriesData, searchSeries } from '../services/videoService';
-import { usePageTitle } from '../hooks/index';
+import { usePageTitle, useShuffleArray } from '../hooks/index';
 import Header from '../component/Header';
 import {
   CategorySchemaType,
@@ -84,6 +85,7 @@ export default function PostFile() {
 
   const reactId = useId();
   const { setPageTitle } = usePageTitle();
+  const shuffleArray = useShuffleArray();
   const navigate = useNavigate();
 
   useEffect(() => setPageTitle('Upload Video'), [setPageTitle]);
@@ -137,7 +139,7 @@ export default function PostFile() {
         const res: { success: boolean } = await (
           await fetch(`${url}/${rs.video}/${rs.movie}/${rs.create}`, options)
         ).json();
-        // console.log(res);
+        console.log(res);
         setVideoFile(null);
         setDisplayPicture(null);
         setPicturePreview(undefined);
@@ -562,15 +564,6 @@ export default function PostFile() {
     [allCategories, allFranchise, createSeries, createSeriesCall, isUploading, seriesPicturePreview]
   );
 
-  const shuffleArray = useCallback(
-    (series: returnVideosArray) =>
-      series
-        .map((value) => ({ value, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value),
-    []
-  );
-
   const renderSearchEpisode = useCallback(
     () => (
       <div className="search-container">
@@ -591,7 +584,7 @@ export default function PostFile() {
                   className="search-value-element-button"
                   onClick={() => {
                     setSeriesToAddEpisode(video);
-                    setAddEpisodeIndex(addEpisodeIndex + 1);
+                    setAddEpisodeIndex(1);
                   }}
                 >
                   <img src={video.displayPicture} alt={video.title} />
@@ -602,7 +595,7 @@ export default function PostFile() {
         )}
       </div>
     ),
-    [addEpisodeIndex, searchResponse, searchString, shuffleArray]
+    [searchResponse, searchString, shuffleArray]
   );
 
   useEffect(() => {
@@ -651,6 +644,12 @@ export default function PostFile() {
           await fetch(`${url}/${rs.video}/${rs.episode}/${rs.add}`, options)
         ).json();
         console.log(res);
+        setSeriesToAddEpisode({
+          _id: '',
+          title: '',
+          isMovie: true,
+          displayPicture: '',
+        });
         setAddEpisodeVideoFile(null);
         setSeriesData(null);
         setEpisodeDescription('');
@@ -848,14 +847,6 @@ export default function PostFile() {
     ]
   );
 
-  const renderAddEpisode = useCallback(() => {
-    if (addEpisodeIndex === 0) return renderSearchEpisode();
-    if (addEpisodeIndex === 1) return renderSeriesInfo();
-    // if (addEpisodeIndex === 2) return renderAddSeason();
-    // if (addEpisodeIndex === 3) return renderAddSpecificEpisode();
-    return undefined;
-  }, [addEpisodeIndex, renderSearchEpisode, renderSeriesInfo]);
-
   const selectField = useCallback(
     // eslint-disable-next-line no-unused-vars
     (setValue: (value: React.SetStateAction<boolean>) => void, value: boolean) => {
@@ -909,7 +900,15 @@ export default function PostFile() {
         <div className="main-content">
           {showMovieUpload && <div className="render-upload-section">{renderMovieUpload()}</div>}
           {showCreateSeries && <div className="render-upload-section">{renderCreateSeries()}</div>}
-          {showAddEpisode && <div className="render-upload-section">{renderAddEpisode()}</div>}
+          {showAddEpisode && (
+            <div className="render-upload-section">
+              {addEpisodeIndex === 0
+                ? renderSearchEpisode()
+                : addEpisodeIndex === 1
+                ? renderSeriesInfo()
+                : undefined}
+            </div>
+          )}
         </div>
       </div>
     </div>

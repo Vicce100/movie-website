@@ -26,6 +26,7 @@ export const routesString = {
   ffmpeg: 'ffmpeg' as const,
   create: 'create' as const,
   add: 'add' as const,
+  savedList: 'savedList' as const,
   login: 'login' as const,
   logout: 'logout' as const,
   refreshToken: 'refreshToken' as const,
@@ -37,7 +38,7 @@ export const routesString = {
   remove: 'remove' as const,
   videoId: 'videoId' as const,
   movieId: 'movieId' as const,
-  episodeId: 'episodesId' as const,
+  episodeId: 'episodeId' as const,
   seriesId: 'seriesId' as const,
   categoryId: 'categoryId' as const,
   franchiseId: 'franchiseId' as const,
@@ -129,10 +130,12 @@ export interface ReturnedSeriesSchemaType {
     episodeTitle: string;
     episodeDisplayPicture: string;
     episodeDescription: string;
+    durationInMs: number;
     seasonNr: number;
     episodeNr: number;
   }[][];
   amountOfSessions: number;
+  amountOfEpisodes: number;
   creatorsId: string;
 }
 
@@ -167,6 +170,7 @@ export interface EpisodeSchemaType {
   seriesId: string;
   seriesTitle: string;
   episodeTitle: string;
+  durationInMs: number;
   public: boolean;
   views: number;
   videoUrl: string;
@@ -184,6 +188,7 @@ export interface MovieSchemaType {
   videoUrl: string;
   previewImagesUrl: string[];
   displayPicture: string;
+  durationInMs: number;
   public: boolean;
   categories: string[];
   franchise: string[];
@@ -206,11 +211,10 @@ export interface FranchiseSchemaType {
 }
 
 export interface ReturnAvatarType {
-  id: string;
-  categories: string[];
+  _id: string;
   name: string;
   url: string;
-  urlPath: string;
+  franchise: string[];
 }
 
 export interface AvatarSchemaType {
@@ -224,6 +228,9 @@ export interface ActiveProfileType {
   _id: string;
   profileName: string;
   avatarURL: string;
+  savedList?: string[];
+  likedList?: string[];
+  hasWatch?: string[];
 }
 
 export type ProfileType =

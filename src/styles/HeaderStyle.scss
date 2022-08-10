@@ -52,6 +52,22 @@ code {
         color: $main-color;
       }
     }
+    .search-link-div {
+      display: flex;
+      justify-self: center;
+      align-items: center;
+      .search-link {
+        border-radius: 50%;
+        background-color: rgba(82, 82, 82, 0.6);
+        border: 2px solid hsla(0, 0%, 100%, 0.5);
+        padding: 0.6rem;
+        color: $white;
+        text-decoration-line: none;
+        &:hover {
+          border-color: $white;
+        }
+      }
+    }
     .dropdown-button {
       @include centerFlex;
       cursor: pointer;

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const getWindowDimensions = () => ({
   width: window.innerWidth,
@@ -55,6 +56,7 @@ export const usePageTitle = () => {
 };
 
 export const useFormateTime = () => {
+  // both work fine
   const formateTimeFromMilliseconds = useCallback((timeInMilliseconds: number) => {
     const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
       minimumIntegerDigits: 2,
@@ -69,7 +71,19 @@ export const useFormateTime = () => {
       seconds
     )}`;
   }, []);
-  return { formateTime: formateTimeFromMilliseconds };
+
+  const formateTime = useCallback((value: number) => {
+    const sec = parseInt(String(value / 1000), 10);
+    const hours = Math.floor(sec / 3600);
+    const minutes = Math.floor((sec - hours * 3600) / 60);
+    const seconds = sec - hours * 3600 - minutes * 60;
+
+    return `${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${
+      seconds < 10 ? `0${seconds}` : seconds
+    }`;
+  }, []);
+
+  return { formateTime: formateTimeFromMilliseconds, formateTime2: formateTime };
 };
 
 export const useAsync = (callback: () => Promise<unknown>, dependencies: unknown[] = []) => {
@@ -131,4 +145,24 @@ export const useFetch2 = <T>(url: string, options: RequestInit = {}) => {
   }, [fetchData, options, url]);
 
   return { isLoading, error, value };
+};
+
+// A custom hook that builds on useLocation to parse
+// the query string for you.
+export const useQuery = () => {
+  const { search } = useLocation();
+  return useMemo(() => new URLSearchParams(search), [search]);
+};
+// const [searchParams, setSearchParams] = useSearchParams();
+
+export const useShuffleArray = () => {
+  const shuffleArray = useCallback(
+    <T>(series: T[]): T[] =>
+      series
+        .map((value) => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value),
+    []
+  );
+  return shuffleArray;
 };

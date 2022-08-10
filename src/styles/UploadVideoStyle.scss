@@ -78,7 +78,7 @@
     display: flex;
     align-items: center;
     flex-direction: column;
-    width: 100%;
+    width: 82%;
     height: 100%;
     margin-top: 9vh;
     // background: linear-gradient(
@@ -100,10 +100,11 @@
       width: 100%;
 
       .render-upload-section {
-        @include centerFlex;
+        display: flex;
+        justify-content: center;
         flex-direction: column;
         height: 100%;
-        width: 100%;
+        width: 90%;
 
         .single-upload-section {
           @include custom-light-blue-scrollbar;
@@ -615,12 +616,13 @@
         .search-container {
           display: flex;
           flex-direction: column;
-          width: 100%;
+          width: 50vw;
           min-height: $heightMinusHeader;
           overflow: hidden;
 
           #search-value {
             height: 54px;
+            width: 50%;
             font-size: 2rem;
             border-radius: 0.3rem;
             margin: 0 5rem;

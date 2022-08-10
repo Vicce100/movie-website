@@ -3,14 +3,13 @@
 :root {
   @include custom-light-blue-scrollbar;
   color: $white;
-  overflow-x: hidden;
+  overflow-y: var(--scroll-bar-visibility);
   --img-gap: 0.5rem;
 }
 
 .home-container {
   display: flex;
   min-width: $widthMinusScroll;
-  padding-bottom: 0.8rem;
   .videos-container {
     display: flex;
     align-items: center;
@@ -27,6 +26,8 @@
     );
     margin-top: 9vh;
     padding-bottom: 2.5rem;
+    overflow-x: hidden;
+    transition: all ease-in-out 250ms;
 
     .row-video-container {
       display: flex;
@@ -122,6 +123,7 @@
             max-width: calc(100% / var(--item-per-page));
             margin: 0;
             padding: 0;
+            min-height: 100%;
             border-radius: 6px;
             transition: all 250ms;
             z-index: 1;
@@ -146,6 +148,30 @@
               border-radius: 0.5rem;
               overflow: hidden;
               transition: all 250ms;
+            }
+          }
+          .add-video-element {
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 0 0 calc(100% / var(--item-per-page));
+            width: calc(100% / var(--item-per-page));
+            min-height: 100%;
+            // padding: var(--img-gap);
+            margin-top: var(--img-gap);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(120, 120, 120, 0.5);
+            transition: all 250ms;
+            background-color: $header-color;
+            border: none;
+            color: $white;
+            text-decoration-line: none;
+
+            &:hover {
+              transform: scale(1.06);
+              box-shadow: 0 0 10px rgba(5, 5, 5, 0.7);
+              background-color: #343e53;
             }
           }
         }

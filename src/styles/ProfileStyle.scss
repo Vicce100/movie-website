@@ -2,6 +2,11 @@
 
 :root {
   --swiper-theme-color: #fff;
+  @include custom-light-blue-scrollbar;
+  color: $white;
+  overflow-y: var(--scroll-bar-visibility);
+  overflow-x: hidden;
+  --img-gap: 0.5rem;
 }
 .profile-container {
   display: flex;
@@ -214,6 +219,7 @@
     font-family: $Roboto-Slab;
     font-weight: bold;
     overflow-y: scroll;
+    overflow-x: hidden;
     padding-top: 20px;
     @include custom-light-blue-scrollbar;
 
@@ -292,6 +298,131 @@
                 border-radius: 50%;
                 transition: all 250ms;
               }
+            }
+          }
+        }
+      }
+    }
+
+    .row-video-container {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+
+      --item-per-page: 6;
+
+      &:hover .row-header .progress-bar {
+        display: flex;
+      }
+      .row-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        .row-header-text {
+          margin: 10px 20px 0 20px;
+          padding: 10px 20px 0 20px;
+          font-family: $Nunito-Sans, 'Helvetica Neue', sans-serif;
+        }
+        .progress-bar {
+          @include centerFlex;
+          flex-direction: row;
+          display: none;
+          margin-right: 20px;
+          transition: display 150ms ease-in-out;
+
+          .progress-bar-div {
+            border-radius: 0.2rem;
+            height: 3px;
+            width: 15px;
+            margin: 0 1px;
+          }
+        }
+      }
+
+      .row-content {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        box-sizing: border-box;
+
+        &:hover .handle,
+        :hover .progress-bar {
+          color: $white;
+        }
+        .handle {
+          width: calc(var(--slider-padding) - 1rem);
+          background-color: rgba(0, 0, 0, 0.25);
+          height: 100%;
+          border: none;
+          margin: var(--img-gap) 0;
+          border-radius: 0;
+          transition: all 150ms ease-in-out;
+          z-index: 5;
+          font-size: 4.5rem;
+          color: rgba(0, 0, 0, 0);
+          cursor: pointer;
+          &:hover,
+          :focus {
+            background-color: rgba(0, 0, 0, 0.5);
+            font-size: 5.2rem;
+          }
+        }
+        .left-handle {
+          border-top-right-radius: 0.5rem;
+          border-bottom-right-radius: 0.5rem;
+          &::after {
+            content: '\2039';
+          }
+        }
+        .right-handle {
+          border-top-left-radius: 0.5rem;
+          border-bottom-left-radius: 0.5rem;
+          &::after {
+            content: '\203A';
+          }
+        }
+        .slider {
+          box-sizing: border-box;
+          display: flex;
+          width: calc(100% - 2 * (calc(var(--slider-padding) - 1rem)));
+          transition: all 240ms;
+          // transform: translateX(-100%); // this is set in a ts file
+
+          .single-video {
+            box-sizing: border-box;
+            font-family: $Roboto-Slab;
+            font-weight: bold;
+            max-width: calc(100% / var(--item-per-page));
+            // min-height: 100%;
+            margin: 0;
+            padding: 0;
+            border-radius: 6px;
+            transition: all 250ms;
+            z-index: 1;
+            cursor: pointer;
+
+            &:hover {
+              border: none;
+              transform: scale(1.08);
+              // box-shadow: 0 0 10px rgba(150, 150, 150, 0.5);
+              & > img {
+                z-index: 2;
+              }
+            }
+            img {
+              aspect-ratio: 16 / 9;
+              flex: 0 0 calc(100% / var(--item-per-page));
+              max-width: calc((90vw / var(--item-per-page)) - (var(--img-gap) / 2));
+              height: 100%;
+              margin: 0;
+              padding: var(--img-gap);
+              border: none;
+              border-radius: 0.5rem;
+              overflow: hidden;
+              transition: all 250ms;
             }
           }
         }
