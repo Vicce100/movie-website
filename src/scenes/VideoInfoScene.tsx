@@ -338,7 +338,6 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
         if (videoInfoContainerRef.current.id === document.activeElement.id) {
           if (!searchParams.get('searchId')) setSearchParams('');
           else setSearchParams({ searchId: searchParams.get('searchId') || '' });
-          document.documentElement.style.setProperty('--scroll-bar-visibility', 'auto');
         }
       }}
     >

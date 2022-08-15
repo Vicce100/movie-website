@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, /* useLocation, */ useSearchParams } from 'react-router-dom';
 
 import VideoInfoScene from './VideoInfoScene';
 import Header from '../component/Header';
@@ -32,6 +32,7 @@ export default function HomeScene() {
 
   const [itemPerPage, setItemPerPage] = useState<number>(6);
   const [isMovie, setIsMovie] = useState<boolean>(true);
+  const [scrollYOffset, setScrollYOffset] = useState<number>(0);
 
   const rowVideoContainerRef0 = useRef<HTMLDivElement | null>(null);
   const rowVideoContainerRef1 = useRef<HTMLDivElement | null>(null);
@@ -148,6 +149,11 @@ export default function HomeScene() {
     setItemsPerPage,
   ]);
 
+  useEffect(() => {
+    if (!searchId.get('contentId') && scrollYOffset) window.scrollTo(0, scrollYOffset);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchId]);
+
   const skipBack = useCallback(
     (
       state: returnVideosArray | null,
@@ -248,11 +254,8 @@ export default function HomeScene() {
                     className="single-video"
                     onClick={() => {
                       setIsMovie(video.isMovie);
+                      setScrollYOffset(window.scrollY);
                       setSearchId({ contentId: video._id });
-                      // document.documentElement.style.setProperty(
-                      //   '--scroll-bar-visibility',
-                      //   'hidden'
-                      // );
                     }}
                   >
                     <img src={video.displayPicture} alt={`${video.title}-img`} />

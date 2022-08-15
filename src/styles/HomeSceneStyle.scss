@@ -3,7 +3,7 @@
 :root {
   @include custom-light-blue-scrollbar;
   color: $white;
-  overflow-y: var(--scroll-bar-visibility);
+  overflow-y: auto;
   --img-gap: 0.5rem;
 }
 

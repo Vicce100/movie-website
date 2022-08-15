@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useState, useCallback, useEffect, useId } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { v4 } from 'uuid';
@@ -11,7 +11,6 @@ import Header from '../component/Header';
 import {
   CategorySchemaType,
   FranchiseSchemaType,
-  ReturnedSeriesSchemaType,
   returnVideos,
   returnVideosArray,
   routesString as rs,
