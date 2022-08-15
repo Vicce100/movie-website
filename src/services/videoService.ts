@@ -4,6 +4,7 @@ import {
   getVideosData as videosDataGet,
   getMovieData as movieDataGet,
   getSeriesData as seriesDataGet,
+  getSeriesEpisodes as seriesEpisodesGet,
   getEpisodeData as episodeDataGet,
   getSeriesByCategory as seriesByCategoryGet,
   getMovieByCategory as movieByCategoryGet,
@@ -35,6 +36,13 @@ export const getMovieData = (movieId: string) =>
 
 export const getSeriesData = (seriesId: string) =>
   seriesDataGet(seriesId)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getSeriesEpisodes = (seriesId: string) =>
+  seriesEpisodesGet(seriesId)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);

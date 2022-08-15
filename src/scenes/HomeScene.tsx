@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 
 import VideoInfoScene from './VideoInfoScene';
 import Header from '../component/Header';
@@ -16,6 +16,7 @@ import { useProfileContext } from '../contexts/UserAuth';
 export default function HomeScene() {
   const [myList, setMyList] = useState<returnVideosArray | null>(null);
   const [randomMovie, setRandomMovie] = useState<returnVideosArray | null>(null);
+  const [randomSeries, setRandomSeries] = useState<returnVideosArray | null>(null);
   const [actionAndAdventure, setActionAndAdventure] = useState<returnVideosArray | null>(null);
   const [romCom, setRomCom] = useState<returnVideosArray | null>(null);
   const [familyWeekEndMovie, setFamilyWeekEndMovie] = useState<returnVideosArray | null>(null);
@@ -23,6 +24,7 @@ export default function HomeScene() {
 
   const [myListPage, setMyListPage] = useState<number>(0);
   const [randomMoviePage, setRandomMoviePage] = useState<number>(0);
+  const [randomSeriesPage, setRandomSeriesPage] = useState<number>(0);
   const [actionAndAdventurePage, setActionAndAdventurePage] = useState<number>(0);
   const [romComPage, setRomComPage] = useState<number>(0);
   const [familyWeekEndMoviePage, setFamilyWeekEndMoviePage] = useState<number>(0);
@@ -37,10 +39,10 @@ export default function HomeScene() {
   const rowVideoContainerRef3 = useRef<HTMLDivElement | null>(null);
   const rowVideoContainerRef4 = useRef<HTMLDivElement | null>(null);
   const rowVideoContainerRef5 = useRef<HTMLDivElement | null>(null);
+  const rowVideoContainerRef6 = useRef<HTMLDivElement | null>(null);
 
   const [searchId, setSearchId] = useSearchParams({ contentId: '' });
 
-  const navigate = useNavigate();
   // const location = useLocation();
   const { width } = useWindowDimensions();
   const { activeProfile } = useProfileContext();
@@ -62,6 +64,10 @@ export default function HomeScene() {
   useEffect(() => {
     getVideosData<returnVideosArray>({ queryName: queryPaths.randomMovie })
       .then((res) => (res.status === 200 ? setRandomMovie(res.data) : null))
+      .catch((e) => console.log(e));
+
+    getVideosData<returnVideosArray>({ queryName: queryPaths.randomSeries })
+      .then((res) => (res.status === 200 ? setRandomSeries(res.data) : null))
       .catch((e) => console.log(e));
 
     getMovieByCategory({ categoryNames: ['Action', 'Adventure'] })
@@ -129,6 +135,7 @@ export default function HomeScene() {
     if (rowVideoContainerRef3) setItemsPerPage(rowVideoContainerRef3);
     if (rowVideoContainerRef4) setItemsPerPage(rowVideoContainerRef4);
     if (rowVideoContainerRef5) setItemsPerPage(rowVideoContainerRef5);
+    if (rowVideoContainerRef6) setItemsPerPage(rowVideoContainerRef6);
   }, [
     itemPerPage,
     rowVideoContainerRef0,
@@ -137,6 +144,7 @@ export default function HomeScene() {
     rowVideoContainerRef3,
     rowVideoContainerRef4,
     rowVideoContainerRef5,
+    rowVideoContainerRef6,
     setItemsPerPage,
   ]);
 
@@ -247,7 +255,7 @@ export default function HomeScene() {
                       // );
                     }}
                   >
-                    <img src={video.displayPicture} alt={video.title} />
+                    <img src={video.displayPicture} alt={`${video.title}-img`} />
                   </div>
                 );
               })}
@@ -301,6 +309,14 @@ export default function HomeScene() {
           videoPage: randomMoviePage,
           setVideoPage: setRandomMoviePage,
           title: 'Random Movies',
+        })}
+
+        {renderVideoContainer({
+          videoArray: randomSeries,
+          videoRef: rowVideoContainerRef6,
+          videoPage: randomSeriesPage,
+          setVideoPage: setRandomSeriesPage,
+          title: 'Random Series',
         })}
 
         {renderVideoContainer({

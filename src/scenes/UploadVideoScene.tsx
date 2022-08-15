@@ -2,8 +2,10 @@
 import React, { useState, useCallback, useEffect, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { v4 } from 'uuid';
+
 import { url } from '../services/apiService';
-import { getSeriesData, searchSeries } from '../services/videoService';
+import { getSeriesData, getSeriesEpisodes, searchSeries } from '../services/videoService';
 import { usePageTitle, useShuffleArray } from '../hooks/index';
 import Header from '../component/Header';
 import {
@@ -14,6 +16,8 @@ import {
   returnVideosArray,
   routesString as rs,
   descriptionMaxLength,
+  EpisodeSchemaType,
+  SeriesSchemaType,
 } from '../utils/types';
 import { getAllCategory, getAllFranchise } from '../services/index';
 
@@ -68,7 +72,8 @@ export default function PostFile() {
     isMovie: true,
     displayPicture: '',
   });
-  const [seriesData, setSeriesData] = useState<ReturnedSeriesSchemaType | null>(null);
+  const [seriesData, setSeriesData] = useState<SeriesSchemaType | null>(null);
+  const [seriesEpisodes, setSeriesEpisodes] = useState<EpisodeSchemaType[][]>([]);
   const [selectedSeason, setSelectedSeason] = useState<number>(0);
 
   const [episodeDisplayPicture, setEpisodeDisplayPicture] = useState<File | null>(null);
@@ -83,7 +88,6 @@ export default function PostFile() {
   const [episodeDescription, setEpisodeDescription] = useState<string>('');
   const [episodeTitle, setEpisodeTitle] = useState<string>('');
 
-  const reactId = useId();
   const { setPageTitle } = usePageTitle();
   const shuffleArray = useShuffleArray();
   const navigate = useNavigate();
@@ -111,10 +115,21 @@ export default function PostFile() {
 
   useEffect(() => {
     if (!seriesToAddEpisode || !seriesToAddEpisode._id) return;
-    getSeriesData(seriesToAddEpisode._id)
-      .then((res) => (res.status === 200 ? setSeriesData(res.data) : null))
-      .catch((e) => console.log(e));
-  }, [seriesToAddEpisode]);
+    const abc = async () => {
+      try {
+        const { data: tempSeriesData } = await getSeriesData(seriesToAddEpisode._id);
+        setSeriesData(tempSeriesData);
+        if (tempSeriesData) {
+          const { data } = await getSeriesEpisodes(tempSeriesData._id);
+          setSeriesEpisodes(data);
+        }
+      } catch (error) {
+        console.log(error);
+        if (error) navigate('/');
+      }
+    };
+    abc();
+  }, [navigate, seriesToAddEpisode]);
 
   const uploadMovieCall = useCallback(
     async (
@@ -621,9 +636,11 @@ export default function PostFile() {
         return;
 
       let episodeNr = 1;
+      let seasonNr = 1;
 
-      if (seriesData.episodes[selectedSeason] && seriesData.episodes[selectedSeason].length)
-        episodeNr = seriesData.episodes[selectedSeason].length + 1;
+      if (seriesData.episodes[selectedSeason]) episodeNr = seriesData.episodes.length + 1;
+
+      if (seriesEpisodes.length) seasonNr = selectedSeason + 1;
 
       const formData = new FormData();
 
@@ -634,16 +651,17 @@ export default function PostFile() {
       formData.append('episodeTitle', episodeTitle);
       formData.append('description', episodeDescription);
       formData.append('releaseDate', dayjs(addEpisodeCreationDate).format());
-      formData.append('seasonNr', String(seriesData.episodes.length ? selectedSeason + 1 : 1));
+      formData.append('seasonNr', String(seasonNr));
       formData.append('episodeNr', String(episodeNr));
 
       const options: RequestInit = { method: 'POST', credentials: 'include', body: formData };
       try {
         setIsUploading(true);
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         const res: { success: boolean } = await (
           await fetch(`${url}/${rs.video}/${rs.episode}/${rs.add}`, options)
         ).json();
-        console.log(res);
+        // console.log(res);
         setSeriesToAddEpisode({
           _id: '',
           title: '',
@@ -661,13 +679,14 @@ export default function PostFile() {
       setAddEpisodeIndex(0);
     },
     [
-      addEpisodeCreationDate,
+      seriesData,
       addEpisodeVideoFile,
       episodeDisplayPicture,
       episodeDescription,
       episodeTitle,
       selectedSeason,
-      seriesData,
+      seriesEpisodes,
+      addEpisodeCreationDate,
     ]
   );
 
@@ -681,7 +700,7 @@ export default function PostFile() {
             </div>
             <div className="series-info">
               <div className="displayPicture">
-                <img src={seriesData.displayPicture} alt="preview" />
+                <img src={seriesData.displayPicture} alt="preview-img" />
               </div>
               <div className="fields">
                 <div className="fields">
@@ -691,11 +710,11 @@ export default function PostFile() {
             </div>
             <div className="seasons-and-episodes">
               <div className="seasons">
-                {seriesData.episodes.map((_season, index) => (
+                {seriesEpisodes.map((_season, index) => (
                   <button
                     type="button"
                     style={{ backgroundColor: selectedSeason === index ? '#03b1fc' : '#fc7ae2' }}
-                    key={`${reactId}-season-button`}
+                    key={`${v4()}-season-button`}
                     className="seasons-button"
                     onClick={() => setSelectedSeason(index)}
                   >
@@ -705,19 +724,19 @@ export default function PostFile() {
                 <button
                   style={{
                     backgroundColor:
-                      selectedSeason === seriesData.episodes.length ? '#03b1fc' : '#fc7ae2',
+                      selectedSeason === seriesEpisodes.length ? '#03b1fc' : '#fc7ae2',
                   }}
                   className="seasons-button"
                   type="button"
-                  onClick={() => setSelectedSeason(seriesData.episodes.length)}
+                  onClick={() => setSelectedSeason(seriesEpisodes.length)}
                 >
                   +
                 </button>
               </div>
               <div className="episodes">
-                {seriesData.episodes[selectedSeason] &&
-                  seriesData.episodes[selectedSeason].map((episode, index) => (
-                    <div className="episode-div" key={episode.episodeId}>
+                {seriesEpisodes[selectedSeason] &&
+                  seriesEpisodes[selectedSeason].map((episode, index) => (
+                    <div className="episode-div" key={episode._id}>
                       <div className="episode-div-header">
                         <div className="text-div">
                           <p className="text episode-index">{index + 1}</p>
@@ -727,24 +746,30 @@ export default function PostFile() {
                       </div>
                       <div className="episode-content">
                         <img
-                          src={episode.episodeDisplayPicture}
+                          src={episode.displayPicture}
                           alt={`${episode.episodeTitle}-img`}
                           className="episode-display-image"
                         />
                         <div className="episode-description">
-                          <p>{episode.episodeDescription}</p>
+                          <p>{episode.description}</p>
                         </div>
                       </div>
                     </div>
                   ))}
 
-                <form onSubmit={uploadEpisode} className="episode-div">
+                <form
+                  onSubmit={uploadEpisode}
+                  className="episode-div"
+                  style={{
+                    backgroundColor: 'rgba(50, 50, 50, 0.5)',
+                    boxShadow: '0px 0px 10px rgba(1, 1, 1, 0.5)',
+                  }}
+                >
                   <div className="episode-div-header">
                     <div className="text-div">
                       <p className="text episode-index">
-                        {seriesData.episodes[selectedSeason] &&
-                        seriesData.episodes[selectedSeason].length
-                          ? seriesData.episodes[selectedSeason].length + 1
+                        {seriesEpisodes[selectedSeason] && seriesEpisodes[selectedSeason].length
+                          ? seriesEpisodes[selectedSeason].length + 1
                           : 1}
                       </p>
                       <input
@@ -837,12 +862,12 @@ export default function PostFile() {
     [
       seriesData,
       selectedSeason,
+      seriesEpisodes,
       uploadEpisode,
       episodeTitle,
       addEpisodeCreationDate,
       episodePicturePreview,
       episodeDescription,
-      reactId,
       isUploading,
     ]
   );

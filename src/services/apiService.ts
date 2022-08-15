@@ -14,6 +14,7 @@ import {
   FranchiseSchemaType,
   returnVideosArray,
   ReturnedSeriesSchemaType,
+  SeriesSchemaType,
 } from '../utils/types';
 
 type EndpointType = { host: string; port: string; path: string };
@@ -145,10 +146,17 @@ export const getMovieData = (movieId: string) =>
   });
 
 export const getSeriesData = (seriesId: string) =>
-  getRequest<ReturnedSeriesSchemaType>({
+  getRequest<SeriesSchemaType>({
     host,
     port,
     path: `/${rs.video}/${rs.series}/${rs.data}/${seriesId}`,
+  });
+
+export const getSeriesEpisodes = (seriesId: string) =>
+  getRequest<EpisodeSchemaType[][]>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.episodes}/${rs.all}/${seriesId}`,
   });
 
 export const getEpisodeData = (episodeId: string) =>

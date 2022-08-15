@@ -2,32 +2,36 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useRef, useId, useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { v4 } from 'uuid';
+
 import {
   useCurrentUserContext,
   useProfileContext,
   useSetActiveProfile,
   useSetCurrentUser,
 } from '../contexts/UserAuth';
-import { MovieSchemaType, ReturnedSeriesSchemaType } from '../utils/types';
+import { EpisodeSchemaType, MovieSchemaType, SeriesSchemaType } from '../utils/types';
 import {
   getMovieData,
   getSeriesData,
   addIdToSavedList,
   removeIdFromSavedList,
+  getSeriesEpisodes,
 } from '../services/videoService';
 import { refreshToken } from '../services/userService';
 import { useFormateTime, usePageTitle } from '../hooks';
 
 import { ReactComponent as Checked } from '../asset/svg/videoInfo/checked.svg';
 
-import '../styles/videoInfoStyle.scss';
+import '../styles/VideoInfoStyle.scss';
 
 export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: boolean }) {
   const [isMovie, setIsMovie] = useState<boolean>(true);
   const [movieData, setMovieData] = useState<MovieSchemaType | null>(null);
-  const [seriesData, setSeriesData] = useState<ReturnedSeriesSchemaType | null>(null);
+  const [seriesData, setSeriesData] = useState<SeriesSchemaType | null>(null);
 
   // only for series
+  const [seriesEpisodes, setSeriesEpisodes] = useState<EpisodeSchemaType[][]>([]);
   const [selectedSeason, setSelectedSeason] = useState<number>(0);
 
   const videoInfoContainerRef = useRef<HTMLDivElement | null>(null);
@@ -40,12 +44,15 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const { formateTime } = useFormateTime();
+  const { formateInMinutes } = useFormateTime();
   const { setPageTitle } = usePageTitle();
   const id = useId();
 
   useEffect(() => {
-    if (typeof isMovieProp === 'boolean') setIsMovie(isMovieProp);
+    const setProp = () => {
+      if (typeof isMovieProp === 'boolean') setIsMovie(isMovieProp);
+    };
+    return () => setProp();
   }, [isMovieProp]);
 
   useEffect(
@@ -55,19 +62,28 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
 
   useEffect(
     () => () => {
-      const callSeries = (value) =>
-        getSeriesData(value)
-          .then((res) => (res.status === 200 ? setSeriesData(res.data) : null))
-          .catch((e) => {
-            if (e) navigate('/');
-          });
-      const callMovie = (value) =>
+      const callSeries = async (value: string) => {
+        try {
+          const { data: tempSeriesData } = await getSeriesData(value);
+          setSeriesData(tempSeriesData);
+          if (tempSeriesData) {
+            const { data } = await getSeriesEpisodes(tempSeriesData._id);
+            setSeriesEpisodes(data);
+          }
+        } catch (error) {
+          console.log(error);
+          if (error) navigate('/');
+        }
+      };
+
+      const callMovie = async (value: string) =>
         getMovieData(value)
           .then((res) => (res.status === 200 ? setMovieData(res.data) : null))
           .catch(() => {
             callSeries(value);
             setIsMovie(false);
           });
+
       const value = searchParams.get('contentId');
       if (isMovie && value) callMovie(value);
       else if (value) callSeries(value);
@@ -155,7 +171,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
           </div>
           <div className="small-info">
             <span className="date">{movieData.releaseDate.split('T')[0]}</span>
-            <span className="time">{formateTime(movieData.durationInMs / 1000)}</span>
+            <span className="time">{formateInMinutes(movieData.durationInMs / 1000)}</span>
           </div>
           <span className="description">{movieData.description}</span>
         </div>
@@ -163,7 +179,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
     [
       movieData,
       renderAddToMyListButton,
-      formateTime,
+      formateInMinutes,
       navigate,
       activeProfile?.savedList,
       addToSavedList,
@@ -181,7 +197,14 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             className="display-img"
             onClick={(event) => {
               if (document.activeElement?.id && document.activeElement.id === 'display-img-id')
-                navigate(`/player/${seriesData._id}`, { state: { isMovie: true } });
+                navigate(
+                  `/player/${
+                    seriesEpisodes[0] && seriesEpisodes[0].length
+                      ? seriesEpisodes[0][0]._id
+                      : seriesData._id
+                  }`,
+                  { state: { isMovie: true } }
+                );
               event.nativeEvent.stopImmediatePropagation();
             }}
             id="display-img-id"
@@ -193,7 +216,11 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                   <div className="header-play-link">
                     <Link
                       className="header-play-button"
-                      to={`/player/${seriesData._id}`}
+                      to={`/player/${
+                        seriesEpisodes[0] && seriesEpisodes[0].length
+                          ? seriesEpisodes[0][0]._id
+                          : seriesData._id
+                      }`}
                       state={{ isMovie: true }}
                     >
                       <h2 className="header-play-button-text">Play</h2>
@@ -227,11 +254,11 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
           <span className="description">{seriesData.description}</span>
 
           <div className="seasons">
-            {seriesData.episodes.map((_episode, index) => (
+            {seriesEpisodes.map((_episode, index) => (
               <button
                 type="button"
                 style={{ backgroundColor: selectedSeason === index ? '#03b1fc' : '#fc7ae2' }}
-                key={`${id}-season-button`}
+                key={`${v4()}-season-button`}
                 className="seasons-button"
                 onClick={() => setSelectedSeason(index)}
               >
@@ -241,32 +268,36 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
           </div>
 
           <div className="episodes">
-            {seriesData.episodes[selectedSeason] &&
-              seriesData.episodes[selectedSeason].map((episode, index) => (
+            {seriesEpisodes[selectedSeason] &&
+              seriesEpisodes[selectedSeason].map((episode, index) => (
                 <Link
                   className="episode-div"
-                  key={episode.episodeId}
-                  to={`/player/${episode.episodeId}`}
+                  key={episode._id}
+                  to={`/player/${episode._id}`}
                   state={{ isMovie: false }}
                 >
                   <div className="episode-div-header">
                     <div className="text-div">
-                      <p className="text episode-index">{index + 1}</p>
-                      <p className="text">{episode.episodeTitle}</p>
+                      <div className="div" style={{ display: 'flex', flexDirection: 'row' }}>
+                        <p className="text episode-index">{index + 1}</p>
+                        <p className="text">{episode.episodeTitle}</p>
+                      </div>
                       {episode.durationInMs && (
-                        <span className="text">{formateTime(episode.durationInMs / 1000)}</span>
+                        <span className="text">
+                          {formateInMinutes(episode.durationInMs / 1000)}
+                        </span>
                       )}
                     </div>
                     {/* <div className="remaining" /> */}
                   </div>
                   <div className="episode-content">
                     <img
-                      src={episode.episodeDisplayPicture}
+                      src={episode.displayPicture}
                       alt={`${episode.episodeTitle}-img`}
                       className="episode-display-image"
                     />
                     <div className="episode-description">
-                      <p>{episode.episodeDescription}</p>
+                      <p>{episode.description}</p>
                     </div>
                   </div>
                 </Link>
@@ -275,14 +306,14 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
         </div>
       ),
     [
+      seriesData,
+      renderAddToMyListButton,
+      seriesEpisodes,
+      selectedSeason,
+      navigate,
       activeProfile?.savedList,
       addToSavedList,
-      id,
-      navigate,
-      formateTime,
-      renderAddToMyListButton,
-      selectedSeason,
-      seriesData,
+      formateInMinutes,
     ]
   );
 

@@ -83,7 +83,13 @@ export const useFormateTime = () => {
     }`;
   }, []);
 
-  return { formateTime: formateTimeFromMilliseconds, formateTime2: formateTime };
+  const formateInMinutes = useCallback((timeInMilliseconds: number) => {
+    const minutes = Math.floor(timeInMilliseconds / 60) % 60;
+
+    return `${minutes < 10 ? `0${minutes}` : minutes} min`;
+  }, []);
+
+  return { formateTime: formateTimeFromMilliseconds, formateTime2: formateTime, formateInMinutes };
 };
 
 export const useAsync = (callback: () => Promise<unknown>, dependencies: unknown[] = []) => {

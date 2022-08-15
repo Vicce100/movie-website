@@ -14,6 +14,7 @@ export const routesString = {
   user: 'user' as const,
   movie: 'movie' as const,
   episode: 'episode' as const,
+  episodes: 'episodes' as const,
   series: 'series' as const,
   upload: 'upload' as const,
   single: 'single' as const,
@@ -26,6 +27,7 @@ export const routesString = {
   ffmpeg: 'ffmpeg' as const,
   create: 'create' as const,
   add: 'add' as const,
+  all: 'all' as const,
   savedList: 'savedList' as const,
   login: 'login' as const,
   logout: 'logout' as const,
@@ -152,26 +154,20 @@ export interface SeriesSchemaType {
   uploadDate: string;
   creationDate: string;
   latestDate: string;
-  episodes: {
-    episodeId: string;
-    episodeTitle: string;
-    episodeDisplayPicture: string;
-    seasonNr: number;
-    episodeNr: number;
-  }[];
+  episodes: string[];
   amountOfSessions: number;
+  amountOfEpisodes: number;
   creatorsId: string;
 }
 
 export interface EpisodeSchemaType {
   _id: string;
-  sessionNr: number;
+  seasonNr: number;
   episodeNr: number;
   seriesId: string;
   seriesTitle: string;
   episodeTitle: string;
   durationInMs: number;
-  public: boolean;
   views: number;
   videoUrl: string;
   previewImagesUrl: string[];
