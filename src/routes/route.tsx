@@ -5,7 +5,6 @@ import { userRoles } from '../utils/types';
 import Login from '../scenes/Login';
 import SignUp from '../scenes/SignUp';
 import HomeScene from '../scenes/HomeScene';
-import UploadVideo from '../scenes/UploadVideoScene';
 import AdminScene from '../scenes/AdminScene';
 import ProfileScene from '../scenes/ProfileScene';
 // import VideoInfoScene from '../scenes/VideoInfoScene';
@@ -32,7 +31,6 @@ function Router() {
               <Route path="/browse" element={<HomeScene />} />
               {/* <Route path=":id" element={<VideoInfoScene />} /> */}
               {/* </Route> */}
-              <Route path="/upload/video" element={<UploadVideo />} />
               <Route path="/player/:videoId" element={<VideoPlayerScene />} />
               <Route path="/search" element={<SearchScene />} />
             </Fragment>

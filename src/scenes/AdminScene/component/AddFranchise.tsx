@@ -1,8 +1,8 @@
 import React, { useState, useCallback, FormEvent } from 'react';
 import { v4 as uuidV4 } from 'uuid';
-import { uploadMultipleFranchise } from '../services/index';
+import { uploadMultipleFranchise } from '../../../services/index';
 
-import '../styles/AdminStyle.scss';
+import '../styles/AddCategories.scss';
 
 export default function AddFranchise() {
   const [franchise, setFranchise] = useState<{ id: string; value: string; isRemoving: boolean }[]>([

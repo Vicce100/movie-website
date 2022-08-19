@@ -1,0 +1,147 @@
+@import '../../../utils/scssVariables.scss';
+
+.add-category-container {
+  @include centerFlex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+
+  .add-filed-section {
+    @include centerFlex;
+    flex-direction: row;
+    width: 100%;
+    height: 10%;
+    margin: 10px 0;
+    font-family: $Roboto-Slab, 'Roboto', sans-serif;
+    border: none;
+
+    .add-filed-div {
+      @include centerFlex;
+      justify-content: space-around;
+      flex-direction: row;
+      width: 60%;
+      height: 100%;
+      border-radius: 10px;
+      background-color: #3b3e46;
+      font-family: $Roboto-Slab, 'Roboto', sans-serif;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+      border: none;
+
+      .add-filed-button {
+        @include centerFlex;
+        cursor: pointer;
+        flex-direction: row;
+        width: 28%;
+        height: 50%;
+        border-radius: 10px;
+        background-color: $header-color2;
+        color: $white;
+        font-family: $Roboto-Slab, 'Roboto', sans-serif;
+        box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+        border: none;
+        &:hover {
+          transition: 0.2s;
+          filter: brightness(1.05);
+          box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+  }
+
+  .main-content {
+    @include centerFlex;
+    width: 100%;
+    height: 90vh;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    font-weight: 300;
+    border-radius: 5px;
+
+    .form-parent-div {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 90%;
+      height: 79.3vh;
+      background-color: $header-color;
+      font-family: 'Roboto', sans-serif;
+      font-size: 1rem;
+      font-weight: 300;
+      border-radius: 5px;
+      overflow: hidden;
+      overflow-y: scroll;
+      box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+
+      &::-webkit-scrollbar {
+        width: 10px;
+      }
+      &::-webkit-scrollbar-track {
+        background-color: #3b3e46;
+        border-radius: 10px;
+        // &:hover {}
+      }
+      &::-webkit-scrollbar-thumb {
+        background: #64c4c0;
+        box-shadow: 0px 0px 10px rgba(255, 255, 255, 1);
+        border-radius: 10px;
+        &:hover {
+          background: #7afcf5;
+        }
+      }
+
+      .category-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 40%;
+        // height: 100%;
+        padding-top: 20px;
+
+        .category-input-div {
+          width: 100%;
+          display: flex;
+          border-radius: 15px;
+          flex-direction: column;
+          margin-bottom: 0.3rem;
+
+          .category-input-sub-div {
+            margin-bottom: 5%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+          }
+
+          .single-category-form-input {
+            @include input-field-test;
+            width: 70%;
+            border-radius: 10px;
+            color: $white;
+            background-color: $header-color2;
+            border: solid 1.5px rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 0px 10px rgba(125, 125, 125, 0.25);
+          }
+          .remove-category-button {
+            @include centerFlex;
+            cursor: pointer;
+            // flex-direction: row;
+            width: 30%;
+            border-radius: 10px;
+            background-color: $header-color2;
+            color: #cdcdcd;
+            font-family: $Roboto-Slab, 'Roboto', sans-serif;
+            box-shadow: 0px 0px 10px rgba(125, 125, 125, 0.25);
+            border: none;
+            outline: inset rgba(255, 255, 255, 0.2);
+            &:hover {
+              transition: 0.2s;
+              filter: brightness(1.1);
+              color: #ffffff;
+              box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.35);
+            }
+          }
+        }
+      }
+    }
+  }
+}

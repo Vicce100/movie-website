@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidV4 } from 'uuid';
-import { getAllFranchise } from '../services/index';
-import { FranchiseSchemaType } from '../utils/types';
+import { getAllFranchise } from '../../../services/index';
+import { FranchiseSchemaType } from '../../../utils/types';
 
-import '../styles/AdminStyle.scss';
+import '../styles/AddAvatar.scss';
 
 export default function AddAvatar() {
   const [multipleUpload, setMultipleUpload] = useState<boolean>(false);
