@@ -1,0 +1,325 @@
+@import '../../../utils/scssVariables.scss';
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+  min-height: $heightMinusHeader;
+  overflow: hidden;
+
+  #search-value {
+    height: 54px;
+    width: 50%;
+    font-size: 2rem;
+    border-radius: 0.3rem;
+    margin: 0 5rem;
+    padding: 0 2rem;
+    color: #fff;
+    background-color: rgba(200, 200, 200, 0.3);
+    border: 1px solid rgba(10, 10, 10, 1);
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.25);
+    cursor: text;
+
+    &:focus {
+      outline: none;
+    }
+  }
+  .search-value-container {
+    display: flex;
+    flex-wrap: wrap;
+    // background-color: #b00b;
+    margin: 2rem;
+    justify-content: center;
+
+    .search-value-element {
+      width: 200px;
+      color: $white;
+      font-size: 20px;
+      font-family: $Roboto-Slab;
+      font-weight: bold;
+      margin: 0;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: all 250ms;
+
+      &:hover {
+        background-color: $transparent;
+        border: none;
+        box-shadow: none;
+        & > img {
+          z-index: 1;
+        }
+      }
+
+      .search-value-element-button {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 8px;
+        background-color: $transparent;
+        transition: all 250ms;
+        &:hover {
+          transform: scale(1.1);
+          cursor: pointer;
+        }
+      }
+      img {
+        aspect-ratio: 16 / 9;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 12px;
+        transition: all 250ms;
+      }
+    }
+  }
+}
+
+.series-data-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: $heightMinusHeader;
+
+  .series-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+
+    .title-div {
+      display: flex;
+      width: 80%;
+      justify-content: flex-start;
+      .field-text {
+        margin: 1rem 2.5rem 0.2rem 2.5rem;
+        font-size: 1.5rem;
+        font-family: $Roboto-Slab, 'Roboto', sans-serif;
+      }
+    }
+
+    .series-info {
+      display: flex;
+      width: 80%;
+      align-items: center;
+      flex-direction: row;
+      align-items: center;
+      .displayPicture {
+        width: 550px;
+        color: $white;
+        font-size: 20px;
+        font-family: $Roboto-Slab;
+        font-weight: bold;
+        margin: 0;
+        padding: 0.5rem;
+        border-radius: 0.3rem;
+        transition: all 250ms;
+
+        &:hover {
+          background-color: $transparent;
+          border: none;
+          box-shadow: none;
+          & > img {
+            z-index: 1;
+          }
+        }
+
+        img {
+          aspect-ratio: 16 / 9;
+          height: 100%;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          border: none;
+          border-radius: 0.3rem;
+          transition: all 250ms;
+        }
+      }
+      .fields {
+        margin: 10px;
+        .field-text {
+        }
+      }
+    }
+    .seasons-and-episodes {
+      display: flex;
+      flex-direction: column;
+      width: 80%;
+      padding: 0;
+      margin: 1rem;
+      .seasons {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        padding: 0.8rem;
+        .seasons-button {
+          @include centerFlex;
+          border: 1px solid rgba(80, 80, 80, 0.8);
+          border-radius: 0.3rem;
+          margin: 0.3rem;
+          background-color: rgba(80, 80, 80, 0.6);
+          transition: all 250ms;
+          &:hover {
+            border: 1px solid rgba(60, 60, 60, 0.6);
+            box-shadow: 0px 0px 10px rgba(50, 50, 50, 0.5);
+            cursor: pointer;
+          }
+        }
+      }
+      .episodes {
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+        padding: 0.8rem;
+        .episode-div {
+          display: flex;
+          flex-direction: column;
+          width: 750px;
+          min-height: 150px;
+          max-height: 200px;
+          min-height: 100px;
+          background-color: rgba(50, 50, 50, 0.6);
+          border: 1px solid rgba(80, 80, 80, 0.1);
+          padding: 1rem;
+          margin: 0.5rem;
+          border-radius: 0.6rem;
+
+          .episode-div-header {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            .text-div {
+              display: flex;
+              flex-direction: row;
+              margin: 0.2rem 0;
+              .text {
+                margin: 0 1.5rem 0 0.3rem;
+                font-size: 1.1em;
+                font-family: $Nunito-Sans, 'Roboto', sans-serif;
+                color: $white;
+              }
+              .episode-index::after {
+                content: '.';
+              }
+              #newEpisodeTitle {
+                border-radius: 0.4rem;
+                outline: none;
+                border: none;
+                padding-left: 5px;
+              }
+              .episode-video-file + label {
+                cursor: pointer;
+                position: relative;
+                min-width: 102px;
+                height: 100%;
+                margin: 0 0 0 6px;
+                border-radius: 8px;
+                background-color: rgba(50, 50, 50, 0.5);
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+
+                &::after {
+                  position: absolute;
+                  left: 45%;
+                  content: '+';
+                }
+              }
+              .move-left {
+                margin-left: 1.5rem;
+              }
+              .creation-date {
+                border-radius: 0.2rem;
+                outline: none;
+                border: none;
+                padding-left: 5px;
+                font-size: 0.9rem;
+                cursor: pointer;
+              }
+            }
+            .remaining {
+            }
+          }
+          .episode-content {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            .display-picture-input + label {
+              display: flex;
+              cursor: pointer;
+              position: relative;
+              min-width: 25%;
+              min-height: 90px;
+              height: 75%;
+              margin: 10px;
+              border-radius: 8px;
+              background-color: rgba(50, 50, 50, 0.5);
+              box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+
+              .preview-play-div {
+                @include centerFlex;
+                height: 100%;
+                width: 100%;
+                position: absolute;
+              }
+              .episode-display-image {
+                aspect-ratio: 16 / 9;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                border: none;
+                border-radius: 0.3rem;
+                transition: all 250ms;
+              }
+            }
+            .episode-display-image {
+              aspect-ratio: 16 / 9;
+              width: 25%;
+              height: 75%;
+              margin: 10px;
+              padding: 0;
+              border: none;
+              border-radius: 0.3rem;
+              transition: all 250ms;
+            }
+            .episode-description {
+              display: flex;
+              width: 100%;
+              margin: 10px;
+              p {
+                width: 100%;
+                font-family: $Nunito-Sans, 'Roboto', sans-serif;
+                color: $white;
+              }
+              textarea {
+                width: 100%;
+                font-size: 0.9rem;
+                border: 1px solid rgba(0, 0, 0, 0.95);
+                border-radius: 0.5rem;
+                background-color: rgba(255, 255, 255, 0.9);
+                color: rgb(0, 0, 0);
+                padding: 0.3rem;
+              }
+            }
+          }
+          .submit-button {
+            border: 1px solid rgba(255, 255, 200, 0.3);
+            height: 2.3rem;
+            border-radius: 0.4rem;
+            background-color: #252931;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(215, 210, 231, 0.35);
+            transition: all 250ms;
+            &:hover {
+              box-shadow: 0 0 10px rgba(255, 250, 231, 0.727), 0 0 20px rgba(255, 250, 231, 0.727);
+              filter: brightness(1.05);
+            }
+          }
+        }
+      }
+    }
+  }
+}

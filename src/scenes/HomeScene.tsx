@@ -230,38 +230,22 @@ export default function HomeScene() {
               <p />
             </button>
             <div className="slider" style={{ transform: `translateX(-${videoPage * 100}%)` }}>
-              {videoArray.map((video, index) => {
-                if (
-                  video._id ===
-                    'this-is-my-list-1-this-is-my-list-2-this-is-my-list-3-this-is-my-list-4' &&
-                  index === 0
-                )
-                  return (
-                    <Link
-                      key={`${video._id}-first-element-in-my-list`}
-                      className="add-video-element"
-                      to="/upload/video"
-                    >
-                      <Plus />
-                    </Link>
-                  );
-                return (
-                  // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-                  <div
-                    tabIndex={0}
-                    role="button"
-                    key={video._id}
-                    className="single-video"
-                    onClick={() => {
-                      setIsMovie(video.isMovie);
-                      setScrollYOffset(window.scrollY);
-                      setSearchId({ contentId: video._id });
-                    }}
-                  >
-                    <img src={video.displayPicture} alt={`${video.title}-img`} />
-                  </div>
-                );
-              })}
+              {videoArray.map((video) => (
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                <div
+                  tabIndex={0}
+                  role="button"
+                  key={video._id}
+                  className="single-video"
+                  onClick={() => {
+                    setIsMovie(video.isMovie);
+                    setScrollYOffset(window.scrollY);
+                    setSearchId({ contentId: video._id });
+                  }}
+                >
+                  <img src={video.displayPicture} alt={`${video.title}-img`} />
+                </div>
+              ))}
             </div>
             <button
               style={{ visibility: videoArray.length < itemPerPage ? 'hidden' : 'visible' }}
@@ -291,15 +275,7 @@ export default function HomeScene() {
       >
         {myList &&
           renderVideoContainer({
-            videoArray: [
-              {
-                _id: 'this-is-my-list-1-this-is-my-list-2-this-is-my-list-3-this-is-my-list-4',
-                title: '',
-                isMovie: true,
-                displayPicture: '',
-              },
-              ...myList,
-            ],
+            videoArray: myList,
             videoRef: rowVideoContainerRef0,
             videoPage: myListPage,
             setVideoPage: setMyListPage,

@@ -1,0 +1,321 @@
+@import '../../../utils/scssVariables.scss';
+
+.single-upload-section {
+  @include custom-light-blue-scrollbar;
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  min-height: $heightMinusHeader;
+  width: 100%;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+
+  .video-preview-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    .single-display-picture-input + label {
+      display: flex;
+      cursor: pointer;
+      position: relative;
+      margin: 10px;
+      height: 300px;
+      width: 500px;
+      border-radius: 8px;
+      background-color: rgba(50, 50, 50, 0.5);
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+
+      .preview-play-div {
+        @include centerFlex;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        svg {
+          @include centerFlex;
+          color: rgba(0, 0, 0, 0.9);
+          height: 50px;
+          width: 50px;
+          border-radius: 50%;
+          box-shadow: 0px 0px 10px rgba(200, 200, 200, 0.9);
+          font-size: 60px;
+          transition: all 250ms;
+          &:hover {
+            background-color: rgba(60, 60, 60, 0.45);
+            transform: scale(1.06);
+            filter: brightness(1.1);
+          }
+        }
+      }
+      img {
+        object-fit: contain;
+        border-radius: 15px;
+        height: 100%;
+        width: 100%;
+      }
+    }
+    .video-preview-input-fields {
+      @include centerFlex;
+      justify-content: flex-start;
+      height: 300px;
+      flex-direction: column;
+
+      .release-date-div {
+        @include centerFlex;
+        align-items: flex-start;
+        flex-direction: column;
+        width: 100%;
+        div {
+          flex-direction: row;
+          width: 118%;
+          margin: 0;
+          padding: 0;
+          label {
+            margin-left: 10px;
+          }
+          input[type='date'] {
+            @include input-field-test;
+            width: 60%;
+            height: 24px;
+            border-radius: 10px;
+            padding: 5px 15px;
+            color: #000;
+            background-color: $white;
+            border: solid 1px rgba(100, 100, 100, 0.1);
+            box-shadow: 0px 0px 10px rgba(125, 125, 125, 0.25);
+            cursor: text;
+          }
+          button {
+            background-color: rgba(124, 124, 154, 0.2);
+            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 250ms;
+            &:hover {
+              border: 1px solid rgba(200, 200, 200, 0.45);
+              box-shadow: 0px 0px 10px rgba(200, 200, 200, 0.45);
+              filter: brightness(1.08);
+              transform: scale(1.04);
+            }
+          }
+        }
+      }
+      div {
+        @include centerFlex;
+        align-items: flex-start;
+        flex-direction: column;
+        width: 100%;
+        label {
+          margin-left: 10px;
+        }
+        .title-input {
+          @include input-field-test;
+          width: 60%;
+          height: 24px;
+          border-radius: 10px;
+          margin: 15px 15px 30px;
+          padding: 5px 15px;
+          color: #000;
+          background-color: $white;
+          border: solid 2px rgba(100, 100, 100, 0.1);
+          box-shadow: 0px 0px 10px rgba(125, 125, 125, 0.25);
+          cursor: text;
+        }
+        .video-file-input {
+          @include input-field-test;
+          width: 60%;
+          height: 24px;
+          border-radius: 10px;
+          margin: 15px 15px 30px;
+          padding: 5px 15px;
+          color: #000;
+          background-color: $white;
+          border: solid 2px rgba(100, 100, 100, 0.1);
+          box-shadow: 0px 0px 10px rgba(125, 125, 125, 0.25);
+          cursor: pointer;
+
+          &:hover {
+            transition: 0.2s;
+            filter: brightness(1.05);
+            box-shadow: 0px 0px 10px rgba(50, 50, 50, 0.4);
+            border: 2px solid rgba(0, 0, 0, 0.3);
+          }
+          &::-webkit-file-upload-button {
+            // visibility: hidden;
+            display: none;
+          }
+          &::before {
+            margin-right: 2.5%;
+            content: '\01F3A5';
+          }
+        }
+      }
+    }
+  }
+  .video-addon-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    .description {
+      display: flex;
+      flex-direction: column;
+      width: 30%;
+      height: 300px;
+      margin: 10px;
+      padding: 10px;
+
+      .description-input {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        align-items: flex-end;
+        text-align: flex-end;
+        border-radius: 12px;
+        border: 1px solid rgba(40, 40, 40, 0.7);
+        width: 100%;
+        height: 100%;
+        margin: 10px 0 0 10px;
+        padding: 10px 0;
+      }
+    }
+    .selections {
+    }
+    .categories-selection {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      flex-direction: row;
+      width: 38.7%;
+
+      .single-categories-div {
+        margin: 5px;
+        display: flex;
+        transition: all 250ms;
+        user-select: none;
+        .single-categories-checkbox {
+          display: none;
+
+          &:checked + label {
+            border-radius: 12px;
+            background-color: #fc7ae2;
+          }
+        }
+        .single-categories-checkbox + label {
+          cursor: pointer;
+          user-select: none;
+          border-radius: 12px;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(0, 0, 0, 0.3);
+          padding: 8px 8px;
+          transition: all 250ms;
+          &:hover {
+            filter: brightness(1.1);
+            box-shadow: 0px 0px 10px rgba(100, 100, 100, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.5);
+          }
+        }
+      }
+    }
+  }
+  .submit-video-button-div {
+    @include centerFlex;
+    width: 100%;
+    .submit-video-button {
+      cursor: pointer;
+      height: 50px;
+      background-color: #3b404a;
+      box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      &:disabled {
+        cursor: not-allowed;
+        color: #777;
+        opacity: 0.7;
+        background-color: #222;
+        color: #777;
+        opacity: 0.7;
+        box-shadow: 0px 0px 10px rgba(80, 80, 80, 0.3);
+        border: 1px solid rgba(80, 80, 80, 0.4);
+      }
+      .submit-video-button-loader {
+        display: flex;
+        justify-content: center;
+
+        &::after {
+          content: '';
+          height: 16px;
+          width: 16px;
+          border: 10px solid #dddddd;
+          border-top-color: #009579;
+          border-radius: 50%;
+          transform: rotate(0.16turn);
+          animation: loading 1s cubic-bezier(0.7, 0.9, 0.9, 0.8) infinite;
+        }
+
+        @keyframes loading {
+          /* Safari support */
+          from {
+            transform: rotate(0turn);
+          }
+
+          to {
+            transform: rotate(1turn);
+          }
+        }
+      }
+    }
+  }
+}
+
+button {
+  color: $white;
+  border: 1px solid $white;
+  border-radius: 10px;
+  width: 150px;
+  height: 40px;
+  margin: 10px;
+  font-size: 18px;
+}
+
+.form-control {
+  background-color: $white;
+  border: 1px solid $white;
+  border-radius: 10px;
+  width: 150px;
+  height: 40px;
+  margin: 10px;
+  font-size: 18px;
+}
+textarea:focus {
+  outline: none;
+}
+
+.submit-video-button-loader {
+  display: flex;
+  justify-content: center;
+
+  &::after {
+    content: '';
+    height: 16px;
+    width: 16px;
+    border: 10px solid #dddddd;
+    border-top-color: #009579;
+    border-radius: 50%;
+    transform: rotate(0.16turn);
+    animation: loading 1s cubic-bezier(0.7, 0.9, 0.9, 0.8) infinite;
+  }
+
+  @keyframes loading {
+    /* Safari support */
+    from {
+      transform: rotate(0turn);
+    }
+
+    to {
+      transform: rotate(1turn);
+    }
+  }
+}
