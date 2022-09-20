@@ -27,7 +27,7 @@ export const useSetActiveProfile = () => {
 export const useCurrentUserContext = () => {
   const userContext = useContext(UserContext);
 
-  if (userContext === undefined) {
+  if (userContext === undefined || userContext === null) {
     throw new Error('auth context error');
   }
 

@@ -26,7 +26,7 @@ import { ReactComponent as Checked } from '../asset/svg/videoInfo/checked.svg';
 import '../styles/VideoInfoStyle.scss';
 
 export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: boolean }) {
-  const [isMovie, setIsMovie] = useState<boolean>(true);
+  const [isMovie, setIsMovie] = useState<boolean | undefined>(undefined);
   const [movieData, setMovieData] = useState<MovieSchemaType | null>(null);
   const [seriesData, setSeriesData] = useState<SeriesSchemaType | null>(null);
 
@@ -85,11 +85,11 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
           });
 
       const value = searchParams.get('contentId');
-      if (isMovie && value) callMovie(value);
-      else if (value) callSeries(value);
+      if (typeof isMovie === 'boolean' && isMovie && value) callMovie(value);
+      else if (typeof isMovie === 'boolean' && value) callSeries(value);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchParams]
+    [searchParams, isMovie]
   );
 
   const callRefreshToken = useCallback(async () => {
@@ -203,7 +203,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                       ? seriesEpisodes[0][0]._id
                       : seriesData._id
                   }`,
-                  { state: { isMovie: true } }
+                  { state: { isMovie: false } }
                 );
               event.nativeEvent.stopImmediatePropagation();
             }}
@@ -221,7 +221,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                           ? seriesEpisodes[0][0]._id
                           : seriesData._id
                       }`}
-                      state={{ isMovie: true }}
+                      state={{ isMovie: false }}
                     >
                       <h2 className="header-play-button-text">Play</h2>
                     </Link>
@@ -342,7 +342,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
       }}
     >
       <div tabIndex={0} role="button" className="main-content">
-        {isMovie ? renderMovie() : renderSeries()}
+        {typeof isMovie === 'boolean' && isMovie ? renderMovie() : renderSeries()}
       </div>
     </div>
   );

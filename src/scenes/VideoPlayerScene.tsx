@@ -70,15 +70,15 @@ export default function VideoPlayerScene() {
         navigate('/');
         return;
       }
-      const callSeries = (value) =>
+      const callSeries = (value: string) =>
         getEpisodeData(value)
-          .then((res) => (res.status === 200 ? setVideoData(res.data) : null))
+          .then((res) => (res.status === 200 ? setVideoData(res.data) : undefined))
           .catch((e) => {
             if (e) navigate('/');
           });
-      const callMovie = (value) =>
+      const callMovie = (value: string) =>
         getMovieData(value)
-          .then((res) => (res.status === 200 ? setVideoData(res.data) : null))
+          .then((res) => (res.status === 200 ? setVideoData(res.data) : undefined))
           .catch(() => {
             callSeries(value);
             // setIsMovie(false);
@@ -110,6 +110,8 @@ export default function VideoPlayerScene() {
         // if (watchTimerRef.current) clearInterval(watchTimerRef.current);
         // const response = (await addView({ videoId: _id, state?.isMovie })).data;
         addView({ videoId: videoData._id, isMovie: state.isMovie });
+      } else if (watchTime % 120 === 0) {
+        // update isWatching
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -376,6 +378,7 @@ export default function VideoPlayerScene() {
               type="button"
               className="go-back"
               onClick={() => {
+                // update isWatching
                 navigate(-1);
                 // if (watchTimerRef.current) clearInterval(watchTimerRef.current);
               }}
