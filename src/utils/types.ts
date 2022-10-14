@@ -80,6 +80,18 @@ export type queryPathsString =
   | 'randomMovie'
   | 'randomSeries';
 
+export const isWatchingPaths = Object.freeze({
+  addToMoviesWatched: 'addToMoviesWatched',
+  addToSeriesWatched: 'addToSeriesWatched',
+  removeEpisodeWatched: 'removeEpisodeWatched',
+  setSeriesWatchedActiveEpisode: 'setSeriesWatchedActiveEpisode',
+  updateSeriesWatchedActiveEpisode: 'updateSeriesWatchedActiveEpisode',
+  addToSeriesWatchedEpisodes: 'addToSeriesWatchedEpisodes',
+  updateSeriesWatchedEpisode: 'updateSeriesWatchedEpisode',
+  updateMoviesWatched: 'updateMoviesWatched',
+  removeMovieWatched: 'removeMovieWatched',
+});
+
 export type UsersRolesType = 'user' | 'moderator' | 'admin' | 'superAdmin';
 export type UserStatusType = 'active' | 'disabled';
 
