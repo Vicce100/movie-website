@@ -196,19 +196,23 @@ export default function VideoPlayerScene() {
   }, [videoData, video, state, activeProfile]);
 
   const startWatchTimer = useCallback(() => {
-    if (video.current) setWatchTime(Number(String(video.current.currentTime * 1000).split('.')[0]));
+    if (video.current) setWatchTime(Number(String(video.current.currentTime).split('.')[0]));
     watchTimerRef.current = setInterval(() => setWatchTime((v) => v + 1), 1000);
   }, []);
 
   useEffect(
-    () => startWatchTimer(),
+    () => () => startWatchTimer(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [video.current]
   );
 
+  useEffect(() => console.log(watchTime), [watchTime]);
+
   useEffect(() => {
+    // eslint-disable-next-line consistent-return
     (() => {
-      if (!videoData || !state) return;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (!videoData || !state) return clearInterval(watchTimerRef.current!);
       if (Number(String(watchTime).split('.')[0]) === 120) {
         // const response = (await addView({ videoId: _id, state?.isMovie })).data;
         addView({ videoId: videoData._id, isMovie: state.isMovie });
@@ -230,12 +234,14 @@ export default function VideoPlayerScene() {
     if (!video.current) return;
     if (video.current.paused) {
       video.current.play();
+      console.log(video.current.currentTime);
       startWatchTimer();
     } else {
       video.current.pause();
       if (watchTimerRef.current) {
+        console.log(video.current.currentTime);
+        setWatchTime(Number(String(video.current.currentTime).split('.')[0]));
         clearInterval(watchTimerRef.current);
-        setWatchTime(Number(String(video.current.currentTime * 1000).split('.')[0]));
       }
     }
   }, [startWatchTimer]);

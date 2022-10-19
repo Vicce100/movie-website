@@ -113,7 +113,7 @@
           box-sizing: border-box;
           display: flex;
           width: calc(100% - 2 * var(--slider-padding));
-          transition: all 240ms;
+          transition: all 550ms ease-in-out;
           // transform: translateX(-100%); // this is set in a ts file
 
           .single-video {
@@ -133,9 +133,7 @@
               border: none;
               transform: scale(1.08);
               // box-shadow: 0 0 10px rgba(150, 150, 150, 0.5);
-              & > img {
-                z-index: 2;
-              }
+              z-index: 2;
             }
             img {
               aspect-ratio: 16 / 9;
@@ -147,7 +145,7 @@
               border: none;
               border-radius: 0.5rem;
               overflow: hidden;
-              transition: all 250ms;
+              transition: all 180ms;
             }
           }
           // .add-video-element {

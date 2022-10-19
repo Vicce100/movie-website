@@ -61,7 +61,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
   );
 
   useEffect(
-    () => () => {
+    () => {
       const callSeries = async (value: string) => {
         try {
           const { data: tempSeriesData } = await getSeriesData(value);
@@ -116,10 +116,12 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
   );
 
   const renderAddToMyListButton = useCallback(() => {
-    if (activeProfile?.savedList?.find((objectId) => objectId === movieData?._id))
+    if (isMovie && activeProfile?.savedList?.find((objectId) => objectId === movieData?._id))
+      return <Checked />;
+    if (!isMovie && activeProfile?.savedList?.find((objectId) => objectId === seriesData?._id))
       return <Checked />;
     return <p>&#43; {/* &#10004; */}</p>;
-  }, [activeProfile, movieData?._id]);
+  }, [activeProfile?.savedList, isMovie, movieData?._id, seriesData?._id]);
 
   const renderMovie = useCallback(
     () =>

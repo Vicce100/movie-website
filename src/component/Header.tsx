@@ -9,6 +9,7 @@ import {
   useSetCurrentUser,
   useProfileContext,
   useSetActiveProfile,
+  useSetUserData,
 } from '../contexts/UserAuth';
 import { logout, refreshToken } from '../services/userService';
 
@@ -47,8 +48,8 @@ function DropdownMenu() {
   const dropdownRef = useRef<any>(null);
 
   const navigate = useNavigate();
-  const [setUserContext] = useSetCurrentUser();
   const [SetProfileContext] = useSetActiveProfile();
+  const setUserData = useSetUserData();
   const { currentUser } = useCurrentUserContext();
   const { activeProfile } = useProfileContext();
 
@@ -88,27 +89,26 @@ function DropdownMenu() {
       .then((res) => {
         console.log(res);
         if (res.status === 200) {
-          setUserContext({ currentUser: null });
-          SetProfileContext(null);
+          setUserData(null, null);
         }
         window.location.reload();
         return navigate(`/`);
       })
       .catch((err) => {
         console.log(err);
-        setUserContext({ currentUser: null });
+        setUserData(null, null);
         window.location.reload();
       });
-  }, [SetProfileContext, navigate, setUserContext]);
+  }, [navigate, setUserData]);
 
   const callRefreshToken = useCallback(async () => {
     if (!currentUser || !currentUser?.refreshToken) return;
     refreshToken({ refreshToken: currentUser.refreshToken })
       .then((res) =>
-        res.status === 200 ? setUserContext({ currentUser: res.data.currentUser }) : null
+        res.status === 200 ? setUserData(res.data, activeProfile?._id || null) : null
       )
-      .catch(() => setUserContext({ currentUser: null }));
-  }, [currentUser, setUserContext]);
+      .catch(() => setUserData(null, null));
+  }, [currentUser, setUserData, activeProfile?._id]);
 
   return (
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
