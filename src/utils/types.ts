@@ -286,19 +286,21 @@ export type ProfileType =
     }[]
   | undefined;
 
+export type CurrentUser = {
+  id: string;
+  email: string;
+  createdAt: string;
+  refreshToken: string;
+  firstName: string;
+  lastName: string;
+  profiles: ProfileType;
+  role: UsersRolesType;
+  userStatus: UserStatusType;
+  moviesUploaded: string[];
+  seriesUploaded: string[];
+};
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface CurrentUserType {
-  currentUser: {
-    id: string;
-    email: string;
-    createdAt: string;
-    refreshToken: string;
-    firstName: string;
-    lastName: string;
-    profiles: ProfileType;
-    role: UsersRolesType;
-    userStatus: UserStatusType;
-    moviesUploaded: string[];
-    seriesUploaded: string[];
-  } | null;
+  currentUser: CurrentUser | null;
 }

@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+// eslint-disable-next-line import/no-cycle
+import { useSetUserData } from '../contexts/UserAuth';
+import { refreshToken } from '../services/userService';
+import { CurrentUser } from '../utils/types';
+
 const getWindowDimensions = () => ({
   width: window.innerWidth,
   height: window.innerHeight,
@@ -171,4 +176,22 @@ export const useShuffleArray = () => {
     []
   );
   return shuffleArray;
+};
+
+export const useRefreshToken = () => {
+  const setUserData = useSetUserData();
+
+  const callRefreshToken = useCallback(
+    async (currentUser: CurrentUser | null, profileId: string | null) => {
+      if (!currentUser || !currentUser.refreshToken || !profileId) return;
+      try {
+        const { data } = await refreshToken({ refreshToken: currentUser.refreshToken });
+        setUserData(data, profileId);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [setUserData]
+  );
+  return callRefreshToken;
 };

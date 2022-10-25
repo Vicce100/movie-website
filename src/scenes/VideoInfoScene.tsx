@@ -4,12 +4,7 @@ import React, { useRef, useId, useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { v4 } from 'uuid';
 
-import {
-  useCurrentUserContext,
-  useProfileContext,
-  useSetActiveProfile,
-  useSetCurrentUser,
-} from '../contexts/UserAuth';
+import { useCurrentUserContext, useProfileContext } from '../contexts/UserAuth';
 import { EpisodeSchemaType, MovieSchemaType, SeriesSchemaType } from '../utils/types';
 import {
   getMovieData,
@@ -18,8 +13,7 @@ import {
   removeIdFromSavedList,
   getSeriesEpisodes,
 } from '../services/videoService';
-import { refreshToken } from '../services/userService';
-import { useFormateTime, usePageTitle } from '../hooks';
+import { useFormateTime, usePageTitle, useRefreshToken } from '../hooks';
 
 import { ReactComponent as Checked } from '../asset/svg/videoInfo/checked.svg';
 
@@ -38,8 +32,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
 
   const { currentUser } = useCurrentUserContext();
   const { activeProfile } = useProfileContext();
-  const [setUserContext] = useSetCurrentUser();
-  const [setActiveProfile] = useSetActiveProfile();
+  const callRefreshToken = useRefreshToken();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -92,27 +85,15 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
     [searchParams, isMovie]
   );
 
-  const callRefreshToken = useCallback(async () => {
-    if (!currentUser || !currentUser.refreshToken || !activeProfile) return;
-    try {
-      const { data } = await refreshToken({ refreshToken: currentUser.refreshToken });
-      setUserContext({ currentUser: data.currentUser });
-      const profile = data.currentUser?.profiles?.find(({ _id }) => _id === activeProfile._id);
-      if (profile) setActiveProfile(profile);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [activeProfile, currentUser, setActiveProfile, setUserContext]);
-
   const addToSavedList = useCallback(
     async (videoId: string, action: 'add' | 'remove') => {
-      if (!activeProfile) return;
+      if (!activeProfile?._id) return;
       if (action === 'add') await addIdToSavedList({ profileId: activeProfile._id, videoId });
       if (action === 'remove')
         await removeIdFromSavedList({ profileId: activeProfile._id, videoId });
-      callRefreshToken();
+      callRefreshToken(currentUser, activeProfile._id);
     },
-    [activeProfile, callRefreshToken]
+    [activeProfile?._id, callRefreshToken, currentUser]
   );
 
   const renderAddToMyListButton = useCallback(() => {
