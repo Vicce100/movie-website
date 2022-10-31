@@ -80,6 +80,18 @@ export type queryPathsString =
   | 'randomMovie'
   | 'randomSeries';
 
+export const isWatchingPaths = Object.freeze({
+  addToMoviesWatched: 'addToMoviesWatched',
+  addToSeriesWatched: 'addToSeriesWatched',
+  removeEpisodeWatched: 'removeEpisodeWatched',
+  setSeriesWatchedActiveEpisode: 'setSeriesWatchedActiveEpisode',
+  updateSeriesWatchedActiveEpisode: 'updateSeriesWatchedActiveEpisode',
+  addToSeriesWatchedEpisodes: 'addToSeriesWatchedEpisodes',
+  updateSeriesWatchedEpisode: 'updateSeriesWatchedEpisode',
+  updateMoviesWatched: 'updateMoviesWatched',
+  removeMovieWatched: 'removeMovieWatched',
+});
+
 export type UsersRolesType = 'user' | 'moderator' | 'admin' | 'superAdmin';
 export type UserStatusType = 'active' | 'disabled';
 
@@ -274,19 +286,21 @@ export type ProfileType =
     }[]
   | undefined;
 
+export type CurrentUser = {
+  id: string;
+  email: string;
+  createdAt: string;
+  refreshToken: string;
+  firstName: string;
+  lastName: string;
+  profiles: ProfileType;
+  role: UsersRolesType;
+  userStatus: UserStatusType;
+  moviesUploaded: string[];
+  seriesUploaded: string[];
+};
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface CurrentUserType {
-  currentUser: {
-    id: string;
-    email: string;
-    createdAt: string;
-    refreshToken: string;
-    firstName: string;
-    lastName: string;
-    profiles: ProfileType;
-    role: UsersRolesType;
-    userStatus: UserStatusType;
-    moviesUploaded: string[];
-    seriesUploaded: string[];
-  } | null;
+  currentUser: CurrentUser | null;
 }

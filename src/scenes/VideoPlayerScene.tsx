@@ -3,10 +3,22 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import { assertsValueToType } from '../utils/assert';
-import { getMovieData, addView, getEpisodeData } from '../services/videoService';
+import {
+  getMovieData,
+  addView,
+  getEpisodeData,
+  addToMoviesWatched,
+  updateMoviesWatched,
+  addToSeriesWatched,
+  setSeriesWatchedActiveEpisode,
+  addToSeriesWatchedEpisodes,
+  updateSeriesWatchedActiveEpisode,
+  updateSeriesWatchedEpisode,
+} from '../services/videoService';
 import { url } from '../services/apiService';
 import { EpisodeSchemaType, MovieSchemaType, routesString as rs } from '../utils/types';
-import { usePageTitle, useFormateTime } from '../hooks';
+import { usePageTitle, useFormateTime, useRefreshToken } from '../hooks';
+import { useProfileContext, useCurrentUserContext } from '../contexts/UserAuth';
 
 import { ReactComponent as PlayIcon } from '../asset/svg/videoPlayer/play.svg';
 import { ReactComponent as PauseIcon } from '../asset/svg/videoPlayer/pause.svg';
@@ -36,6 +48,8 @@ export default function VideoPlayerScene() {
   const [previewImageDuration, setPreviewImageDuration] = useState<number>(0);
   const [watchTime, setWatchTime] = useState<number>(0);
 
+  const [timeHasBeenChanged, setTimeHasBeenChanged] = useState<boolean>(false);
+
   const videoContainer = useRef<HTMLDivElement | null>(null);
   const video = useRef<HTMLVideoElement | null>(null);
   const middleControllerRef = useRef<HTMLButtonElement | null>(null);
@@ -52,17 +66,103 @@ export default function VideoPlayerScene() {
 
   const navigate = useNavigate();
   const { videoId } = useParams();
+  const { activeProfile } = useProfileContext();
+  const { currentUser } = useCurrentUserContext();
   const { setPageTitle } = usePageTitle();
   const { formateTime } = useFormateTime();
+  const callRefreshToken = useRefreshToken();
 
   const { state } = useLocation();
   assertsValueToType<{ isMovie: boolean } | undefined>(state);
 
-  // useEffect(() => console.log(state), [state]);
-
   useEffect(() => setPageTitle('video player'), [setPageTitle]);
 
-  // useEffect(() => (typeof isMovie !== 'boolean' ? navigate('/') : undefined), [isMovie, navigate]);
+  const updateVideoWatched = useCallback(async () => {
+    if (!state || !videoData || !video.current || !currentUser || !activeProfile) return;
+    const [userId, profileId, trackId] = [currentUser.id, activeProfile._id, videoCurrentTime || 0];
+
+    if (state.isMovie) updateMoviesWatched({ userId, profileId, movieId: videoData._id, trackId });
+    else if (!state.isMovie) {
+      assertsValueToType<EpisodeSchemaType>(videoData);
+      const { seriesId, _id: episodeId } = videoData;
+
+      updateSeriesWatchedActiveEpisode({
+        userId,
+        profileId,
+        seriesId,
+        trackId,
+      });
+      updateSeriesWatchedEpisode({
+        userId,
+        profileId,
+        seriesId,
+        episodeId,
+        trackId,
+      });
+    }
+  }, [activeProfile, currentUser, state, videoCurrentTime, videoData]);
+
+  useEffect(() => {
+    if (!timeHasBeenChanged || !state || !videoData || !video || !activeProfile || !currentUser)
+      return;
+    const [userId, profileId, trackId] = [currentUser.id, activeProfile._id, videoCurrentTime || 0];
+
+    (async () => {
+      if (state.isMovie) {
+        if (!activeProfile.isWatchingMovie?.find((isMovie) => isMovie.movieId === videoData._id))
+          addToMoviesWatched({
+            userId,
+            profileId,
+            data: { movieId: videoData._id, trackId },
+          });
+        // else updateMoviesWatched({ userId, profileId, movieId: videoData._id, trackId });
+        callRefreshToken(currentUser, profileId);
+        return;
+      }
+      if (!state.isMovie) {
+        assertsValueToType<EpisodeSchemaType>(videoData);
+        const { seriesId, _id: episodeId } = videoData;
+        const series = activeProfile.isWatchingSeries?.find(
+          (isSeries) => isSeries.seriesId === seriesId
+        );
+        if (!series)
+          await addToSeriesWatched({
+            userId,
+            profileId,
+            data: {
+              seriesId,
+              activeEpisode: { episodeId, trackId },
+              watchedEpisodes: [{ episodeId, trackId }],
+            },
+          });
+        if (series?.activeEpisode.episodeId !== episodeId) {
+          await setSeriesWatchedActiveEpisode({
+            userId,
+            profileId,
+            data: { userId, profileId, seriesId, activeEpisode: { episodeId, trackId } },
+          });
+          if (series?.watchedEpisodes.find((episode) => episode.episodeId === episodeId))
+            await updateSeriesWatchedEpisode({
+              userId,
+              profileId,
+              seriesId,
+              episodeId,
+              trackId,
+            });
+          return;
+        }
+        if (!series?.watchedEpisodes.find((episode) => episode.episodeId === episodeId)) {
+          await addToSeriesWatchedEpisodes({
+            userId,
+            profileId,
+            data: { userId, profileId, seriesId, data: { episodeId, trackId } },
+          });
+        }
+        callRefreshToken(currentUser, profileId);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoData, video, state, timeHasBeenChanged]);
 
   useEffect(
     () => () => {
@@ -90,29 +190,44 @@ export default function VideoPlayerScene() {
     [videoId]
   );
 
+  useEffect(() => {
+    if (!videoData || !video || !video.current || !state || !activeProfile) return;
+    if (state.isMovie)
+      video.current.currentTime =
+        activeProfile.isWatchingMovie?.find((isMovie) => isMovie.movieId === videoData._id)
+          ?.trackId || 0;
+    else if (!state.isMovie) {
+      assertsValueToType<EpisodeSchemaType>(videoData);
+      const { seriesId } = videoData;
+      video.current.currentTime =
+        activeProfile.isWatchingSeries?.find((isSeries) => isSeries.seriesId === seriesId)
+          ?.activeEpisode.trackId || 0;
+    }
+    setTimeHasBeenChanged(true);
+  }, [videoData, video, state, activeProfile]);
+
   const startWatchTimer = useCallback(() => {
-    // if (watchTime >= 120) return;
+    if (video.current) setWatchTime(Number(String(video.current.currentTime).split('.')[0]));
     watchTimerRef.current = setInterval(() => setWatchTime((v) => v + 1), 1000);
-    // if (i >= 120 && watchTimerRef?.current) {
-    //   clearInterval(watchTimerRef.current);
-    // }
   }, []);
 
   useEffect(
     () => () => startWatchTimer(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [video.current]
   );
 
   useEffect(() => {
+    // eslint-disable-next-line consistent-return
     (() => {
-      if (watchTime === 120 && videoData && state !== undefined) {
-        // if (watchTimerRef.current) clearInterval(watchTimerRef.current);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (!videoData || !state) return clearInterval(watchTimerRef.current!);
+      if (Number(String(watchTime).split('.')[0]) === 120) {
         // const response = (await addView({ videoId: _id, state?.isMovie })).data;
         addView({ videoId: videoData._id, isMovie: state.isMovie });
-      } else if (watchTime % 120 === 0) {
-        // update isWatching
       }
+      if (Number(String(watchTime).split('.')[0]) % 60 === 0 && watchTime !== 0)
+        updateVideoWatched();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchTime]);
@@ -120,20 +235,22 @@ export default function VideoPlayerScene() {
   useEffect(
     () => () =>
       document.addEventListener('fullscreenchange', () =>
-        document.fullscreenElement ? setVideoIsFullscreen(true) : setVideoIsFullscreen(false)
+        setVideoIsFullscreen(!!document.fullscreenElement)
       ),
     []
   );
 
-  const togglePlay = useCallback(() => {
+  const togglePlay = useCallback(async () => {
     if (!video.current) return;
     if (video.current.paused) {
-      video.current.play();
-      // if (watchTime <= 120) startWatchTimer();
+      await video.current.play();
       startWatchTimer();
     } else {
       video.current.pause();
-      if (watchTimerRef.current) clearInterval(watchTimerRef.current);
+      if (watchTimerRef.current) {
+        setWatchTime(Number(String(video.current.currentTime).split('.')[0]));
+        clearInterval(watchTimerRef.current);
+      }
     }
   }, [startWatchTimer]);
 
@@ -144,12 +261,14 @@ export default function VideoPlayerScene() {
   }, [videoContainer]);
 
   const skip = useCallback(
-    (duration: number) => {
+    async (duration: number) => {
       if (!video.current) return;
       const time = video.current.currentTime;
       video.current.currentTime = time + duration;
+      await togglePlay();
+      togglePlay();
     },
-    [video]
+    [video, togglePlay]
   );
 
   const toggleMute = useCallback(() => {
@@ -191,73 +310,31 @@ export default function VideoPlayerScene() {
       if (document.activeElement?.tagName.toLowerCase() === 'button') return;
       setHoverOverVideo(true);
       onMouseInactivity();
-      switch (e.key.toLowerCase()) {
-        case ' ': // a space should be the space key
-          if (document.activeElement?.tagName.toLowerCase() === 'button') {
-            if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
-            return;
-          }
-          togglePlay();
-          break;
-        case 'k':
-          togglePlay();
-          break;
-        case 'f':
-          toggleFullScreenMode();
-          break;
-        case 'm':
-          toggleMute();
-          break;
-        case 'arrowleft':
-          skip(-10);
-          break;
-        case 'arrowright':
-          skip(10);
-          break;
-        case 'arrowup':
-          increaseVolume();
-          break;
-        case 'arrowdown':
-          decreaseVolume();
-          break;
-        case 'c':
-          // toggleCaptions();
-          if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
-          break;
-        case '1':
-          skipTo(0.1);
-          break;
-        case '2':
-          skipTo(0.2);
-          break;
-        case '3':
-          skipTo(0.3);
-          break;
-        case '4':
-          skipTo(0.4);
-          break;
-        case '5':
-          skipTo(0.5);
-          break;
-        case '6':
-          skipTo(0.6);
-          break;
-        case '7':
-          skipTo(0.7);
-          break;
-        case '8':
-          skipTo(0.8);
-          break;
-        case '9':
-          skipTo(0.9);
-          break;
-        case '0':
-          skipTo(0.0);
-          break;
-        default:
-          if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
-          break;
-      }
+      const key = e.key.toLowerCase();
+      if (key === ' ') {
+        if (document.activeElement?.tagName.toLowerCase() === 'button' && mouseMoveRef.current)
+          clearTimeout(mouseMoveRef.current);
+        else togglePlay();
+      } else if (key === 'k') togglePlay();
+      else if (key === 'f') toggleFullScreenMode();
+      else if (key === 'm') toggleMute();
+      else if (key === 'arrowleft') skip(-10);
+      else if (key === 'arrowright') skip(10);
+      else if (key === 'arrowup') increaseVolume();
+      else if (key === 'arrowdown') decreaseVolume();
+      // else if (key === 'c') toggleCaptions();
+      else if (key === 'c' && mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
+      else if (key === '1') skipTo(0.1);
+      else if (key === '2') skipTo(0.2);
+      else if (key === '3') skipTo(0.3);
+      else if (key === '4') skipTo(0.4);
+      else if (key === '5') skipTo(0.5);
+      else if (key === '6') skipTo(0.6);
+      else if (key === '7') skipTo(0.7);
+      else if (key === '8') skipTo(0.8);
+      else if (key === '9') skipTo(0.9);
+      else if (key === '0') skipTo(0.0);
+      else if (mouseMoveRef.current) clearTimeout(mouseMoveRef.current);
     },
     [
       decreaseVolume,
@@ -378,9 +455,8 @@ export default function VideoPlayerScene() {
               type="button"
               className="go-back"
               onClick={() => {
-                // update isWatching
+                if (videoCurrentTime >= 30) updateVideoWatched();
                 navigate(-1);
-                // if (watchTimerRef.current) clearInterval(watchTimerRef.current);
               }}
             >
               <GoBack className="go-back-icon" />

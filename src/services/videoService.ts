@@ -16,6 +16,15 @@ import {
   generateFFmpeg as ffmpegGenerate,
   removeFFmpeg as ffmpegRemove,
   addView as viewAdd,
+  addToMoviesWatched as toMoviesWatched,
+  updateMoviesWatched as doUpdateMoviesWatched,
+  removeMovieWatched as doRemoveMovieWatched,
+  addToSeriesWatched as addSeriesWatched,
+  removeEpisodeWatched as doRemoveEpisodeWatched,
+  setSeriesWatchedActiveEpisode as seriesWatchedActiveEpisode,
+  updateSeriesWatchedActiveEpisode as doUpdateSeriesWatchedActiveEpisode,
+  addToSeriesWatchedEpisodes as addSeriesWatchedEpisodes,
+  updateSeriesWatchedEpisode as doUpdateSeriesWatchedEpisode,
 } from './apiService';
 
 type ErrorType = { message: string; status: string };
@@ -120,6 +129,121 @@ export const removeFFmpeg = (videoId: string) =>
 
 export const addView = (data: { videoId: string; isMovie: boolean }) =>
   viewAdd(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+// videos watched -->
+
+export const addToMoviesWatched = (data: {
+  userId: string;
+  profileId: string;
+  data: { movieId: string; trackId: number };
+}) =>
+  toMoviesWatched(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const updateMoviesWatched = (data: {
+  userId: string;
+  profileId: string;
+  movieId: string;
+  trackId: number;
+}) =>
+  doUpdateMoviesWatched(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const removeMovieWatched = (data: { userId: string; profileId: string; movieId: string }) =>
+  doRemoveMovieWatched(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const addToSeriesWatched = (data: {
+  userId: string;
+  profileId: string;
+  data: {
+    seriesId: string;
+    activeEpisode: { episodeId: string; trackId: number };
+    watchedEpisodes: { episodeId: string; trackId: number }[];
+  };
+}) =>
+  addSeriesWatched(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const removeEpisodeWatched = (data: {
+  userId: string;
+  profileId: string;
+  data: { userId: string; profileId: string; seriesId: string };
+}) =>
+  doRemoveEpisodeWatched(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const setSeriesWatchedActiveEpisode = (data: {
+  userId: string;
+  profileId: string;
+  data: {
+    userId: string;
+    profileId: string;
+    seriesId: string;
+    activeEpisode: { episodeId: string; trackId: number };
+  };
+}) =>
+  seriesWatchedActiveEpisode(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const updateSeriesWatchedActiveEpisode = (data: {
+  userId: string;
+  profileId: string;
+  seriesId: string;
+  trackId: number;
+}) =>
+  doUpdateSeriesWatchedActiveEpisode(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const addToSeriesWatchedEpisodes = (data: {
+  userId: string;
+  profileId: string;
+  data: {
+    userId: string;
+    profileId: string;
+    seriesId: string;
+    data: { episodeId: string; trackId: number };
+  };
+}) =>
+  addSeriesWatchedEpisodes(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const updateSeriesWatchedEpisode = (data: {
+  userId: string;
+  profileId: string;
+  seriesId: string;
+  episodeId: string;
+  trackId: number;
+}) =>
+  doUpdateSeriesWatchedEpisode(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);

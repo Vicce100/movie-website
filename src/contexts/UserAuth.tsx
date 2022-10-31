@@ -13,6 +13,22 @@ const SetUserContext = React.createContext({} as React.Dispatch<CurrentUserType 
 const UserProfileContext = React.createContext({} as TempActiveProfileType);
 const SetUserProfileContext = React.createContext({} as React.Dispatch<ActiveProfileType | null>);
 
+export const useSetUserData = () => {
+  const setUserContext: React.Dispatch<CurrentUserType | null> = useContext(SetUserContext);
+  const setProfileContext: React.Dispatch<ActiveProfileType | null> =
+    useContext(SetUserProfileContext);
+
+  const setUserData = (currentUser: CurrentUserType | null, profileId: string | null) => {
+    setUserContext({ currentUser: currentUser?.currentUser || null });
+
+    const activeProfile = currentUser?.currentUser?.profiles?.find(
+      (profile) => profile._id === profileId
+    );
+    setProfileContext(activeProfile || null);
+  };
+  return setUserData;
+};
+
 export const useSetCurrentUser = () => {
   const setUserContext: React.Dispatch<CurrentUserType | null> = useContext(SetUserContext);
   return [setUserContext];

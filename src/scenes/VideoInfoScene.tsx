@@ -4,12 +4,7 @@ import React, { useRef, useId, useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { v4 } from 'uuid';
 
-import {
-  useCurrentUserContext,
-  useProfileContext,
-  useSetActiveProfile,
-  useSetCurrentUser,
-} from '../contexts/UserAuth';
+import { useCurrentUserContext, useProfileContext } from '../contexts/UserAuth';
 import { EpisodeSchemaType, MovieSchemaType, SeriesSchemaType } from '../utils/types';
 import {
   getMovieData,
@@ -18,8 +13,7 @@ import {
   removeIdFromSavedList,
   getSeriesEpisodes,
 } from '../services/videoService';
-import { refreshToken } from '../services/userService';
-import { useFormateTime, usePageTitle } from '../hooks';
+import { useFormateTime, usePageTitle, useRefreshToken } from '../hooks';
 
 import { ReactComponent as Checked } from '../asset/svg/videoInfo/checked.svg';
 
@@ -38,8 +32,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
 
   const { currentUser } = useCurrentUserContext();
   const { activeProfile } = useProfileContext();
-  const [setUserContext] = useSetCurrentUser();
-  const [setActiveProfile] = useSetActiveProfile();
+  const callRefreshToken = useRefreshToken();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -61,7 +54,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
   );
 
   useEffect(
-    () => () => {
+    () => {
       const callSeries = async (value: string) => {
         try {
           const { data: tempSeriesData } = await getSeriesData(value);
@@ -92,34 +85,24 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
     [searchParams, isMovie]
   );
 
-  const callRefreshToken = useCallback(async () => {
-    if (!currentUser || !currentUser.refreshToken || !activeProfile) return;
-    try {
-      const { data } = await refreshToken({ refreshToken: currentUser.refreshToken });
-      setUserContext({ currentUser: data.currentUser });
-      const profile = data.currentUser?.profiles?.find(({ _id }) => _id === activeProfile._id);
-      if (profile) setActiveProfile(profile);
-    } catch (error) {
-      console.log(error);
-    }
-  }, [activeProfile, currentUser, setActiveProfile, setUserContext]);
-
   const addToSavedList = useCallback(
     async (videoId: string, action: 'add' | 'remove') => {
-      if (!activeProfile) return;
+      if (!activeProfile?._id) return;
       if (action === 'add') await addIdToSavedList({ profileId: activeProfile._id, videoId });
       if (action === 'remove')
         await removeIdFromSavedList({ profileId: activeProfile._id, videoId });
-      callRefreshToken();
+      callRefreshToken(currentUser, activeProfile._id);
     },
-    [activeProfile, callRefreshToken]
+    [activeProfile?._id, callRefreshToken, currentUser]
   );
 
   const renderAddToMyListButton = useCallback(() => {
-    if (activeProfile?.savedList?.find((objectId) => objectId === movieData?._id))
+    if (isMovie && activeProfile?.savedList?.find((objectId) => objectId === movieData?._id))
+      return <Checked />;
+    if (!isMovie && activeProfile?.savedList?.find((objectId) => objectId === seriesData?._id))
       return <Checked />;
     return <p>&#43; {/* &#10004; */}</p>;
-  }, [activeProfile, movieData?._id]);
+  }, [activeProfile?.savedList, isMovie, movieData?._id, seriesData?._id]);
 
   const renderMovie = useCallback(
     () =>
@@ -195,16 +178,22 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             // eslint-disable-next-line jsx-a11y/aria-role
             role="Button"
             className="display-img"
-            onClick={(event) => {
-              if (document.activeElement?.id && document.activeElement.id === 'display-img-id')
+            onClick={async (event) => {
+              if (document.activeElement?.id && document.activeElement.id === 'display-img-id') {
+                await callRefreshToken(currentUser, activeProfile ? activeProfile._id : null);
+                const episodeId = activeProfile?.isWatchingSeries?.find(
+                  ({ seriesId }) => seriesId === seriesData._id
+                )?.activeEpisode.episodeId;
                 navigate(
                   `/player/${
-                    seriesEpisodes[0] && seriesEpisodes[0].length
+                    episodeId ||
+                    (seriesEpisodes[0] && seriesEpisodes[0].length
                       ? seriesEpisodes[0][0]._id
-                      : seriesData._id
+                      : seriesData._id)
                   }`,
                   { state: { isMovie: false } }
                 );
+              }
               event.nativeEvent.stopImmediatePropagation();
             }}
             id="display-img-id"
@@ -216,6 +205,9 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                   <div className="header-play-link">
                     <Link
                       className="header-play-button"
+                      onClick={() =>
+                        callRefreshToken(currentUser, activeProfile ? activeProfile._id : null)
+                      }
                       to={`/player/${
                         seriesEpisodes[0] && seriesEpisodes[0].length
                           ? seriesEpisodes[0][0]._id
@@ -273,6 +265,9 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                 <Link
                   className="episode-div"
                   key={episode._id}
+                  onClick={() =>
+                    callRefreshToken(currentUser, activeProfile ? activeProfile._id : null)
+                  }
                   to={`/player/${episode._id}`}
                   state={{ isMovie: false }}
                 >
@@ -307,13 +302,15 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
       ),
     [
       seriesData,
-      renderAddToMyListButton,
       seriesEpisodes,
+      renderAddToMyListButton,
       selectedSeason,
       navigate,
-      activeProfile?.savedList,
+      activeProfile,
       addToSavedList,
       formateInMinutes,
+      callRefreshToken,
+      currentUser,
     ]
   );
 

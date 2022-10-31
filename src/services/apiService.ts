@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 
@@ -15,6 +16,7 @@ import {
   returnVideosArray,
   ReturnedSeriesSchemaType,
   SeriesSchemaType,
+  isWatchingPaths as iw,
 } from '../utils/types';
 
 type EndpointType = { host: string; port: string; path: string };
@@ -208,19 +210,133 @@ export const searchSeries = (searchText: string) =>
   });
 
 export const addView = (data: { videoId: string; isMovie: boolean }) =>
-  postRequest<{ success: true }>({ host, port, path: `/${rs.video}/${rs.addView}` }, data);
+  postRequest<{ success: boolean }>({ host, port, path: `/${rs.video}/${rs.addView}` }, data);
 
 export const addIdToSavedList = (data: { profileId: string; videoId: string }) =>
-  postRequest<{ success: true }>(
+  postRequest<{ success: boolean }>(
     { host, port, path: `/${rs.video}/${rs.add}/${rs.savedList}` },
     data
   );
 
 export const removeIdFromSavedList = (data: { profileId: string; videoId: string }) =>
-  postRequest<{ success: true }>(
+  postRequest<{ success: boolean }>(
     { host, port, path: `/${rs.video}/${rs.remove}/${rs.savedList}` },
     data
   );
+
+// videos watched -->
+
+export const addToMoviesWatched = (data: {
+  userId: string;
+  profileId: string;
+  data: { movieId: string; trackId: number };
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.movie}/${iw.addToMoviesWatched}` },
+    data
+  );
+};
+
+export const updateMoviesWatched = (data: {
+  userId: string;
+  profileId: string;
+  movieId: string;
+  trackId: number;
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.movie}/${iw.updateMoviesWatched}` },
+    data
+  );
+};
+
+export const removeMovieWatched = (data: { userId: string; profileId: string; movieId: string }) =>
+  postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.movie}/${iw.removeMovieWatched}` },
+    data
+  );
+
+export const addToSeriesWatched = (data: {
+  userId: string;
+  profileId: string;
+  data: {
+    seriesId: string;
+    activeEpisode: { episodeId: string; trackId: number };
+    watchedEpisodes: { episodeId: string; trackId: number }[];
+  };
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.addToSeriesWatched}` },
+    data
+  );
+};
+
+export const removeEpisodeWatched = (data: {
+  userId: string;
+  profileId: string;
+  data: { userId: string; profileId: string; seriesId: string };
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.removeEpisodeWatched}` },
+    data
+  );
+};
+
+export const setSeriesWatchedActiveEpisode = (data: {
+  userId: string;
+  profileId: string;
+  data: {
+    userId: string;
+    profileId: string;
+    seriesId: string;
+    activeEpisode: { episodeId: string; trackId: number };
+  };
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.setSeriesWatchedActiveEpisode}` },
+    data
+  );
+};
+
+export const updateSeriesWatchedActiveEpisode = (data: {
+  userId: string;
+  profileId: string;
+  seriesId: string;
+  trackId: number;
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.updateSeriesWatchedActiveEpisode}` },
+    data
+  );
+};
+
+export const addToSeriesWatchedEpisodes = (data: {
+  userId: string;
+  profileId: string;
+  data: {
+    userId: string;
+    profileId: string;
+    seriesId: string;
+    data: { episodeId: string; trackId: number };
+  };
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.addToSeriesWatchedEpisodes}` },
+    data
+  );
+};
+
+export const updateSeriesWatchedEpisode = (data: {
+  userId: string;
+  profileId: string;
+  seriesId: string;
+  episodeId: string;
+  trackId: number;
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.updateSeriesWatchedEpisode}` },
+    data
+  );
+};
 
 // ffmpeg
 export const generateFFmpeg = (videoId: string) =>

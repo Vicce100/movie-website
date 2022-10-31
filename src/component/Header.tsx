@@ -9,8 +9,10 @@ import {
   useSetCurrentUser,
   useProfileContext,
   useSetActiveProfile,
+  useSetUserData,
 } from '../contexts/UserAuth';
-import { logout, refreshToken } from '../services/userService';
+import { logout } from '../services/userService';
+import { useRefreshToken } from '../hooks/index';
 
 import { ReactComponent as LogoutWhite } from '../asset/svg/logout_white_36dp.svg';
 import { ReactComponent as Plus } from '../asset/svg/plus.svg';
@@ -47,10 +49,11 @@ function DropdownMenu() {
   const dropdownRef = useRef<any>(null);
 
   const navigate = useNavigate();
-  const [setUserContext] = useSetCurrentUser();
   const [SetProfileContext] = useSetActiveProfile();
+  const setUserData = useSetUserData();
   const { currentUser } = useCurrentUserContext();
   const { activeProfile } = useProfileContext();
+  const callRefreshToken = useRefreshToken();
 
   useEffect(() => setMenuHeight(dropdownRef.current?.firstChild.offsetHeight), []);
 
@@ -87,28 +90,21 @@ function DropdownMenu() {
     logout()
       .then((res) => {
         console.log(res);
-        if (res.status === 200) {
-          setUserContext({ currentUser: null });
-          SetProfileContext(null);
-        }
+        if (res.status === 200) setUserData(null, null);
         window.location.reload();
         return navigate(`/`);
       })
       .catch((err) => {
         console.log(err);
-        setUserContext({ currentUser: null });
+        setUserData(null, null);
         window.location.reload();
       });
-  }, [SetProfileContext, navigate, setUserContext]);
+  }, [navigate, setUserData]);
 
-  const callRefreshToken = useCallback(async () => {
-    if (!currentUser || !currentUser?.refreshToken) return;
-    refreshToken({ refreshToken: currentUser.refreshToken })
-      .then((res) =>
-        res.status === 200 ? setUserContext({ currentUser: res.data.currentUser }) : null
-      )
-      .catch(() => setUserContext({ currentUser: null }));
-  }, [currentUser, setUserContext]);
+  const callRefreshTokenHere = useCallback(() => {
+    if (!activeProfile?._id) return;
+    callRefreshToken(currentUser, activeProfile._id);
+  }, [activeProfile?._id, callRefreshToken, currentUser]);
 
   return (
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -144,7 +140,7 @@ function DropdownMenu() {
           >
             Settings
           </DropdownItem>
-          <DropdownItem displayIcon={<Cookie />} functionCall={callRefreshToken}>
+          <DropdownItem displayIcon={<Cookie />} functionCall={callRefreshTokenHere}>
             Update Auth Cookie
           </DropdownItem>
           {currentUser?.role === userRoles.admin && (
