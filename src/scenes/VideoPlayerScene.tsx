@@ -17,7 +17,7 @@ import {
 } from '../services/videoService';
 import { url } from '../services/apiService';
 import { EpisodeSchemaType, MovieSchemaType, routesString as rs } from '../utils/types';
-import { usePageTitle, useFormateTime } from '../hooks';
+import { usePageTitle, useFormateTime, useRefreshToken } from '../hooks';
 import { useProfileContext, useCurrentUserContext } from '../contexts/UserAuth';
 
 import { ReactComponent as PlayIcon } from '../asset/svg/videoPlayer/play.svg';
@@ -70,15 +70,14 @@ export default function VideoPlayerScene() {
   const { currentUser } = useCurrentUserContext();
   const { setPageTitle } = usePageTitle();
   const { formateTime } = useFormateTime();
+  const callRefreshToken = useRefreshToken();
 
   const { state } = useLocation();
   assertsValueToType<{ isMovie: boolean } | undefined>(state);
 
   useEffect(() => setPageTitle('video player'), [setPageTitle]);
 
-  // useEffect(() => (typeof isMovie !== 'boolean' ? navigate('/') : undefined), [isMovie, navigate]);
-
-  const updateVideoWatched = useCallback(() => {
+  const updateVideoWatched = useCallback(async () => {
     if (!state || !videoData || !video.current || !currentUser || !activeProfile) return;
     const [userId, profileId, trackId] = [currentUser.id, activeProfile._id, videoCurrentTime || 0];
 
@@ -86,15 +85,19 @@ export default function VideoPlayerScene() {
     else if (!state.isMovie) {
       assertsValueToType<EpisodeSchemaType>(videoData);
       const { seriesId, _id: episodeId } = videoData;
+
       updateSeriesWatchedActiveEpisode({
         userId,
         profileId,
-        data: { userId, profileId, seriesId, trackId },
+        seriesId,
+        trackId,
       });
       updateSeriesWatchedEpisode({
         userId,
         profileId,
-        data: { userId, profileId, seriesId, episodeId, trackId },
+        seriesId,
+        episodeId,
+        trackId,
       });
     }
   }, [activeProfile, currentUser, state, videoCurrentTime, videoData]);
@@ -104,52 +107,60 @@ export default function VideoPlayerScene() {
       return;
     const [userId, profileId, trackId] = [currentUser.id, activeProfile._id, videoCurrentTime || 0];
 
-    if (state.isMovie) {
-      if (!activeProfile.isWatchingMovie?.find((isMovie) => isMovie.movieId === videoData._id))
-        addToMoviesWatched({
-          userId,
-          profileId,
-          data: { movieId: videoData._id, trackId },
-        });
-      else updateMoviesWatched({ userId, profileId, movieId: videoData._id, trackId });
-      return;
-    }
-    if (!state.isMovie) {
-      assertsValueToType<EpisodeSchemaType>(videoData);
-      const { seriesId, _id: episodeId } = videoData;
-      const series = activeProfile.isWatchingSeries?.find(
-        (isSeries) => isSeries.seriesId === seriesId
-      );
-      if (!series)
-        addToSeriesWatched({
-          userId,
-          profileId,
-          data: {
-            seriesId,
-            activeEpisode: { episodeId, trackId },
-            watchedEpisodes: [{ episodeId, trackId }],
-          },
-        });
-      if (series?.activeEpisode.episodeId !== episodeId)
-        setSeriesWatchedActiveEpisode({
-          userId,
-          profileId,
-          data: { userId, profileId, seriesId, activeEpisode: { episodeId, trackId } },
-        });
-      if (series?.watchedEpisodes.find((episode) => episode.episodeId === episodeId))
-        updateSeriesWatchedEpisode({
-          userId,
-          profileId,
-          data: { userId, profileId, seriesId, episodeId, trackId },
-        });
-      else {
-        addToSeriesWatchedEpisodes({
-          userId,
-          profileId,
-          data: { userId, profileId, seriesId, data: { episodeId, trackId } },
-        });
+    (async () => {
+      if (state.isMovie) {
+        if (!activeProfile.isWatchingMovie?.find((isMovie) => isMovie.movieId === videoData._id))
+          addToMoviesWatched({
+            userId,
+            profileId,
+            data: { movieId: videoData._id, trackId },
+          });
+        // else updateMoviesWatched({ userId, profileId, movieId: videoData._id, trackId });
+        callRefreshToken(currentUser, profileId);
+        return;
       }
-    }
+      if (!state.isMovie) {
+        assertsValueToType<EpisodeSchemaType>(videoData);
+        const { seriesId, _id: episodeId } = videoData;
+        const series = activeProfile.isWatchingSeries?.find(
+          (isSeries) => isSeries.seriesId === seriesId
+        );
+        if (!series)
+          await addToSeriesWatched({
+            userId,
+            profileId,
+            data: {
+              seriesId,
+              activeEpisode: { episodeId, trackId },
+              watchedEpisodes: [{ episodeId, trackId }],
+            },
+          });
+        if (series?.activeEpisode.episodeId !== episodeId) {
+          await setSeriesWatchedActiveEpisode({
+            userId,
+            profileId,
+            data: { userId, profileId, seriesId, activeEpisode: { episodeId, trackId } },
+          });
+          if (series?.watchedEpisodes.find((episode) => episode.episodeId === episodeId))
+            await updateSeriesWatchedEpisode({
+              userId,
+              profileId,
+              seriesId,
+              episodeId,
+              trackId,
+            });
+          return;
+        }
+        if (!series?.watchedEpisodes.find((episode) => episode.episodeId === episodeId)) {
+          await addToSeriesWatchedEpisodes({
+            userId,
+            profileId,
+            data: { userId, profileId, seriesId, data: { episodeId, trackId } },
+          });
+        }
+        callRefreshToken(currentUser, profileId);
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoData, video, state, timeHasBeenChanged]);
 
@@ -206,8 +217,6 @@ export default function VideoPlayerScene() {
     [video.current]
   );
 
-  useEffect(() => console.log(watchTime), [watchTime]);
-
   useEffect(() => {
     // eslint-disable-next-line consistent-return
     (() => {
@@ -217,7 +226,8 @@ export default function VideoPlayerScene() {
         // const response = (await addView({ videoId: _id, state?.isMovie })).data;
         addView({ videoId: videoData._id, isMovie: state.isMovie });
       }
-      if (Number(String(watchTime).split('.')[0]) % 60 === 0) updateVideoWatched();
+      if (Number(String(watchTime).split('.')[0]) % 60 === 0 && watchTime !== 0)
+        updateVideoWatched();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchTime]);
@@ -230,16 +240,14 @@ export default function VideoPlayerScene() {
     []
   );
 
-  const togglePlay = useCallback(() => {
+  const togglePlay = useCallback(async () => {
     if (!video.current) return;
     if (video.current.paused) {
-      video.current.play();
-      console.log(video.current.currentTime);
+      await video.current.play();
       startWatchTimer();
     } else {
       video.current.pause();
       if (watchTimerRef.current) {
-        console.log(video.current.currentTime);
         setWatchTime(Number(String(video.current.currentTime).split('.')[0]));
         clearInterval(watchTimerRef.current);
       }
@@ -253,12 +261,14 @@ export default function VideoPlayerScene() {
   }, [videoContainer]);
 
   const skip = useCallback(
-    (duration: number) => {
+    async (duration: number) => {
       if (!video.current) return;
       const time = video.current.currentTime;
       video.current.currentTime = time + duration;
+      await togglePlay();
+      togglePlay();
     },
-    [video]
+    [video, togglePlay]
   );
 
   const toggleMute = useCallback(() => {
@@ -301,7 +311,7 @@ export default function VideoPlayerScene() {
       setHoverOverVideo(true);
       onMouseInactivity();
       const key = e.key.toLowerCase();
-      if (key === '') {
+      if (key === ' ') {
         if (document.activeElement?.tagName.toLowerCase() === 'button' && mouseMoveRef.current)
           clearTimeout(mouseMoveRef.current);
         else togglePlay();
@@ -445,7 +455,7 @@ export default function VideoPlayerScene() {
               type="button"
               className="go-back"
               onClick={() => {
-                updateVideoWatched();
+                if (videoCurrentTime >= 30) updateVideoWatched();
                 navigate(-1);
               }}
             >

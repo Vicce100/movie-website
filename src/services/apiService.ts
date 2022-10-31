@@ -300,15 +300,11 @@ export const setSeriesWatchedActiveEpisode = (data: {
 export const updateSeriesWatchedActiveEpisode = (data: {
   userId: string;
   profileId: string;
-  data: {
-    userId: string;
-    profileId: string;
-    seriesId: string;
-    trackId: number;
-  };
+  seriesId: string;
+  trackId: number;
 }) => {
   return postRequest<{ success: boolean }>(
-    { host, port, path: `/${rs.video}/${rs.series}/${iw.setSeriesWatchedActiveEpisode}` },
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.updateSeriesWatchedActiveEpisode}` },
     data
   );
 };
@@ -324,7 +320,7 @@ export const addToSeriesWatchedEpisodes = (data: {
   };
 }) => {
   return postRequest<{ success: boolean }>(
-    { host, port, path: `/${rs.video}/${rs.series}/${iw.setSeriesWatchedActiveEpisode}` },
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.addToSeriesWatchedEpisodes}` },
     data
   );
 };
@@ -332,16 +328,12 @@ export const addToSeriesWatchedEpisodes = (data: {
 export const updateSeriesWatchedEpisode = (data: {
   userId: string;
   profileId: string;
-  data: {
-    userId: string;
-    profileId: string;
-    seriesId: string;
-    episodeId: string;
-    trackId: number;
-  };
+  seriesId: string;
+  episodeId: string;
+  trackId: number;
 }) => {
   return postRequest<{ success: boolean }>(
-    { host, port, path: `/${rs.video}/${rs.series}/${iw.setSeriesWatchedActiveEpisode}` },
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.updateSeriesWatchedEpisode}` },
     data
   );
 };

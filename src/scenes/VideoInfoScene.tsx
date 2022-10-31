@@ -178,16 +178,22 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             // eslint-disable-next-line jsx-a11y/aria-role
             role="Button"
             className="display-img"
-            onClick={(event) => {
-              if (document.activeElement?.id && document.activeElement.id === 'display-img-id')
+            onClick={async (event) => {
+              if (document.activeElement?.id && document.activeElement.id === 'display-img-id') {
+                await callRefreshToken(currentUser, activeProfile ? activeProfile._id : null);
+                const episodeId = activeProfile?.isWatchingSeries?.find(
+                  ({ seriesId }) => seriesId === seriesData._id
+                )?.activeEpisode.episodeId;
                 navigate(
                   `/player/${
-                    seriesEpisodes[0] && seriesEpisodes[0].length
+                    episodeId ||
+                    (seriesEpisodes[0] && seriesEpisodes[0].length
                       ? seriesEpisodes[0][0]._id
-                      : seriesData._id
+                      : seriesData._id)
                   }`,
                   { state: { isMovie: false } }
                 );
+              }
               event.nativeEvent.stopImmediatePropagation();
             }}
             id="display-img-id"
@@ -199,6 +205,9 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                   <div className="header-play-link">
                     <Link
                       className="header-play-button"
+                      onClick={() =>
+                        callRefreshToken(currentUser, activeProfile ? activeProfile._id : null)
+                      }
                       to={`/player/${
                         seriesEpisodes[0] && seriesEpisodes[0].length
                           ? seriesEpisodes[0][0]._id
@@ -256,6 +265,9 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                 <Link
                   className="episode-div"
                   key={episode._id}
+                  onClick={() =>
+                    callRefreshToken(currentUser, activeProfile ? activeProfile._id : null)
+                  }
                   to={`/player/${episode._id}`}
                   state={{ isMovie: false }}
                 >
@@ -290,13 +302,15 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
       ),
     [
       seriesData,
-      renderAddToMyListButton,
       seriesEpisodes,
+      renderAddToMyListButton,
       selectedSeason,
       navigate,
-      activeProfile?.savedList,
+      activeProfile,
       addToSavedList,
       formateInMinutes,
+      callRefreshToken,
+      currentUser,
     ]
   );
 

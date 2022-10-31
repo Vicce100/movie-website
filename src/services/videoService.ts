@@ -211,12 +211,8 @@ export const setSeriesWatchedActiveEpisode = (data: {
 export const updateSeriesWatchedActiveEpisode = (data: {
   userId: string;
   profileId: string;
-  data: {
-    userId: string;
-    profileId: string;
-    seriesId: string;
-    trackId: number;
-  };
+  seriesId: string;
+  trackId: number;
 }) =>
   doUpdateSeriesWatchedActiveEpisode(data)
     .then((res) => res)
@@ -243,13 +239,9 @@ export const addToSeriesWatchedEpisodes = (data: {
 export const updateSeriesWatchedEpisode = (data: {
   userId: string;
   profileId: string;
-  data: {
-    userId: string;
-    profileId: string;
-    seriesId: string;
-    episodeId: string;
-    trackId: number;
-  };
+  seriesId: string;
+  episodeId: string;
+  trackId: number;
 }) =>
   doUpdateSeriesWatchedEpisode(data)
     .then((res) => res)
