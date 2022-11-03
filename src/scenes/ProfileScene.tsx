@@ -6,6 +6,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ReactComponent as Plus } from '../asset/svg/plus.svg';
 import { ReactComponent as Home } from '../asset/svg/home_white_36dp.svg';
 
+import Header from '../component/Header';
+
 import {
   useCurrentUserContext,
   useSetActiveProfile,
@@ -360,16 +362,19 @@ export default function ProfileScene() {
 
   return (
     <div className="profile-container">
+      {/*
       <div className="profile-header">
         <Link className="navigate-home-button" to="/" state={{ isMovie: true }}>
           <Home />
         </Link>
-        {/* <button
+         <button
           type="button"
           className="navigate-home-button"
           onClick={() => navigate('/')}
-        ></button> */}
+        ></button> 
       </div>
+        */}
+      <Header />
       {componentToRender()}
     </div>
   );
