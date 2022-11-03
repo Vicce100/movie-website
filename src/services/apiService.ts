@@ -17,11 +17,10 @@ import {
   ReturnedSeriesSchemaType,
   SeriesSchemaType,
   isWatchingPaths as iw,
+  PRODUCTION_STATUS,
 } from '../utils/types';
 
 type EndpointType = { host: string; port: string; path: string };
-
-const PRODUCTION_STATUS: 'production' | 'develop' = 'develop';
 
 const [protocol, host, port] = [
   PRODUCTION_STATUS === 'develop' ? 'http' : 'http',
