@@ -1,6 +1,6 @@
 // export const userRoles = Object.freeze({})
 
-export const PRODUCTION_STATUS: 'production' | 'develop' = 'develop';
+export const PRODUCTION_STATUS: 'production' | 'develop' = 'production';
 
 export const userRoles = {
   user: 'user' as const,
