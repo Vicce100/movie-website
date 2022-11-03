@@ -17,7 +17,7 @@ import { useFormateTime, usePageTitle, useRefreshToken } from '../hooks';
 
 import { ReactComponent as Checked } from '../asset/svg/videoInfo/checked.svg';
 
-import '../styles/VideoInfoStyle.scss';
+import '../styles/videoInfoStyle.scss';
 
 export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: boolean }) {
   const [isMovie, setIsMovie] = useState<boolean | undefined>(undefined);

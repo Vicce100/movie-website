@@ -21,9 +21,14 @@ import {
 
 type EndpointType = { host: string; port: string; path: string };
 
-const protocol = 'http';
-const host = 'localhost';
-const port = '5050';
+const PRODUCTION_STATUS: 'production' | 'develop' = 'develop';
+
+const [protocol, host, port] = [
+  PRODUCTION_STATUS === 'develop' ? 'http' : 'http',
+  PRODUCTION_STATUS === 'develop' ? 'localhost' : '192.168.0.144',
+  PRODUCTION_STATUS === 'develop' ? '17053' : '17053',
+];
+
 export const url = `${protocol}://${host}:${port}`;
 
 axios.defaults.withCredentials = true;
