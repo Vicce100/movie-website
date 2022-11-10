@@ -24,7 +24,7 @@ type EndpointType = { host: string; port: string; path: string };
 
 const [protocol, host, port] = [
   PRODUCTION_STATUS === 'develop' ? 'http' : 'http',
-  PRODUCTION_STATUS === 'develop' ? 'localhost' : '192.168.0.144',
+  PRODUCTION_STATUS === 'develop' ? 'localhost' : '192.168.0.3',
   PRODUCTION_STATUS === 'develop' ? '17053' : '17053',
 ];
 
@@ -347,12 +347,12 @@ export const generateFFmpeg = (videoId: string) =>
   getRequest<{ success: boolean }>({
     host,
     port,
-    path: `/${rs.video}/${rs.ffmpeg}/${videoId}`,
+    path: `/${rs.video}/${rs.movie}/${rs.ffmpeg}/${videoId}`,
   });
 
 export const removeFFmpeg = (videoId: string) =>
   getRequest<{ success: boolean }>({
     host,
     port,
-    path: `/${rs.video}/${rs.ffmpeg}/${rs.remove}/${videoId}`,
+    path: `/${rs.video}/${rs.movie}/${rs.ffmpeg}/${rs.remove}/${videoId}`,
   });

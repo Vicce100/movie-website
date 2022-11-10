@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidV4 } from 'uuid';
+import { url } from '../../../services/apiService';
 import { getAllFranchise } from '../../../services/index';
 import { FranchiseSchemaType } from '../../../utils/types';
 
@@ -44,7 +45,7 @@ export default function AddAvatar() {
       const options: RequestInit = { method: 'POST', body: formData, credentials: 'include' };
 
       try {
-        const res = await fetch('http://localhost:5050/avatar/upload/single', options);
+        const res = await fetch(`${url}/avatar/upload/single`, options);
         if (res.status === 201) {
           setSingleAvatarFile(null);
           setSingleAvatarName('');
@@ -73,7 +74,7 @@ export default function AddAvatar() {
 
       const options: RequestInit = { method: 'POST', body: formData, credentials: 'include' };
       try {
-        const res = await fetch('http://localhost:5050/avatar/upload/multiple', options);
+        const res = await fetch(`${url}/avatar/upload/multiple`, options);
         if (res.status === 201) {
           setMultipleAvatar([{ id: uuidV4(), file: null, name: '' }]);
           setMultipleAvatarFranchise([]);

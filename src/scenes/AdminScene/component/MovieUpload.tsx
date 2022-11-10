@@ -74,7 +74,6 @@ export default function MovieUpload() {
         setPicturePreview(undefined);
         setTitle('');
         setUploadReleaseDate(dayjs().format().split('T')[0]);
-        setCategories([]);
         setDescription('');
       } catch (error) {
         console.log(error);

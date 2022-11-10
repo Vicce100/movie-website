@@ -164,31 +164,27 @@ export default function VideoPlayerScene() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoData, video, state, timeHasBeenChanged]);
 
-  useEffect(
-    () => () => {
-      if (!videoId || !state) {
-        navigate('/');
-        return;
-      }
-      const callSeries = (value: string) =>
-        getEpisodeData(value)
-          .then((res) => (res.status === 200 ? setVideoData(res.data) : undefined))
-          .catch((e) => {
-            if (e) navigate('/');
-          });
-      const callMovie = (value: string) =>
-        getMovieData(value)
-          .then((res) => (res.status === 200 ? setVideoData(res.data) : undefined))
-          .catch(() => {
-            callSeries(value);
-            // setIsMovie(false);
-          });
-      if (state.isMovie) callMovie(videoId);
-      else callSeries(videoId);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [videoId]
-  );
+  useEffect(() => {
+    if (!videoId || !state) {
+      navigate('/');
+      return;
+    }
+    const callSeries = (value: string) =>
+      getEpisodeData(value)
+        .then((res) => (res.status === 200 ? setVideoData(res.data) : undefined))
+        .catch((e) => {
+          if (e) navigate('/');
+        });
+    const callMovie = (value: string) =>
+      getMovieData(value)
+        .then((res) => (res.status === 200 ? setVideoData(res.data) : undefined))
+        .catch(() => {
+          callSeries(value);
+          // setIsMovie(false);
+        });
+    if (state.isMovie) callMovie(videoId);
+    else callSeries(videoId);
+  }, [videoId, state, navigate]);
 
   useEffect(() => {
     if (!videoData || !video || !video.current || !state || !activeProfile) return;
