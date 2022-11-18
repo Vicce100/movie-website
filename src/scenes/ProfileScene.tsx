@@ -287,6 +287,7 @@ export default function ProfileScene() {
                   role="button"
                   key={avatar._id}
                   className="single-video"
+                  onClick={() => newProfileName && handleAddProfile(avatar.url)}
                   // onClick={() => {
                   //   document.documentElement.style.setProperty('--scroll-bar-visibility', 'hidden');
                   // }}
@@ -306,7 +307,7 @@ export default function ProfileScene() {
           </div>
         </div>
       ),
-    [itemPerPage, skipBack, skipForward]
+    [itemPerPage, skipBack, newProfileName, handleAddProfile, skipForward]
   );
 
   const renderChoosingAvatar = useCallback(

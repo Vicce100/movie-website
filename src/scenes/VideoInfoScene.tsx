@@ -42,10 +42,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
   const id = useId();
 
   useEffect(() => {
-    const setProp = () => {
-      if (typeof isMovieProp === 'boolean') setIsMovie(isMovieProp);
-    };
-    return () => setProp();
+    if (typeof isMovieProp === 'boolean') setIsMovie(isMovieProp);
   }, [isMovieProp]);
 
   useEffect(

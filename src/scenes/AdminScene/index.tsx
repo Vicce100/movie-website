@@ -55,7 +55,8 @@ export default function AdminScene() {
               .then(({ data }) => {
                 if (data.success && ffmpegVideoIdRef.current?.value)
                   ffmpegVideoIdRef.current.value = '';
-              });
+              })
+              .catch((error) => console.log(error));
           }}
         >
           <label htmlFor="ffmpegForm">Video Id</label>
