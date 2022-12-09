@@ -62,7 +62,7 @@ export const usePageTitle = () => {
 
 export const useFormateTime = () => {
   // both work fine
-  const formateTimeFromMilliseconds = useCallback((timeInMilliseconds: number) => {
+  const formateTime = useCallback((timeInMilliseconds: number) => {
     const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
       minimumIntegerDigits: 2,
     });
@@ -77,24 +77,20 @@ export const useFormateTime = () => {
     )}`;
   }, []);
 
-  const formateTime = useCallback((value: number) => {
-    const sec = parseInt(String(value / 1000), 10);
-    const hours = Math.floor(sec / 3600);
-    const minutes = Math.floor((sec - hours * 3600) / 60);
-    const seconds = sec - hours * 3600 - minutes * 60;
+  const formateTimeNoSeconds = useCallback((timeInMilliseconds: number) => {
+    const hours = Math.floor(timeInMilliseconds / 3600);
+    const minutes = Math.floor(timeInMilliseconds / 60) % 60;
 
-    return `${hours}:${minutes < 10 ? `0${minutes}` : minutes}:${
-      seconds < 10 ? `0${seconds}` : seconds
-    }`;
+    return `${hours} H ${minutes < 10 ? `0${minutes} M` : minutes} M`;
   }, []);
 
   const formateInMinutes = useCallback((timeInMilliseconds: number) => {
-    const minutes = Math.floor(timeInMilliseconds / 60) % 60;
+    const minutes = Math.floor(timeInMilliseconds / 60);
 
     return `${minutes < 10 ? `0${minutes}` : minutes} min`;
   }, []);
 
-  return { formateTime: formateTimeFromMilliseconds, formateTime2: formateTime, formateInMinutes };
+  return { formateTimeNoSeconds, formateTime, formateInMinutes };
 };
 
 export const useAsync = (callback: () => Promise<unknown>, dependencies: unknown[] = []) => {

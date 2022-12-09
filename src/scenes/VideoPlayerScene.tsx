@@ -452,6 +452,7 @@ export default function VideoPlayerScene() {
               className="go-back"
               onClick={() => {
                 if (videoCurrentTime >= 30) updateVideoWatched();
+                callRefreshToken(currentUser, activeProfile?._id || null);
                 navigate(-1);
               }}
             >

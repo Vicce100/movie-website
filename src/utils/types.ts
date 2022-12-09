@@ -86,6 +86,7 @@ export type queryPathsString =
 export const isWatchingPaths = Object.freeze({
   addToMoviesWatched: 'addToMoviesWatched',
   addToSeriesWatched: 'addToSeriesWatched',
+  removeSeriesWatched: 'removeSeriesWatched',
   removeEpisodeWatched: 'removeEpisodeWatched',
   setSeriesWatchedActiveEpisode: 'setSeriesWatchedActiveEpisode',
   updateSeriesWatchedActiveEpisode: 'updateSeriesWatchedActiveEpisode',
@@ -127,6 +128,20 @@ export type ReturnedVideoData = {
   session: number | undefined;
   episode: number | undefined;
   seriesId: string | undefined;
+};
+
+export type continueWatchingType = {
+  _id: string; // ## movieId or seriesId
+  episodeId: string | null;
+  title: string;
+  episodeTitle: string | null;
+  sessionNr: number | null;
+  episodeNr: number | null;
+  trackId: number;
+  duration: number;
+  isMovie: boolean;
+  displayPicture: string;
+  episodeDisplayPicture: string | null;
 };
 
 export interface ReturnedSeriesSchemaType {
