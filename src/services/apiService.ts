@@ -274,6 +274,17 @@ export const addToSeriesWatched = (data: {
   );
 };
 
+export const removeSeriesWatched = (data: {
+  userId: string;
+  profileId: string;
+  seriesId: string;
+}) => {
+  return postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.series}/${iw.removeSeriesWatched}` },
+    data
+  );
+};
+
 export const removeEpisodeWatched = (data: {
   userId: string;
   profileId: string;

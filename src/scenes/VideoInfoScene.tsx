@@ -37,7 +37,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const { formateInMinutes } = useFormateTime();
+  const { formateInMinutes, formateTimeNoSeconds } = useFormateTime();
   const { setPageTitle } = usePageTitle();
   const id = useId();
 
@@ -151,7 +151,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
           </div>
           <div className="small-info">
             <span className="date">{movieData.releaseDate.split('T')[0]}</span>
-            <span className="time">{formateInMinutes(movieData.durationInMs / 1000)}</span>
+            <span className="time">{formateTimeNoSeconds(movieData.durationInMs / 1000)}</span>
           </div>
           <span className="description">{movieData.description}</span>
         </div>
@@ -159,7 +159,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
     [
       movieData,
       renderAddToMyListButton,
-      formateInMinutes,
+      formateTimeNoSeconds,
       navigate,
       activeProfile?.savedList,
       addToSavedList,

@@ -20,6 +20,7 @@ import {
   updateMoviesWatched as doUpdateMoviesWatched,
   removeMovieWatched as doRemoveMovieWatched,
   addToSeriesWatched as addSeriesWatched,
+  removeSeriesWatched as doRemoveSeriesWatched,
   removeEpisodeWatched as doRemoveEpisodeWatched,
   setSeriesWatchedActiveEpisode as seriesWatchedActiveEpisode,
   updateSeriesWatchedActiveEpisode as doUpdateSeriesWatchedActiveEpisode,
@@ -176,6 +177,17 @@ export const addToSeriesWatched = (data: {
   };
 }) =>
   addSeriesWatched(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const removeSeriesWatched = (data: {
+  userId: string;
+  profileId: string;
+  seriesId: string;
+}) =>
+  doRemoveSeriesWatched(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);
