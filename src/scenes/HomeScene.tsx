@@ -452,6 +452,30 @@ export default function HomeScene() {
     ]
   );
 
+  const returnMyList = useCallback(() => {
+    if (myList)
+      return renderVideoContainer({
+        videoArray: myList,
+        videoRef: rowVideoContainerRef0,
+        videoPage: myListPage,
+        setVideoPage: setMyListPage,
+        title: 'My List',
+      });
+    return undefined;
+  }, [myList, myListPage, renderVideoContainer]);
+
+  const returnContinueWatching = useCallback(() => {
+    if (continueWatching)
+      return renderContinueWatching({
+        videoArray: continueWatching,
+        videoRef: rowVideoContainerRef1,
+        videoPage: continueWatchingPage,
+        setVideoPage: setContinueWatchingPage,
+        title: 'Continue Watching',
+      });
+    return undefined;
+  }, [continueWatching, continueWatchingPage, renderContinueWatching]);
+
   return (
     <div className="home-container">
       <Header />
@@ -464,28 +488,8 @@ export default function HomeScene() {
         }}
         className="videos-container"
       >
-        {myList ? (
-          renderVideoContainer({
-            videoArray: myList,
-            videoRef: rowVideoContainerRef0,
-            videoPage: myListPage,
-            setVideoPage: setMyListPage,
-            title: 'My List',
-          })
-        ) : (
-          <React.Fragment />
-        )}
-        {continueWatching ? (
-          renderContinueWatching({
-            videoArray: continueWatching,
-            videoRef: rowVideoContainerRef1,
-            videoPage: continueWatchingPage,
-            setVideoPage: setContinueWatchingPage,
-            title: 'Continue Watching',
-          })
-        ) : (
-          <React.Fragment />
-        )}
+        {returnMyList()}
+        {returnContinueWatching()}
 
         {renderVideoContainer({
           videoArray: randomMovie,
