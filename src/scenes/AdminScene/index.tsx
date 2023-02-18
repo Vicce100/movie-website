@@ -6,7 +6,8 @@ import { usePageTitle } from '../../hooks/index';
 import { useCurrentUserContext } from '../../contexts/UserAuth';
 import { checkAuthRole } from '../../services/userService';
 
-import MovieUpload from './component/MovieUpload';
+// import MovieUpload from './component/MovieUpload';
+import NewMovieUpload from './component/NewMovieUpload';
 import CreateSeries from './component/CreateSeries';
 import EpisodeUpload from './component/EpisodeUpload';
 import AddAvatar from './component/AddAvatar';
@@ -188,7 +189,7 @@ export default function AdminScene() {
         {renderButton({ value: showAddUser, setValue: setShowAddUser, title: 'Add User' })}
       </div>
       <div className="main-section">
-        {showMovieUpload && <MovieUpload />}
+        {showMovieUpload && <NewMovieUpload />}
         {showCreateSeries && <CreateSeries />}
         {showAddEpisode && <EpisodeUpload />}
         {showAddCategories && <AddCategories />}

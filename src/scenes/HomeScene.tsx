@@ -74,7 +74,7 @@ export default function HomeScene() {
           queryName: queryPaths.myList,
           profileId: activeProfile._id,
         })
-          .then((res) => (res.status === 200 ? setMyList(shuffleArray(res.data)) : null))
+          .then((res) => (res.status === 200 ? setMyList(res.data) : null))
           .catch((e) => console.log(e));
 
         getVideosData<continueWatchingType[]>({
@@ -129,11 +129,11 @@ export default function HomeScene() {
   // }, [allCategories]);
 
   useEffect(() => {
-    if (width >= 1800) setItemPerPage(6);
-    else if (width >= 1400) setItemPerPage(5);
-    else if (width >= 800) setItemPerPage(4);
-    else if (width >= 500) setItemPerPage(3);
-    else if (width >= 360) setItemPerPage(2);
+    if (width >= 1800) setItemPerPage(9);
+    else if (width >= 1400) setItemPerPage(8);
+    else if (width >= 800) setItemPerPage(7);
+    else if (width >= 500) setItemPerPage(6);
+    else if (width >= 360) setItemPerPage(5);
   }, [width]);
 
   const setItemsPerPage = useCallback(
@@ -470,23 +470,20 @@ export default function HomeScene() {
         }}
         className="videos-container"
       >
-        {myList &&
-          renderVideoContainer({
-            videoArray: myList,
-            videoRef: rowVideoContainerRef0,
-            videoPage: myListPage,
-            setVideoPage: setMyListPage,
-            title: 'My List',
-          })}
-        {continueWatching &&
-          continueWatching.length &&
-          renderContinueWatching({
-            videoArray: continueWatching,
-            videoRef: rowVideoContainerRef1,
-            videoPage: continueWatchingPage,
-            setVideoPage: setContinueWatchingPage,
-            title: 'Continue Watching',
-          })}
+        {renderVideoContainer({
+          videoArray: myList,
+          videoRef: rowVideoContainerRef0,
+          videoPage: myListPage,
+          setVideoPage: setMyListPage,
+          title: 'My List',
+        })}
+        {renderContinueWatching({
+          videoArray: continueWatching,
+          videoRef: rowVideoContainerRef1,
+          videoPage: continueWatchingPage,
+          setVideoPage: setContinueWatchingPage,
+          title: 'Continue Watching',
+        })}
 
         {renderVideoContainer({
           videoArray: randomMovie,

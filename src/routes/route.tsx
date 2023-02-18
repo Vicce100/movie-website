@@ -33,9 +33,11 @@ function Router() {
             </Fragment>
           )}
           <Route path="/Profile" element={<ProfileScene />} />
-          {currentUser.role === (userRoles.admin || userRoles.superAdmin) && (
-            <Route path="/Admin" element={<AdminScene />} />
-          )}
+          {currentUser.role === userRoles.admin ||
+            currentUser.role === userRoles.moderator ||
+            (currentUser.role === userRoles.superAdmin && (
+              <Route path="/Admin" element={<AdminScene />} />
+            ))}
           {/* <Route path="*" element={<ErrorPage />} /> */}
           <Route path="*" element={<Navigate replace to="/" />} /> {/* ErrorPageScene */}
         </Routes>
