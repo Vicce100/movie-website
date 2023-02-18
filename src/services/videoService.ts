@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 import { queryPathsString } from '../utils/types';
 import {
+  updateMovieDate as movieUpdateDate,
   getVideosData as videosDataGet,
   getMovieData as movieDataGet,
   getSeriesData as seriesDataGet,
@@ -29,6 +30,20 @@ import {
 } from './apiService';
 
 type ErrorType = { message: string; status: string };
+
+export const updateMovieDate = <T>(data: {
+  title: string | undefined;
+  displayPicture: string | undefined;
+  backdropPath: string | undefined;
+  description: string | undefined;
+  releaseDate: string | undefined;
+  videoId: string;
+}) =>
+  movieUpdateDate<T>(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
 
 export const getVideosData = <T>(data: { queryName: queryPathsString; profileId?: string }) =>
   videosDataGet<T>(data)

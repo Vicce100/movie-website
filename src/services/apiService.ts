@@ -134,6 +134,23 @@ export const getAllAvatars = () =>
 
 // ---------- video ---------- //
 
+export const updateMovieDate = <T>(data: {
+  title: string | undefined;
+  displayPicture: string | undefined;
+  backdropPath: string | undefined;
+  description: string | undefined;
+  releaseDate: string | undefined;
+  videoId: string;
+}) =>
+  postRequest<T>(
+    {
+      host,
+      port,
+      path: `/${rs.video}/${rs.movie}/${rs.update}`,
+    },
+    data
+  );
+
 export const getVideosData = <T>(data: { queryName: queryPathsString; profileId?: string }) =>
   postRequest<T>(
     {
@@ -203,14 +220,14 @@ export const searchMovie = (searchText: string) =>
   getRequest<returnVideosArray | undefined>({
     host,
     port,
-    path: `/${rs.video}/${rs.movie}/${rs.search}?value=${searchText}`,
+    path: `/${rs.video}/${rs.search}/${rs.movie}?value=${searchText}`,
   });
 
 export const searchSeries = (searchText: string) =>
   getRequest<returnVideosArray | undefined>({
     host,
     port,
-    path: `/${rs.video}/${rs.series}/${rs.search}?value=${searchText}`,
+    path: `/${rs.video}/${rs.search}/${rs.series}?value=${searchText}`,
   });
 
 export const addView = (data: { videoId: string; isMovie: boolean }) =>
