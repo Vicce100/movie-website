@@ -61,26 +61,23 @@ export default function HomeScene() {
 
   useEffect(() => setPageTitle('Home'), [setPageTitle, searchId]);
 
-  useEffect(
-    () => () => {
-      if (activeProfile) {
-        getVideosData<returnVideosArray>({
-          queryName: queryPaths.myList,
-          profileId: activeProfile._id,
-        })
-          .then((res) => (res.status === 200 ? setMyList(res.data) : null))
-          .catch((e) => console.log(e));
+  useEffect(() => {
+    if (activeProfile) {
+      getVideosData<returnVideosArray>({
+        queryName: queryPaths.myList,
+        profileId: activeProfile._id,
+      })
+        .then((res) => (res.status === 200 ? setMyList(res.data) : null))
+        .catch((e) => console.log(e));
 
-        getVideosData<continueWatchingType[]>({
-          queryName: queryPaths.continueWatching,
-          profileId: activeProfile._id,
-        })
-          .then((res) => (res.status === 200 ? setContinueWatching(res.data) : null))
-          .catch((e) => console.log(e));
-      }
-    },
-    [activeProfile]
-  );
+      getVideosData<continueWatchingType[]>({
+        queryName: queryPaths.continueWatching,
+        profileId: activeProfile._id,
+      })
+        .then((res) => (res.status === 200 ? setContinueWatching(res.data) : null))
+        .catch((e) => console.log(e));
+    }
+  }, [activeProfile]);
 
   useEffect(() => {
     getVideosData<returnVideosArray>({ queryName: queryPaths.randomMovie })
@@ -452,30 +449,6 @@ export default function HomeScene() {
     ]
   );
 
-  const returnMyList = useCallback(() => {
-    if (myList)
-      return renderVideoContainer({
-        videoArray: myList,
-        videoRef: rowVideoContainerRef0,
-        videoPage: myListPage,
-        setVideoPage: setMyListPage,
-        title: 'My List',
-      });
-    return undefined;
-  }, [myList, myListPage, renderVideoContainer]);
-
-  const returnContinueWatching = useCallback(() => {
-    if (continueWatching)
-      return renderContinueWatching({
-        videoArray: continueWatching,
-        videoRef: rowVideoContainerRef1,
-        videoPage: continueWatchingPage,
-        setVideoPage: setContinueWatchingPage,
-        title: 'Continue Watching',
-      });
-    return undefined;
-  }, [continueWatching, continueWatchingPage, renderContinueWatching]);
-
   return (
     <div className="home-container">
       <Header />
@@ -488,8 +461,20 @@ export default function HomeScene() {
         }}
         className="videos-container"
       >
-        {returnMyList()}
-        {returnContinueWatching()}
+        {renderVideoContainer({
+          videoArray: myList,
+          videoRef: rowVideoContainerRef0,
+          videoPage: myListPage,
+          setVideoPage: setMyListPage,
+          title: 'My List',
+        })}
+        {renderContinueWatching({
+          videoArray: continueWatching,
+          videoRef: rowVideoContainerRef1,
+          videoPage: continueWatchingPage,
+          setVideoPage: setContinueWatchingPage,
+          title: 'Continue Watching',
+        })}
 
         {renderVideoContainer({
           videoArray: randomMovie,
