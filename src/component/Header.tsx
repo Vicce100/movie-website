@@ -143,11 +143,13 @@ function DropdownMenu() {
           <DropdownItem displayIcon={<Cookie />} functionCall={callRefreshTokenHere}>
             Update Auth Cookie
           </DropdownItem>
-          {currentUser?.role === userRoles.admin && (
-            <DropdownItem displayIcon={<Manager />} functionCall={() => navigate('/admin')}>
-              Admin Page
-            </DropdownItem>
-          )}
+          {currentUser?.role === userRoles.admin ||
+            currentUser?.role === userRoles.moderator ||
+            (currentUser?.role === userRoles.superAdmin && (
+              <DropdownItem displayIcon={<Manager />} functionCall={() => navigate('/admin')}>
+                Admin Page
+              </DropdownItem>
+            ))}
           <DropdownItem displayIcon={<LogoutWhite />} functionCall={callLogout}>
             Logout
           </DropdownItem>

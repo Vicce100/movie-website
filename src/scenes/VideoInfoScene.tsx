@@ -117,7 +117,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             }}
             id="display-img-id"
           >
-            <img src={movieData.displayPicture} alt={`${movieData.title}-img:`} />
+            <img src={movieData.backdropPath} alt={`${movieData.title}-img:`} />
             <div className="content-header">
               <div className="content-header-div">
                 <div className="header-generale-content">

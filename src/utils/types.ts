@@ -1,6 +1,22 @@
 // export const userRoles = Object.freeze({})
 
-export const PRODUCTION_STATUS: 'production' | 'develop' = 'develop';
+export const [PRODUCTION_STATUS, TMDB_BASE_URL, TMDB_IMAGE_URL, TMDB_API_KEY]: [
+  'production' | 'develop',
+  'https://api.themoviedb.org/3',
+  'https://image.tmdb.org/t/p/original',
+  'api_key=fb6a3f12eb4c66cf62d83119c53cb4ad'
+] = [
+  'develop',
+  'https://api.themoviedb.org/3',
+  'https://image.tmdb.org/t/p/original',
+  'api_key=fb6a3f12eb4c66cf62d83119c53cb4ad',
+];
+
+export const [searchMovieString, searchSeriesString, getMovieGenre]: [
+  '/search/movie?query=',
+  '/search/tv?query=',
+  '/genre/movie/list'
+] = ['/search/movie?query=', '/search/tv?query=', '/genre/movie/list'];
 
 export const userRoles = {
   user: 'user' as const,
@@ -23,6 +39,7 @@ export const routesString = Object.freeze({
   single: 'single',
   multiple: 'multiple',
   data: 'data',
+  update: 'update',
   search: 'search',
   searchId: 'searchId',
   searchText: 'searchText',
@@ -214,6 +231,7 @@ export interface MovieSchemaType {
   videoUrl: string;
   previewImagesUrl: string[];
   displayPicture: string;
+  backdropPath: string;
   durationInMs: number;
   public: boolean;
   categories: string[];
