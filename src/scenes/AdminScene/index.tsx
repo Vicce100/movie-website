@@ -179,11 +179,11 @@ export default function AdminScene() {
         })}
         {renderButton({ value: showFranchise, setValue: setShowFranchise, title: 'Add Franchise' })}
         {renderButton({ value: showAddAvatar, setValue: setShowAddAvatar, title: 'Add Avatar' })}
-        {renderButton({ value: showFFmpeg, setValue: setShowFFmpeg, title: 'Add FFmpeg' })}
+        {renderButton({ value: showFFmpeg, setValue: setShowFFmpeg, title: 'Add FFmpeg Movie' })}
         {renderButton({
           value: showRemoveFFmpeg,
           setValue: setShowRemoveFFmpeg,
-          title: 'Remove FFmpeg',
+          title: 'Remove FFmpeg Movie',
         })}
         {renderButton({ value: showAddUser, setValue: setShowAddUser, title: 'Add User' })}
       </div>
