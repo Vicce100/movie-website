@@ -61,6 +61,7 @@ const Login = () => {
       login({ email, password })
         .then((res) => {
           if (res.status === 200) setUserContext({ currentUser: res.data.currentUser });
+          console.log(res.data.currentUser);
           // if (!res.ok) return setError(res.statusText);
           if (passwdRef.current?.value) passwdRef.current.value = '';
           if (emailRef.current?.value) emailRef.current.value = '';

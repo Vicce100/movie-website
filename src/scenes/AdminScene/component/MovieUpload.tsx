@@ -4,7 +4,13 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';
 import dayjs from 'dayjs';
 
 import { getAllCategory, getAllFranchise } from '../../../services';
-import { getMovieData, searchMovie, updateMovieDate } from '../../../services/videoService';
+import {
+  getMovieData,
+  searchMovie,
+  updateMovieDate,
+  uploadMovieObject,
+  uploadMovieChunk,
+} from '../../../services/videoService';
 import {
   CategorySchemaType,
   FranchiseSchemaType,
@@ -19,7 +25,7 @@ import {
   getMovieGenre,
   MovieSchemaType,
 } from '../../../utils/types';
-import { url } from '../../../services/apiService';
+import { generateFFmpeg, host, port, protocol, url } from '../../../services/apiService';
 import { usePageTitle } from '../../../hooks';
 
 import { ReactComponent as GoBack } from '../../../asset/svg/left-arrow-white.svg';
@@ -51,6 +57,7 @@ type tmdbMovieSearchResult = {
 } | null;
 
 type tmdbGenreType = { genres: { id: number; name: string }[] };
+const chunkSize = 10 * 1024;
 
 export default function MovieUpload() {
   const [indexSection, setIndexSection] = useState<number>(0);
@@ -70,7 +77,7 @@ export default function MovieUpload() {
   const [allCategories, setAllCategories] = useState<CategorySchemaType[] | null>(null);
   const [allFranchise, setAllFranchise] = useState<FranchiseSchemaType[] | null>(null);
 
-  const [videoFile, setVideoFile] = useState<Blob | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [franchises, setFranchises] = useState<string[]>([]);
 
@@ -79,6 +86,9 @@ export default function MovieUpload() {
   const uploadMovieReleaseDataRef = useRef<HTMLInputElement | null>(null);
   const uploadMovieImg = useRef<HTMLImageElement | null>(null);
   const uploadMovieBackdrop = useRef<HTMLImageElement | null>(null);
+
+  const [currentChunkIndex, setCurrentChunkIndex] = useState<null | number>(null);
+  const [lastMovieId, setLastMovieId] = useState<string>('');
 
   const updateMovieTitle = useRef<HTMLInputElement | null>(null);
   const updateMovieDisplayPicture = useRef<HTMLInputElement | null>(null);
@@ -133,7 +143,6 @@ export default function MovieUpload() {
         .json()
         .catch((err) => console.log(err));
 
-      // console.log(res);
       setExternalSearchResult(res);
     })();
   }, [externalSearchValue]);
@@ -195,6 +204,103 @@ export default function MovieUpload() {
     setIndexSection(0);
     setIsUploading(false);
   }, [categories, franchises, videoFile, externalMovieData]);
+
+  const submitExternalUploadObject = useCallback(async () => {
+    if (
+      !externalMovieData ||
+      !videoFile ||
+      !uploadMovieDescriptionRef.current?.value ||
+      !uploadMovieTitleRef.current?.value ||
+      !uploadMovieReleaseDataRef.current?.value ||
+      !uploadMovieImg.current?.src ||
+      !uploadMovieBackdrop.current?.src
+    )
+      return;
+
+    const value = {
+      displayPictureUrl: uploadMovieImg.current.src,
+      backdropPath: uploadMovieBackdrop.current.src,
+      releaseDate: dayjs(uploadMovieReleaseDataRef.current.value).format(),
+      title: uploadMovieTitleRef.current.value,
+      description: uploadMovieDescriptionRef.current.value,
+      isPublic: true,
+      categories: categories.map((c) => c),
+      franchise: franchises.map((f) => f),
+    };
+
+    setIsUploading(true);
+    const { data } = await uploadMovieObject(value);
+    setLastMovieId(data.movieId);
+  }, [categories, franchises, videoFile, externalMovieData]);
+
+  useEffect(() => {
+    if (lastMovieId) console.log(lastMovieId);
+  }, [lastMovieId]);
+
+  const uploadChunk = useCallback(
+    async (readerEvent: ProgressEvent<FileReader>) => {
+      if (
+        !videoFile ||
+        !uploadMovieTitleRef.current?.value ||
+        !readerEvent.target?.result ||
+        currentChunkIndex === null
+      )
+        return;
+
+      const data = readerEvent.target.result;
+      const params = new URLSearchParams();
+      params.set('name', String(videoFile.name));
+      params.set('movieId', String(lastMovieId));
+      params.set('size', String(videoFile.size));
+      params.set('currentChunkIndex', String(currentChunkIndex));
+      params.set('totalChunks', String(Math.ceil(videoFile.size / chunkSize)));
+      const headers = { 'Content-Type': 'application/octet-stream' };
+
+      try {
+        await uploadMovieChunk<{ success: true; movieId: string }>(
+          `${protocol}://${host}:${port}/${rs.video}/${rs.movie}/${
+            rs.upload
+          }/file?${params.toString()}`,
+          data,
+          headers
+        );
+
+        const chunks = Math.ceil(videoFile.size / chunkSize) - 1;
+        const isLastChunk = currentChunkIndex === chunks;
+        if (!isLastChunk) setCurrentChunkIndex(currentChunkIndex + 1);
+        else {
+          setCurrentChunkIndex(null);
+          setVideoFile(null);
+          setIndexSection(0);
+          setIsUploading(false);
+
+          generateFFmpeg(lastMovieId)
+            .finally(() => setIsUploading(false))
+            .then((result) => {
+              if (result.data.success) setLastMovieId('');
+            })
+            .catch((error) => console.log(error));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [currentChunkIndex, lastMovieId, videoFile]
+  );
+
+  const readAndUploadCurrentChunk = useCallback(() => {
+    const reader = new FileReader();
+    if (!videoFile || currentChunkIndex === null) return;
+    const from = Number(currentChunkIndex) * chunkSize;
+    const to = from + chunkSize;
+    reader.onload = (e) => uploadChunk(e);
+    reader.readAsDataURL(videoFile.slice(from, to));
+  }, [videoFile, currentChunkIndex, uploadChunk]);
+
+  useEffect(() => {
+    if (currentChunkIndex !== null) readAndUploadCurrentChunk();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChunkIndex]);
 
   const submitInternalUpdate = useCallback(async () => {
     const [movieTitle, displayPicture, backdrop, descriptor, date] = [
@@ -313,6 +419,23 @@ export default function MovieUpload() {
     [externalSearchResult?.results, externalSearchValue, goBack]
   );
 
+  const renderProgressButton = useCallback(() => {
+    if (!videoFile || !isUploading || currentChunkIndex === null) return <p>Submit</p>;
+
+    let progress = 0;
+    const chunks = Math.ceil(videoFile.size / chunkSize);
+    progress = Math.round((Number(currentChunkIndex) / chunks) * 100);
+
+    return (
+      <div
+        className={`progress ${progress === 100 ? 'done' : ''}`}
+        style={{ width: `${progress}%` }}
+      >
+        {progress}%
+      </div>
+    );
+  }, [currentChunkIndex, isUploading, videoFile]);
+
   const uploadMovieSection = useCallback(() => {
     if (!externalMovieData) return undefined;
 
@@ -342,9 +465,14 @@ export default function MovieUpload() {
               type="submit"
               className="submit-button"
               disabled={!!isUploading}
-              onClick={submitExternalUpload}
+              onClick={async () => {
+                if (videoFile) {
+                  await submitExternalUploadObject();
+                  setCurrentChunkIndex(0);
+                }
+              }}
             >
-              {!isUploading ? <p>Submit</p> : <div className="submit-button-loader" />}
+              {renderProgressButton()}
             </button>
           </div>
         </div>
@@ -475,11 +603,13 @@ export default function MovieUpload() {
     allFranchise,
     categories,
     checkSelectedCategories,
+    submitExternalUploadObject,
     externalMovieData,
     franchises,
     goBack,
     isUploading,
-    submitExternalUpload,
+    renderProgressButton,
+    videoFile,
   ]);
 
   const updateMovieSection = useCallback(() => {
