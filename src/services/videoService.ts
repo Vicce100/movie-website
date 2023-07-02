@@ -1,7 +1,9 @@
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosRequestHeaders } from 'axios';
 import { queryPathsString } from '../utils/types';
 import {
   updateMovieDate as movieUpdateDate,
+  uploadMovieObject as uploadObjectMovie,
+  uploadMovieChunk as uploadChunkMovie,
   getVideosData as videosDataGet,
   getMovieData as movieDataGet,
   getSeriesData as seriesDataGet,
@@ -40,6 +42,33 @@ export const updateMovieDate = <T>(data: {
   videoId: string;
 }) =>
   movieUpdateDate<T>(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const uploadMovieObject = (data: {
+  displayPictureUrl: string;
+  backdropPath: string;
+  releaseDate: string;
+  title: string;
+  description: string;
+  isPublic: boolean;
+  categories: string[];
+  franchise: string[];
+}) =>
+  uploadObjectMovie(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const uploadMovieChunk = <T>(
+  URL: string,
+  data: string | ArrayBuffer,
+  headers: AxiosRequestHeaders
+) =>
+  uploadChunkMovie<T>(URL, data, headers)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);

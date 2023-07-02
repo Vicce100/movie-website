@@ -104,9 +104,11 @@ export default function ProfileScene() {
   }, [currentUser]);
 
   const handleAddProfile = useCallback(
-    async (avatarURL: string) => {
+    async (avatarId: string) => {
       try {
-        await addProfile({ profileName: newProfileName, avatarURL });
+        await addProfile({ profileName: newProfileName, avatarId })
+          .catch((err) => console.log(err))
+          .then((res) => console.log(res));
 
         const { data: userData } = await getCurrentUser();
         setUserContext({ currentUser: userData.currentUser });
@@ -133,9 +135,9 @@ export default function ProfileScene() {
                   navigate('/');
                 }}
               >
-                <img src={profile.avatarURL} alt="profile.profileName" />
+                <img src={profile.avatarURL} alt={profile.profileName} />
               </button>
-              {profile.profileName}
+              <p>{profile.profileName}</p>
             </div>
           ))}
         <div className="add-profile-div">
@@ -171,17 +173,7 @@ export default function ProfileScene() {
             className="adding-profile-button"
             onClick={(e) => {
               e.preventDefault();
-              if (
-                !addingProfileRef.current?.value ||
-                !currentUser?.profiles ||
-                currentUser?.profiles
-                  .map((profile) => {
-                    if (profile.profileName === addingProfileRef.current?.value) return true;
-                    return false;
-                  })
-                  .includes(true)
-              )
-                return;
+              if (!addingProfileRef.current?.value || !currentUser) return;
               setNewProfileName(addingProfileRef.current?.value);
               setIsAddingProfile(false);
               setIsChoosingAvatar(!isChoosingAvatar);
@@ -192,6 +184,7 @@ export default function ProfileScene() {
         </form>
       </div>
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentUser?.profiles, isChoosingAvatar]
   );
 
@@ -287,7 +280,7 @@ export default function ProfileScene() {
                   role="button"
                   key={avatar._id}
                   className="single-video"
-                  onClick={() => newProfileName && handleAddProfile(avatar.url)}
+                  onClick={() => newProfileName && handleAddProfile(avatar._id)}
                   // onClick={() => {
                   //   document.documentElement.style.setProperty('--scroll-bar-visibility', 'hidden');
                   // }}

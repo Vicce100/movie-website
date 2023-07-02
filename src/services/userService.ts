@@ -49,7 +49,7 @@ export const getCurrentUser = () =>
       throw new Error(error.response?.data.message);
     });
 
-export const addProfile = (data: { profileName: string; avatarURL: string }) =>
+export const addProfile = (data: { profileName: string; avatarId: string }) =>
   profileAdd(data)
     .then((res) => res)
     .catch((error: AxiosError<LoginErrorType>) => {

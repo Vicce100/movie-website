@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
 import {
   CategorySchemaType,
   CurrentUserType,
@@ -22,7 +22,7 @@ import {
 
 type EndpointType = { host: string; port: string; path: string };
 
-const [protocol, host, port] = [
+export const [protocol, host, port] = [
   PRODUCTION_STATUS === 'develop' ? 'http' : 'http',
   PRODUCTION_STATUS === 'develop' ? 'localhost' : '192.168.0.3',
   PRODUCTION_STATUS === 'develop' ? '17053' : '17053',
@@ -72,7 +72,7 @@ export const userRefreshToken = (data: { refreshToken: string }) =>
 export const getUser = () =>
   getRequest<CurrentUserType>({ host, port, path: '/user/getCurrentUser' });
 
-export const addProfile = (data: { profileName: string; avatarURL: string }) =>
+export const addProfile = (data: { profileName: string; avatarId: string }) =>
   postRequest({ host, port, path: '/user/addProfile' }, data);
 
 // auth
@@ -150,6 +150,34 @@ export const updateMovieDate = <T>(data: {
     },
     data
   );
+
+export const uploadMovieObject = (data: {
+  displayPictureUrl: string;
+  backdropPath: string;
+  releaseDate: string;
+  title: string;
+  description: string;
+  isPublic: boolean;
+  categories: string[];
+  franchise: string[];
+}) =>
+  postRequest<{ success: boolean; movieId: string }>(
+    {
+      host,
+      port,
+      path: `/${rs.video}/${rs.movie}/${rs.upload}/object`,
+    },
+    data
+  );
+
+export const uploadMovieChunk = <T>(
+  URL: string,
+  data: string | ArrayBuffer,
+  headers: AxiosRequestHeaders
+): Promise<AxiosResponse<T>> =>
+  axios.post(URL, data, {
+    headers,
+  }) as unknown as Promise<AxiosResponse<T>>;
 
 export const getVideosData = <T>(data: { queryName: queryPathsString; profileId?: string }) =>
   postRequest<T>(
@@ -371,11 +399,11 @@ export const updateSeriesWatchedEpisode = (data: {
 };
 
 // ffmpeg
-export const generateFFmpeg = (videoId: string) =>
+export const generateFFmpeg = (movieId: string) =>
   getRequest<{ success: boolean }>({
     host,
     port,
-    path: `/${rs.video}/${rs.movie}/${rs.ffmpeg}/${videoId}`,
+    path: `/${rs.video}/${rs.movie}/${rs.ffmpeg}/${movieId}`,
   });
 
 export const removeFFmpeg = (videoId: string) =>
