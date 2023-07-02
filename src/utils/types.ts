@@ -6,7 +6,7 @@ export const [PRODUCTION_STATUS, TMDB_BASE_URL, TMDB_IMAGE_URL, TMDB_API_KEY]: [
   'https://image.tmdb.org/t/p/original',
   'api_key=fb6a3f12eb4c66cf62d83119c53cb4ad'
 ] = [
-  'develop',
+  'production',
   'https://api.themoviedb.org/3',
   'https://image.tmdb.org/t/p/original',
   'api_key=fb6a3f12eb4c66cf62d83119c53cb4ad',
