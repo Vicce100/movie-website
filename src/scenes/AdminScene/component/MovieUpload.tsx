@@ -57,6 +57,7 @@ type tmdbMovieSearchResult = {
 } | null;
 
 type tmdbGenreType = { genres: { id: number; name: string }[] };
+
 const chunkSize = 40 * 1024;
 
 export default function MovieUpload() {

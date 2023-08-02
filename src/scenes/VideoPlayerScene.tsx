@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 
 import { assertsValueToType } from '../utils/assert';
 import {
@@ -35,6 +35,7 @@ import '../styles/VideoPlayerStyle.scss';
 
 export default function VideoPlayerScene() {
   const [videoData, setVideoData] = useState<MovieSchemaType | EpisodeSchemaType | null>(null);
+  const [videoType, setVideoType] = useState<string | null>(null);
 
   const [volumeStatus, setVolumeStatus] = useState<'high' | 'low' | 'muted'>('high');
   const [volumeCount, setVolumeCount] = useState<number>(1);
@@ -68,21 +69,21 @@ export default function VideoPlayerScene() {
   const { videoId } = useParams();
   const { activeProfile } = useProfileContext();
   const { currentUser } = useCurrentUserContext();
+  const [searchParams] = useSearchParams();
   const { setPageTitle } = usePageTitle();
   const { formateTime } = useFormateTime();
   const callRefreshToken = useRefreshToken();
 
-  const { state } = useLocation();
-  assertsValueToType<{ isMovie: boolean } | undefined>(state);
-
   useEffect(() => setPageTitle('video player'), [setPageTitle]);
+  useEffect(() => setVideoType(searchParams.get('T')), [searchParams]);
 
   const updateVideoWatched = useCallback(async () => {
-    if (!state || !videoData || !video.current || !currentUser || !activeProfile) return;
+    if (!videoType || !videoData || !video.current || !currentUser || !activeProfile) return;
     const [userId, profileId, trackId] = [currentUser.id, activeProfile._id, videoCurrentTime || 0];
 
-    if (state.isMovie) updateMoviesWatched({ userId, profileId, movieId: videoData._id, trackId });
-    else if (!state.isMovie) {
+    if (videoType === 'M')
+      updateMoviesWatched({ userId, profileId, movieId: videoData._id, trackId });
+    else if (videoType === 'E') {
       assertsValueToType<EpisodeSchemaType>(videoData);
       const { seriesId, _id: episodeId } = videoData;
 
@@ -100,15 +101,15 @@ export default function VideoPlayerScene() {
         trackId,
       });
     }
-  }, [activeProfile, currentUser, state, videoCurrentTime, videoData]);
+  }, [activeProfile, currentUser, videoCurrentTime, videoData, videoType]);
 
   useEffect(() => {
-    if (!timeHasBeenChanged || !state || !videoData || !video || !activeProfile || !currentUser)
+    if (!timeHasBeenChanged || !videoType || !videoData || !video || !activeProfile || !currentUser)
       return;
     const [userId, profileId, trackId] = [currentUser.id, activeProfile._id, videoCurrentTime || 0];
 
     (async () => {
-      if (state.isMovie) {
+      if (videoType === 'M') {
         if (!activeProfile.isWatchingMovie?.find((isMovie) => isMovie.movieId === videoData._id))
           addToMoviesWatched({
             userId,
@@ -119,7 +120,7 @@ export default function VideoPlayerScene() {
         callRefreshToken(currentUser, profileId);
         return;
       }
-      if (!state.isMovie) {
+      if (videoType === 'E') {
         assertsValueToType<EpisodeSchemaType>(videoData);
         const { seriesId, _id: episodeId } = videoData;
         const series = activeProfile.isWatchingSeries?.find(
@@ -162,13 +163,12 @@ export default function VideoPlayerScene() {
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videoData, video, state, timeHasBeenChanged]);
+  }, [videoData, video, videoType, timeHasBeenChanged]);
 
   useEffect(() => {
-    if (!videoId || !state) {
-      navigate('/');
-      return;
-    }
+    if (!videoId) navigate('/');
+    if (!videoId || !videoType) return;
+
     const callSeries = (value: string) =>
       getEpisodeData(value)
         .then((res) => (res.status === 200 ? setVideoData(res.data) : undefined))
@@ -182,17 +182,17 @@ export default function VideoPlayerScene() {
           callSeries(value);
           // setIsMovie(false);
         });
-    if (state.isMovie) callMovie(videoId);
+    if (videoType === 'M') callMovie(videoId);
     else callSeries(videoId);
-  }, [videoId, state, navigate]);
+  }, [videoId, videoType, navigate]);
 
   useEffect(() => {
-    if (!videoData || !video || !video.current || !state || !activeProfile) return;
-    if (state.isMovie)
+    if (!videoData || !video || !video.current || !videoType || !activeProfile) return;
+    if (videoType === 'M')
       video.current.currentTime =
         activeProfile.isWatchingMovie?.find((isMovie) => isMovie.movieId === videoData._id)
           ?.trackId || 0;
-    else if (!state.isMovie) {
+    else if (videoType === 'E') {
       assertsValueToType<EpisodeSchemaType>(videoData);
       const { seriesId } = videoData;
       video.current.currentTime =
@@ -200,7 +200,7 @@ export default function VideoPlayerScene() {
           ?.activeEpisode.trackId || 0;
     }
     setTimeHasBeenChanged(true);
-  }, [videoData, video, state, activeProfile]);
+  }, [videoData, video, videoType, activeProfile]);
 
   const startWatchTimer = useCallback(() => {
     if (video.current) setWatchTime(Number(String(video.current.currentTime).split('.')[0]));
@@ -217,10 +217,10 @@ export default function VideoPlayerScene() {
     // eslint-disable-next-line consistent-return
     (() => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (!videoData || !state) return clearInterval(watchTimerRef.current!);
+      if (!videoData || !videoType) return clearInterval(watchTimerRef.current!);
       if (Number(String(watchTime).split('.')[0]) === 120) {
-        // const response = (await addView({ videoId: _id, state?.isMovie })).data;
-        addView({ videoId: videoData._id, isMovie: state.isMovie });
+        // const response = (await addView({ videoId: _id, isMovie: videoType === 'M' })).data;
+        addView({ videoId: videoData._id, isMovie: videoType === 'M' });
       }
       if (Number(String(watchTime).split('.')[0]) % 60 === 0 && watchTime !== 0)
         updateVideoWatched();
@@ -411,7 +411,7 @@ export default function VideoPlayerScene() {
   }, [videoIsFullscreen]);
 
   const renderTitle = useCallback(() => {
-    if (state?.isMovie && videoData) {
+    if (videoType === 'M' && videoData) {
       assertsValueToType<MovieSchemaType>(videoData);
       return (
         <div className="title-div">
@@ -429,7 +429,7 @@ export default function VideoPlayerScene() {
       );
     }
     return undefined;
-  }, [state?.isMovie, videoData]);
+  }, [videoType, videoData]);
 
   return (
     <div className="video-container" ref={videoContainer}>
@@ -606,12 +606,11 @@ export default function VideoPlayerScene() {
           else setVolumeStatus('low');
         }}
       >
-        {videoId ? (
-          state?.isMovie ? (
-            <source src={`${url}/${rs.video}/${rs.movie}/${videoId}`} type="video/mp4" />
-          ) : (
-            <source src={`${url}/${rs.video}/${rs.episode}/${videoId}`} type="video/mp4" />
-          )
+        {videoId && videoType ? (
+          <source
+            src={`${url}/${rs.video}/${rs.play}/${videoId}?T=${videoType}`}
+            type="video/mp4"
+          />
         ) : null}
         <track kind="captions" src="assets/subtitles.vtt" />
       </video>

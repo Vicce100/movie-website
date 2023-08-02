@@ -112,7 +112,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             className="display-img"
             onClick={(event) => {
               if (document.activeElement?.id && document.activeElement.id === 'display-img-id')
-                navigate(`/player/${movieData._id}`, { state: { isMovie: true } });
+                navigate(`/player/${movieData._id}?T=M`);
               event.nativeEvent.stopImmediatePropagation();
             }}
             id="display-img-id"
@@ -122,11 +122,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
               <div className="content-header-div">
                 <div className="header-generale-content">
                   <div className="header-play-link">
-                    <Link
-                      className="header-play-button"
-                      to={`/player/${movieData._id}`}
-                      state={{ isMovie: true }}
-                    >
+                    <Link className="header-play-button" to={`/player/${movieData._id}?T=M`}>
                       <h2 className="header-play-button-text">Play</h2>
                     </Link>
                   </div>
@@ -187,8 +183,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                     (seriesEpisodes[0] && seriesEpisodes[0].length
                       ? seriesEpisodes[0][0]._id
                       : seriesData._id)
-                  }`,
-                  { state: { isMovie: false } }
+                  }?T=E`
                 );
               }
               event.nativeEvent.stopImmediatePropagation();
@@ -209,8 +204,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                         seriesEpisodes[0] && seriesEpisodes[0].length
                           ? seriesEpisodes[0][0]._id
                           : seriesData._id
-                      }`}
-                      state={{ isMovie: false }}
+                      }?T=E`}
                     >
                       <h2 className="header-play-button-text">Play</h2>
                     </Link>
@@ -265,8 +259,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                   onClick={() =>
                     callRefreshToken(currentUser, activeProfile ? activeProfile._id : null)
                   }
-                  to={`/player/${episode._id}`}
-                  state={{ isMovie: false }}
+                  to={`/player/${episode._id}?T=E`}
                 >
                   <div className="episode-div-header">
                     <div className="text-div">
