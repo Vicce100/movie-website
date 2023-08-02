@@ -12,11 +12,19 @@
   --scrollbar-width: 10px;
 }
 
+$primaryColor: #24272e;
+$secondaryColor: #373c46;
+$tertiaryColor: #4d535e;
+$primaryText: #ffffff;
+$secondaryText: #ededed;
+$tertiaryText: #dbdbdb;
+
 $main-color: #24272e;
 $header-color: #373c46;
 $header-color2: #4d535e;
 $white: #ffffff;
 $black: #000;
+$brightGreen: hsl(100, 80%, 40%);
 $transparent: rgba(0, 0, 0, 0);
 $link-text-color: #03b1fc;
 $widthMinusScroll: calc(100vw - var(--scrollbar-width));
@@ -74,6 +82,52 @@ $Quicksand: 'Quicksand';
     }
   }
 }
+
+@mixin NormalCheckbox {
+  .checkbox {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    &__input {
+      // .checkbox__input
+      position: absolute;
+      width: 1.375em;
+      height: 1.375em;
+      opacity: 0;
+      cursor: pointer;
+
+      &:checked + svg .tick {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    &__icon {
+      // .checkbox__icon
+      width: 1.375em;
+      height: 1.375em;
+      flex-shrink: 0;
+      overflow: visible;
+
+      .tick {
+        stroke-dasharray: 20px;
+        stroke-dashoffset: 20px;
+        transition: stroke-dashoffset 0.2s ease-out;
+      }
+    }
+  }
+}
+/*
+html template
+<label htmlFor="myCheckbox01" className="checkbox">
+  <input className="checkbox__input" type="checkbox" id="myCheckbox01" />
+  <Checkbox />
+</label>
+*/
 
 @mixin toggle-switch {
   input[type='checkbox'].switch-input {

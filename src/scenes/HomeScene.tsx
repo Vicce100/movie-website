@@ -316,9 +316,12 @@ export default function HomeScene() {
                       setScrollYOffset(window.scrollY);
                       setSearchId({ contentId: video._id });
 
-                      navigate(`/player/${video.episodeId ? video.episodeId : video._id}`, {
-                        state: { isMovie: video.isMovie },
-                      });
+                      navigate(
+                        `/player/${video.episodeId ? video.episodeId : video._id}?T=${
+                          video.isMovie ? 'M' : 'E'
+                        }`,
+                        {}
+                      );
                     }
                     event.nativeEvent.stopImmediatePropagation();
                   }}
@@ -352,10 +355,9 @@ export default function HomeScene() {
                             onClick={(event) => {
                               if (document.activeElement?.id === 'play-button')
                                 navigate(
-                                  `/player/${video.episodeId ? video.episodeId : video._id}`,
-                                  {
-                                    state: { isMovie: video.isMovie },
-                                  }
+                                  `/player/${video.episodeId ? video.episodeId : video._id}?T=${
+                                    video.isMovie ? 'M' : 'E'
+                                  }`
                                 );
                               event.nativeEvent.stopImmediatePropagation();
                             }}

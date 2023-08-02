@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { generateFFmpeg, removeFFmpeg as fetchRemoveFFmpeg } from '../../services/videoService';
 import { usePageTitle } from '../../hooks/index';
 import { useCurrentUserContext } from '../../contexts/UserAuth';
 import { checkAuthRole } from '../../services/userService';
 
+import Movies from './component/Movies';
 import MovieUpload from './component/MovieUpload';
 import CreateSeries from './component/CreateSeries';
 import EpisodeUpload from './component/EpisodeUpload';
@@ -15,27 +16,34 @@ import AddFranchise from './component/AddFranchise';
 
 import './styles/index.scss';
 
-export default function AdminScene() {
-  const [showAddCategories, setShowAddCategories] = useState<boolean>(false);
-  const [showAddAvatar, setShowAddAvatar] = useState<boolean>(false);
-  const [showFranchise, setShowFranchise] = useState<boolean>(false);
-  const [showFFmpeg, setShowFFmpeg] = useState<boolean>(false);
-  const [showRemoveFFmpeg, setShowRemoveFFmpeg] = useState<boolean>(false);
-  const [showAddUser, setShowAddUser] = useState<boolean>(false);
-  const [showMovieUpload, setShowMovieUpload] = useState<boolean>(false);
-  const [showCreateSeries, setShowCreateSeries] = useState<boolean>(false);
-  const [showAddEpisode, setShowAddEpisode] = useState<boolean>(false);
+// queryStringVariable | QSV
+const QSV = {
+  showRemoveFFmpeg: 'showRemoveFFmpeg' as const,
+  showFFmpeg: 'showFFmpeg' as const,
+  showFranchise: 'showFranchise' as const,
+  showAddUser: 'showAddUser' as const,
+  showAddAvatar: 'showAddAvatar' as const,
+  showAddCategories: 'showAddCategories' as const,
+  showMovieUpload: 'showMovieUpload' as const,
+  showMovies: 'showMovies' as const,
+  showCreateSeries: 'showCreateSeries' as const,
+  showAddEpisode: 'showAddEpisode' as const,
+};
 
+export default function AdminScene() {
+  const [currentQueryString, setCurrentQueryString] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const ffmpegVideoIdRef = useRef<HTMLInputElement | null>(null);
 
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setPageTitle } = usePageTitle();
   const { currentUser } = useCurrentUserContext();
 
-  const navigate = useNavigate();
-
   useEffect(() => setPageTitle('Admin'), [setPageTitle]);
+  useEffect(() => setCurrentQueryString(searchParams.get('operation')), [searchParams]);
+
   useEffect(() => {
     if (!currentUser || !currentUser.role) navigate('/');
     else
@@ -109,41 +117,37 @@ export default function AdminScene() {
     [isUploading]
   );
 
-  const selectField = useCallback(
-    // eslint-disable-next-line no-unused-vars
-    (setValue: (value: React.SetStateAction<boolean>) => void, value: boolean) => {
-      setShowRemoveFFmpeg(false);
-      setShowFFmpeg(false);
-      setShowFranchise(false);
-      setShowAddUser(false);
-      setShowAddAvatar(false);
-      setShowAddCategories(false);
-      setShowMovieUpload(false);
-      setShowCreateSeries(false);
-      setShowAddEpisode(false);
-      setValue(!value);
-    },
-    []
-  );
-
   type NewType = {
-    value: boolean;
-    setValue: React.Dispatch<React.SetStateAction<boolean>>;
+    queryString:
+      | 'showRemoveFFmpeg'
+      | 'showFFmpeg'
+      | 'showFranchise'
+      | 'showAddUser'
+      | 'showAddAvatar'
+      | 'showAddCategories'
+      | 'showMovieUpload'
+      | 'showMovies'
+      | 'showCreateSeries'
+      | 'showAddEpisode'
+      | null;
     title: string;
   };
 
   const renderButton = useCallback(
-    ({ value, setValue, title }: NewType) => (
+    ({ queryString, title }: NewType) => (
       <button
-        style={{ border: value ? '1px solid #fff' : 'none' }}
+        style={{ border: currentQueryString === queryString ? '1px solid #fff' : 'none' }}
         type="button"
         className="options-button-box"
-        onClick={() => selectField(setValue, value)}
+        onClick={() => {
+          if (searchParams.get('operation') === queryString) navigate(`/Admin/`);
+          else navigate(`/Admin/?operation=${queryString}`);
+        }}
       >
         <h3 className="options-box-heading">{title}</h3>
       </button>
     ),
-    [selectField]
+    [currentQueryString, navigate, searchParams]
   );
 
   return (
@@ -157,46 +161,28 @@ export default function AdminScene() {
         >
           <h3 className="options-box-heading">Go To Home</h3>
         </button>
-        {renderButton({
-          value: showMovieUpload,
-          setValue: setShowMovieUpload,
-          title: 'Upload Movie',
-        })}
-        {renderButton({
-          value: showCreateSeries,
-          setValue: setShowCreateSeries,
-          title: 'Create Series',
-        })}
-        {renderButton({
-          value: showAddEpisode,
-          setValue: setShowAddEpisode,
-          title: 'Add Episodes',
-        })}
-        {renderButton({
-          value: showAddCategories,
-          setValue: setShowAddCategories,
-          title: 'Add Categories',
-        })}
-        {renderButton({ value: showFranchise, setValue: setShowFranchise, title: 'Add Franchise' })}
-        {renderButton({ value: showAddAvatar, setValue: setShowAddAvatar, title: 'Add Avatar' })}
-        {renderButton({ value: showFFmpeg, setValue: setShowFFmpeg, title: 'Add FFmpeg Movie' })}
-        {renderButton({
-          value: showRemoveFFmpeg,
-          setValue: setShowRemoveFFmpeg,
-          title: 'Remove FFmpeg Movie',
-        })}
-        {renderButton({ value: showAddUser, setValue: setShowAddUser, title: 'Add User' })}
+        {renderButton({ queryString: QSV.showMovies, title: 'Movies' })}
+        {renderButton({ queryString: QSV.showMovieUpload, title: 'Upload Movie' })}
+        {renderButton({ queryString: QSV.showCreateSeries, title: 'Create Series' })}
+        {renderButton({ queryString: QSV.showAddEpisode, title: 'Add Episodes' })}
+        {renderButton({ queryString: QSV.showAddCategories, title: 'Add Categories' })}
+        {renderButton({ queryString: QSV.showFranchise, title: 'Add Franchise' })}
+        {renderButton({ queryString: QSV.showAddAvatar, title: 'Add Avatar' })}
+        {renderButton({ queryString: QSV.showFFmpeg, title: 'Add FFmpeg Movie' })}
+        {renderButton({ queryString: QSV.showRemoveFFmpeg, title: 'Remove FFmpeg Movie' })}
+        {/* {renderButton({ queryString: QSV.showAddUser, title: 'Add User' })} */}
       </div>
       <div className="main-section">
-        {showMovieUpload && <MovieUpload />}
-        {showCreateSeries && <CreateSeries />}
-        {showAddEpisode && <EpisodeUpload />}
-        {showAddCategories && <AddCategories />}
-        {showFranchise && <AddFranchise />}
-        {showAddAvatar && <AddAvatar />}
-        {/* {showAddUser && <AddUser />} */}
-        {showFFmpeg && addFFmpeg()}
-        {showRemoveFFmpeg && removeFFmpeg()}
+        {currentQueryString === QSV.showMovies && <Movies />}
+        {currentQueryString === QSV.showMovieUpload && <MovieUpload />}
+        {currentQueryString === QSV.showCreateSeries && <CreateSeries />}
+        {currentQueryString === QSV.showAddEpisode && <EpisodeUpload />}
+        {currentQueryString === QSV.showAddCategories && <AddCategories />}
+        {currentQueryString === QSV.showFranchise && <AddFranchise />}
+        {currentQueryString === QSV.showAddAvatar && <AddAvatar />}
+        {/* {currentQueryStringQSV.=== QSV.showAddUser && <AddUser />} */}
+        {currentQueryString === QSV.showFFmpeg && addFFmpeg()}
+        {currentQueryString === QSV.showRemoveFFmpeg && removeFFmpeg()}
       </div>
     </div>
   );
