@@ -57,7 +57,8 @@ type tmdbMovieSearchResult = {
 } | null;
 
 type tmdbGenreType = { genres: { id: number; name: string }[] };
-const chunkSize = 20 * 1024;
+
+const chunkSize = 40 * 1024;
 
 export default function MovieUpload() {
   const [indexSection, setIndexSection] = useState<number>(0);
