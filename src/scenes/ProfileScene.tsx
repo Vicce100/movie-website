@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 /* eslint-disable arrow-body-style */
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { ReactComponent as Plus } from '../asset/svg/plus.svg';
 import { ReactComponent as Home } from '../asset/svg/home_white_36dp.svg';
@@ -19,6 +19,7 @@ import { useWindowDimensions, usePageTitle } from '../hooks/index';
 import { ReturnAvatarType, ProfileType, returnVideosArray } from '../utils/types';
 
 import '../styles/ProfileStyle.scss';
+import { assertsValueToType } from '../utils/assert';
 
 type AvatarType = {
   _id: string;
@@ -42,6 +43,9 @@ export default function ProfileScene() {
   const addingProfileRef = useRef<HTMLInputElement | null>(null);
 
   const rowVideoContainerRef1 = useRef<HTMLDivElement | null>(null);
+
+  const { state } = useLocation();
+  assertsValueToType<{ previousPath: string } | undefined>(state);
 
   const { currentUser } = useCurrentUserContext();
   const [setActiveProfile] = useSetActiveProfile();
@@ -113,12 +117,13 @@ export default function ProfileScene() {
         const { data: userData } = await getCurrentUser();
         setUserContext({ currentUser: userData.currentUser });
         setIsChoosingAvatar(false);
-        setNewProfileName('');
+        if (state && state.previousPath) setNewProfileName(state.previousPath);
+        else setNewProfileName('');
       } catch (error) {
         console.log(error);
       }
     },
-    [newProfileName, setUserContext]
+    [newProfileName, setUserContext, state]
   );
 
   const renderDefault = useCallback(
@@ -132,7 +137,7 @@ export default function ProfileScene() {
                 className="profile-card-button"
                 onClick={() => {
                   setActiveProfile(profile);
-                  navigate('/');
+                  navigate(state?.previousPath ? state.previousPath : '/');
                 }}
               >
                 <img src={profile.avatarURL} alt={profile.profileName} />
@@ -155,7 +160,7 @@ export default function ProfileScene() {
         </div>
       </div>
     ),
-    [isAddingProfile, navigate, profiles, setActiveProfile]
+    [isAddingProfile, navigate, profiles, setActiveProfile, state?.previousPath]
   );
 
   const renderAddingProfile = useCallback(
@@ -190,25 +195,25 @@ export default function ProfileScene() {
 
   const skipBack = useCallback(
     (
-      state: {
+      localState: {
         _id: string;
         name: string;
         activePage: number;
         avatars: ReturnAvatarType[];
       } | null
     ) => {
-      if (!state || !avatarsFormFranchise) return;
+      if (!localState || !avatarsFormFranchise) return;
       const newAvatarsFormFranchise = [...avatarsFormFranchise];
-      const nrOfPages = String(state.avatars.length / itemPerPage).split('.');
+      const nrOfPages = String(localState.avatars.length / itemPerPage).split('.');
 
-      if (state.activePage)
-        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage =
-          state.activePage - 1;
+      if (localState.activePage)
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(localState)].activePage =
+          localState.activePage - 1;
       else if (!Number(nrOfPages[1]))
-        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage =
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(localState)].activePage =
           Number(nrOfPages[0]) - 1;
       else
-        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage = Number(
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(localState)].activePage = Number(
           nrOfPages[0]
         );
 
@@ -219,30 +224,30 @@ export default function ProfileScene() {
 
   const skipForward = useCallback(
     (
-      state: {
+      localState: {
         _id: string;
         name: string;
         activePage: number;
         avatars: ReturnAvatarType[];
       } | null
     ) => {
-      if (!state || !avatarsFormFranchise) return;
+      if (!localState || !avatarsFormFranchise) return;
       const newAvatarsFormFranchise = [...avatarsFormFranchise];
 
-      const nrOfPages = String(state.avatars.length / itemPerPage).split('.');
+      const nrOfPages = String(localState.avatars.length / itemPerPage).split('.');
       const number = Number(nrOfPages[1]) ? 0 : 1;
-      if (state.activePage === Number(nrOfPages[0]) - number)
-        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage = 0;
+      if (localState.activePage === Number(nrOfPages[0]) - number)
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(localState)].activePage = 0;
       else
-        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(state)].activePage =
-          state.activePage + 1;
+        newAvatarsFormFranchise[avatarsFormFranchise.indexOf(localState)].activePage =
+          localState.activePage + 1;
     },
     [avatarsFormFranchise, itemPerPage]
   );
 
   const renderVideoContainer = useCallback(
     (
-      state: {
+      localState: {
         _id: string;
         name: string;
         activePage: number;
@@ -250,30 +255,30 @@ export default function ProfileScene() {
       } | null,
       videoRef: React.MutableRefObject<HTMLDivElement | null>
     ) =>
-      state?.avatars && (
+      localState?.avatars && (
         <div
-          key={state._id}
+          key={localState._id}
           ref={videoRef}
           onChange={() => console.log('change')}
           className="row-video-container"
         >
           <div className="row-header">
-            <h2 className="row-header-text">{state.name}</h2>
+            <h2 className="row-header-text">{localState.name}</h2>
           </div>
           <div className="row-content">
             <button
-              style={{ visibility: state.avatars.length < itemPerPage ? 'hidden' : 'visible' }}
+              style={{ visibility: localState.avatars.length < itemPerPage ? 'hidden' : 'visible' }}
               className="handle left-handle"
               type="button"
-              onClick={() => skipBack(state)}
+              onClick={() => skipBack(localState)}
             >
               <p />
             </button>
             <div
               className="slider"
-              style={{ transform: `translateX(-${state.activePage * 100}%)` }}
+              style={{ transform: `translateX(-${localState.activePage * 100}%)` }}
             >
-              {state.avatars.map((avatar) => (
+              {localState.avatars.map((avatar) => (
                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events
                 <div
                   tabIndex={0}
@@ -290,10 +295,10 @@ export default function ProfileScene() {
               ))}
             </div>
             <button
-              style={{ visibility: state.avatars.length < itemPerPage ? 'hidden' : 'visible' }}
+              style={{ visibility: localState.avatars.length < itemPerPage ? 'hidden' : 'visible' }}
               className="handle right-handle"
               type="button"
-              onClick={() => skipForward(state)}
+              onClick={() => skipForward(localState)}
             >
               <p />
             </button>

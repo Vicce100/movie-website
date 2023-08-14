@@ -15,13 +15,18 @@ function Router() {
   const { currentUser } = useCurrentUserContext();
   const { activeProfile } = useProfileContext();
 
+  const urlPath = window.location.href.replace(window.location.origin, '');
+
   return (
     <BrowserRouter>
       {currentUser ? (
         <Routes>
           {!activeProfile ? (
             <Fragment>
-              <Route path="*" element={<Navigate replace to="/Profile" />} />
+              <Route
+                path="*"
+                element={<Navigate replace to="/Profile" state={{ previousPath: urlPath }} />}
+              />
               {/* add outer components */}
             </Fragment>
           ) : (

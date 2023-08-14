@@ -1,9 +1,7 @@
 @import '../utils/scssVariables.scss';
 
 :root {
-  @include custom-light-blue-scrollbar;
   color: $white;
-  overflow-y: var(--scroll-bar-visibility);
 }
 
 .search-container {
@@ -16,7 +14,9 @@
     flex-direction: column;
     min-height: $heightMinusHeader;
     width: 100%;
-    overflow: hidden;
+    @include custom-light-blue-scrollbar;
+    overflow-y: var(--scroll-bar-visibility);
+    overflow-x: hidden;
     background: linear-gradient(
       to right,
       #31343a 0%,

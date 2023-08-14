@@ -60,7 +60,8 @@ export default function SearchScene() {
                   className="search-value-element-button"
                   onClick={() => {
                     setIsMovie(video.isMovie);
-                    setSearchParams({ searchId: searchString, contentId: video._id });
+                    searchParams.set('contentId', video._id);
+                    setSearchParams(searchParams);
                   }}
                 >
                   <img src={video.displayPicture} alt={video.title} />

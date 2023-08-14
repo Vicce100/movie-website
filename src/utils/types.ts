@@ -48,6 +48,8 @@ export const routesString = Object.freeze({
   get: 'get',
   getCurrentUser: 'getCurrentUser',
   id: 'id',
+  infinity: 'infinity',
+  likedList: 'likedList',
   login: 'login',
   logout: 'logout',
   movie: 'movie',
@@ -80,8 +82,8 @@ export const queryPaths = {
   forYou: 'forYou' as const,
   newlyAdded: 'newlyAdded' as const,
   popular: 'popular' as const,
-  top10movies: 'top10movies' as const,
-  top10series: 'top10series' as const,
+  top54movies: 'top54movies' as const,
+  top54series: 'top54series' as const,
   randomMovie: 'randomMovie' as const,
   randomSeries: 'randomSeries' as const,
 };
@@ -97,8 +99,8 @@ export type queryPathsString =
   | 'forYou'
   | 'newlyAdded'
   | 'popular'
-  | 'top10movies'
-  | 'top10series'
+  | 'top54movies'
+  | 'top54series'
   | 'randomMovie'
   | 'randomSeries';
 
@@ -235,6 +237,7 @@ export interface MovieSchemaType {
   displayPicture: string;
   backdropPath: string;
   durationInMs: number;
+  creditsDurationInMs: number;
   public: boolean;
   categories: string[];
   franchise: string[];
