@@ -43,6 +43,9 @@ const postRequest = async <T>(endpoint: EndpointType, data?: object): Promise<Ax
 const deleteRequest = async <T>(endpoint: EndpointType, data?: object): Promise<AxiosResponse<T>> =>
   axios.delete(`${protocol}://${endpoint.host}:${endpoint.port}${endpoint.path}`, data);
 
+const nonDataDeleteRequest = async <T>(endpoint: EndpointType): Promise<AxiosResponse<T>> =>
+  axios.delete(`${protocol}://${endpoint.host}:${endpoint.port}${endpoint.path}`);
+
 const nonDataPostRequest = async <T>(endpoint: EndpointType): Promise<AxiosResponse<T>> =>
   axios.post(`${protocol}://${endpoint.host}:${endpoint.port}${endpoint.path}`);
 
@@ -135,12 +138,16 @@ export const getAllAvatars = () =>
 // ---------- video ---------- //
 
 export const updateMovieDate = <T>(data: {
-  title: string | undefined;
-  displayPicture: string | undefined;
-  backdropPath: string | undefined;
-  description: string | undefined;
-  releaseDate: string | undefined;
-  videoId: string;
+  title: string | undefined | null;
+  creditsDurationInMs: number | undefined | null;
+  isPublic: boolean | undefined | null;
+  categories: string[] | undefined | null;
+  franchise: string[] | undefined | null;
+  description: string | undefined | null;
+  releaseDate: string | undefined | null;
+  displayPictureUrl: string;
+  backdropPath: string;
+  videoId: string | undefined | null;
 }) =>
   postRequest<T>(
     {
@@ -178,6 +185,13 @@ export const uploadMovieChunk = <T>(
   axios.post(URL, data, {
     headers,
   }) as unknown as Promise<AxiosResponse<T>>;
+
+export const deleteMovie = (movieId: string) =>
+  nonDataDeleteRequest<{ success: true }>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.movie}/${rs.delete}/${movieId}`,
+  });
 
 export const getVideosData = <T>(data: { queryName: queryPathsString; profileId?: string }) =>
   postRequest<T>(
@@ -217,7 +231,11 @@ export const getEpisodeData = (episodeId: string) =>
     path: `/${rs.video}/${rs.episode}/${rs.data}/${episodeId}`,
   });
 
-export const getMovieByCategory = (data: { categoryNames: string[]; exudeArray?: string[] }) =>
+export const getMovieByCategory = (data: {
+  categoryNames: string[];
+  exudeArray?: string[];
+  limit?: number;
+}) =>
   postRequest<returnVideosArray>(
     {
       host,
@@ -227,7 +245,11 @@ export const getMovieByCategory = (data: { categoryNames: string[]; exudeArray?:
     data
   );
 
-export const getSeriesByCategory = (data: { categoryNames: string[]; exudeArray?: string[] }) =>
+export const getSeriesByCategory = (data: {
+  categoryNames: string[];
+  exudeArray?: string[];
+  limit?: number;
+}) =>
   postRequest<returnVideosArray>(
     {
       host,
@@ -270,6 +292,18 @@ export const addIdToSavedList = (data: { profileId: string; videoId: string }) =
 export const removeIdFromSavedList = (data: { profileId: string; videoId: string }) =>
   postRequest<{ success: boolean }>(
     { host, port, path: `/${rs.video}/${rs.remove}/${rs.savedList}` },
+    data
+  );
+
+export const addIdToLikedList = (data: { profileId: string; videoId: string }) =>
+  postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.add}/${rs.likedList}` },
+    data
+  );
+
+export const removeIdFromLikedList = (data: { profileId: string; videoId: string }) =>
+  postRequest<{ success: boolean }>(
+    { host, port, path: `/${rs.video}/${rs.remove}/${rs.likedList}` },
     data
   );
 
@@ -398,6 +432,42 @@ export const updateSeriesWatchedEpisode = (data: {
   );
 };
 
+export const getMoviesInfinityScroll = (data: { skip: number; limit: number }) =>
+  getRequest<returnVideosArray>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.data}/${rs.movie}/${rs.infinity}/?skip=${data.skip}&limit=${data.limit}`,
+  });
+
+export const getSeriesInfinityScroll = (data: { skip: number; limit: number }) =>
+  getRequest<returnVideosArray>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.data}/${rs.series}/${rs.infinity}/?skip=${data.skip}&limit=${data.limit}`,
+  });
+
+export const searchMoviesInfinityScroll = (data: {
+  searchId: string;
+  skip: number;
+  limit: number;
+}) =>
+  getRequest<returnVideosArray>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.data}/${rs.movie}/${rs.infinity}/${data.searchId}/?skip=${data.skip}&limit=${data.limit}`,
+  });
+
+export const searchSeriesInfinityScroll = (data: {
+  searchId: string;
+  skip: number;
+  limit: number;
+}) =>
+  getRequest<returnVideosArray>({
+    host,
+    port,
+    path: `/${rs.video}/${rs.data}/${rs.series}/${rs.infinity}/${data.searchId}/?skip=${data.skip}&limit=${data.limit}`,
+  });
+
 // ffmpeg
 export const generateFFmpeg = (movieId: string) =>
   getRequest<{ success: boolean }>({
@@ -411,4 +481,11 @@ export const removeFFmpeg = (videoId: string) =>
     host,
     port,
     path: `/${rs.video}/${rs.movie}/${rs.ffmpeg}/${rs.remove}/${videoId}`,
+  });
+
+export const fix = () =>
+  getRequest<{ success: boolean }>({
+    host,
+    port,
+    path: `/fix`,
   });

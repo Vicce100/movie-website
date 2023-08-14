@@ -2,10 +2,7 @@
 
 :root {
   --swiper-theme-color: #fff;
-  @include custom-light-blue-scrollbar;
   color: $white;
-  overflow-y: var(--scroll-bar-visibility);
-  overflow-x: hidden;
   --img-gap: 0.5rem;
 }
 .profile-container {
@@ -25,6 +22,9 @@
     height: 50px;
     background-color: $header-color;
     color: $white;
+    @include custom-light-blue-scrollbar;
+    overflow-y: var(--scroll-bar-visibility);
+    overflow-x: hidden;
     font-size: 20px;
     font-family: $Roboto-Slab;
     font-weight: bold;

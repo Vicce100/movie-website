@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { assertsValueToType } from '../utils/assert';
 import {
@@ -453,7 +453,7 @@ export default function VideoPlayerScene() {
               onClick={() => {
                 if (videoCurrentTime >= 30) updateVideoWatched();
                 callRefreshToken(currentUser, activeProfile?._id || null);
-                navigate(-1);
+                navigate(`/browse?contentId=${window.location.pathname.replace('/player/', '')}`);
               }}
             >
               <GoBack className="go-back-icon" />

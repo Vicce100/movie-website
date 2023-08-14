@@ -5,17 +5,27 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { useCurrentUserContext, useProfileContext } from '../contexts/UserAuth';
-import { EpisodeSchemaType, MovieSchemaType, SeriesSchemaType } from '../utils/types';
+import {
+  EpisodeSchemaType,
+  MovieSchemaType,
+  SeriesSchemaType,
+  returnVideosArray,
+} from '../utils/types';
 import {
   getMovieData,
   getSeriesData,
   addIdToSavedList,
   removeIdFromSavedList,
   getSeriesEpisodes,
+  getMovieByCategory,
+  addIdToLikedList,
+  removeIdFromLikedList,
 } from '../services/videoService';
 import { useFormateTime, usePageTitle, useRefreshToken } from '../hooks';
 
 import { ReactComponent as Checked } from '../asset/svg/videoInfo/checked.svg';
+import { ReactComponent as Like } from '../asset/svg/like-svgrepo-com.svg';
+import { ReactComponent as IsLiked } from '../asset/svg/like-svgrepo-com-white.svg';
 
 import '../styles/videoInfoStyle.scss';
 
@@ -27,6 +37,9 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
   // only for series
   const [seriesEpisodes, setSeriesEpisodes] = useState<EpisodeSchemaType[][]>([]);
   const [selectedSeason, setSelectedSeason] = useState<number>(0);
+  const [relatedMoviesOrSeries, setRelatedMoviesOrSeries] = useState<returnVideosArray | null>(
+    null
+  );
 
   const videoInfoContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -82,12 +95,32 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
     [searchParams, isMovie]
   );
 
+  useEffect(() => {
+    const searchValue = searchParams.get('contentId');
+    if (!isMovie || !searchValue || !movieData) return;
+
+    getMovieByCategory({ categoryNames: movieData.categories, limit: 4 })
+      .then((res) => (res.status === 200 ? setRelatedMoviesOrSeries(res.data) : null))
+      .catch((e) => console.log(e));
+  }, [isMovie, searchParams, movieData]);
+
   const addToSavedList = useCallback(
     async (videoId: string, action: 'add' | 'remove') => {
       if (!activeProfile?._id) return;
       if (action === 'add') await addIdToSavedList({ profileId: activeProfile._id, videoId });
       if (action === 'remove')
         await removeIdFromSavedList({ profileId: activeProfile._id, videoId });
+      callRefreshToken(currentUser, activeProfile._id);
+    },
+    [activeProfile?._id, callRefreshToken, currentUser]
+  );
+
+  const addToLikedList = useCallback(
+    async (videoId: string, action: 'add' | 'remove') => {
+      if (!activeProfile?._id) return;
+      if (action === 'add') await addIdToLikedList({ profileId: activeProfile._id, videoId });
+      if (action === 'remove')
+        await removeIdFromLikedList({ profileId: activeProfile._id, videoId });
       callRefreshToken(currentUser, activeProfile._id);
     },
     [activeProfile?._id, callRefreshToken, currentUser]
@@ -100,6 +133,14 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
       return <Checked />;
     return <p>&#43; {/* &#10004; */}</p>;
   }, [activeProfile?.savedList, isMovie, movieData?._id, seriesData?._id]);
+
+  const renderAddToLikedListButton = useCallback(() => {
+    if (isMovie && activeProfile?.likedList?.find((objectId) => objectId === movieData?._id))
+      return <IsLiked style={{ width: '80%' }} />;
+    if (!isMovie && activeProfile?.likedList?.find((objectId) => objectId === seriesData?._id))
+      return <IsLiked style={{ width: '80%' }} />;
+    return <Like style={{ width: '80%' }} />;
+  }, [activeProfile?.likedList, isMovie, movieData?._id, seriesData?._id]);
 
   const renderMovie = useCallback(
     () =>
@@ -117,7 +158,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             }}
             id="display-img-id"
           >
-            <img src={movieData.backdropPath} alt={`${movieData.title}-img:`} />
+            <img src={movieData.backdropPath} alt={`${movieData.title}-img:`} loading="lazy" />
             <div className="content-header">
               <div className="content-header-div">
                 <div className="header-generale-content">
@@ -127,8 +168,10 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                     </Link>
                   </div>
                   <button
+                    key="addToMovieSavedList"
                     type="button"
                     className="add-to-saved-list"
+                    style={{ border: 'none' }}
                     onClick={() => {
                       if (activeProfile?.savedList?.find((u) => u === movieData?._id))
                         addToSavedList(movieData._id, 'remove');
@@ -137,6 +180,19 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                     // addToSavedList
                   >
                     {renderAddToMyListButton()}
+                  </button>
+                  <button
+                    key="addToMovieLikedList"
+                    type="button"
+                    className="add-to-saved-list"
+                    style={{ border: 'none' }}
+                    onClick={() => {
+                      if (activeProfile?.likedList?.find((u) => u === movieData?._id))
+                        addToLikedList(movieData._id, 'remove');
+                      else addToLikedList(movieData._id, 'add');
+                    }}
+                  >
+                    {renderAddToLikedListButton()}
                   </button>
                 </div>
               </div>
@@ -150,15 +206,39 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             <span className="time">{formateTimeNoSeconds(movieData.durationInMs / 1000)}</span>
           </div>
           <span className="description">{movieData.description}</span>
+          <h4 className="recommended-movies-text">
+            <p>Recommended Movies</p>
+          </h4>
+          <section className="recommended-movies-section">
+            {relatedMoviesOrSeries &&
+              relatedMoviesOrSeries.map((movie) => (
+                <button
+                  key={`${movie._id}-recommended`}
+                  className="single-recommended-movies"
+                  type="button"
+                  onClick={() => navigate(`/browse?contentId=${movie._id}`)}
+                >
+                  <img
+                    className="single-recommended-movie-img"
+                    src={movie.displayPicture}
+                    alt={movie.title}
+                  />
+                </button>
+              ))}
+          </section>
         </div>
       ),
     [
       movieData,
       renderAddToMyListButton,
+      renderAddToLikedListButton,
       formateTimeNoSeconds,
+      relatedMoviesOrSeries,
       navigate,
       activeProfile?.savedList,
+      activeProfile?.likedList,
       addToSavedList,
+      addToLikedList,
     ]
   );
 
@@ -190,7 +270,7 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             }}
             id="display-img-id"
           >
-            <img src={seriesData.displayPicture} alt={`${seriesData.title}-img:`} />
+            <img src={seriesData.displayPicture} alt={`${seriesData.title}-img:`} loading="lazy" />
             <div className="content-header">
               <div className="content-header-div">
                 <div className="header-generale-content">
@@ -221,6 +301,19 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
                   >
                     {renderAddToMyListButton()}
                   </button>
+                  <button
+                    key="addToMovieLikedList"
+                    type="button"
+                    className="add-to-saved-list"
+                    style={{ border: 'none' }}
+                    onClick={() => {
+                      if (activeProfile?.likedList?.find((u) => u === seriesData?._id))
+                        addToLikedList(seriesData._id, 'remove');
+                      else addToLikedList(seriesData._id, 'add');
+                    }}
+                  >
+                    {renderAddToLikedListButton()}
+                  </button>
                 </div>
               </div>
             </div>
@@ -240,7 +333,11 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
             {seriesEpisodes.map((_episode, index) => (
               <button
                 type="button"
-                style={{ backgroundColor: selectedSeason === index ? '#03b1fc' : '#fc7ae2' }}
+                style={{
+                  backgroundColor: selectedSeason === index ? '#03b1fc' : '#787878',
+                  borderColor:
+                    selectedSeason === index ? 'rgba(184, 184, 184, 0)' : 'rgba(190, 190, 190, 1)',
+                }}
                 key={`${v4()}-season-button`}
                 className="seasons-button"
                 onClick={() => setSelectedSeason(index)}
@@ -294,13 +391,15 @@ export default function VideoInfoScene({ isMovieProp = true }: { isMovieProp?: b
       seriesData,
       seriesEpisodes,
       renderAddToMyListButton,
+      renderAddToLikedListButton,
       selectedSeason,
-      navigate,
-      activeProfile,
-      addToSavedList,
-      formateInMinutes,
       callRefreshToken,
       currentUser,
+      activeProfile,
+      navigate,
+      addToSavedList,
+      addToLikedList,
+      formateInMinutes,
     ]
   );
 

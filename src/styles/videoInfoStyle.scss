@@ -3,28 +3,30 @@
 .video-info-container {
   display: flex;
   justify-content: center;
-  position: absolute;
+  position: fixed;
   width: 100vw;
   min-height: 100vh;
+  top: 0;
+  bottom: 0;
   z-index: 15;
   background-color: rgba(30, 30, 30, 0.58);
 
   .main-content {
-    @include custom-light-blue-scrollbar;
     display: flex;
-    overflow-y: auto;
-    overflow-x: hidden;
     justify-content: center;
     width: 50%;
     min-height: 80%;
     // height: 120%;
     margin: 3rem 0;
     border-radius: 0.8rem;
-    z-index: 16;
-    background-color: rgb(80, 79, 79);
+    z-index: 15;
+    @include custom-light-blue-scrollbar;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: rgb(54, 44, 65);
 
     .movie-content-container {
-      width: 100%;
+      z-index: 16;
 
       .display-img {
         display: flex;
@@ -69,14 +71,15 @@
           align-items: center;
           position: absolute;
           color: lightskyblue;
+          cursor: pointer;
 
           background-position: bottom;
           background: linear-gradient(
             $transparent 0%,
-            rgba(80, 79, 79, 0.5) 20%,
-            rgba(80, 79, 79, 0.7) 50%,
-            rgba(80, 79, 79, 0.9) 80%,
-            rgb(80, 79, 79) 100%
+            rgba(54, 44, 65, 0.5) 20%,
+            rgba(54, 44, 65, 0.7) 50%,
+            rgba(54, 44, 65, 0.9) 80%,
+            rgb(54, 44, 65) 100%
           );
           .content-header-div {
             display: flex;
@@ -189,10 +192,48 @@
         font-family: $Nunito-Sans, 'Helvetica Neue', sans-serif;
         cursor: default;
       }
+
+      .recommended-movies-text {
+        margin: 30px 10px 0px 10px;
+        color: #fff !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.2em !important;
+        font-weight: bold !important;
+      }
+
+      .recommended-movies-section {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        width: 100%;
+        padding: 30px 0;
+
+        .single-recommended-movies {
+          width: 23%;
+          display: flex;
+          cursor: pointer;
+          border-radius: 5px;
+          border: 1px solid rgba(140, 140, 140, 0.55);
+          box-shadow: 5px 7px 20px rgba(1, 1, 1, 0.6);
+
+          :hover {
+            border-color: rgba(255, 255, 255, 1);
+            box-shadow: 5px 10px 20px rgba(26, 26, 26, 0.7);
+          }
+          .single-recommended-movie-img {
+            width: 100%;
+            border: none;
+            aspect-ratio: 9/16;
+            transition: all 220ms;
+          }
+        }
+      }
     }
 
     .series-content-container {
       width: 100%;
+      z-index: 16;
+
       .display-img {
         display: flex;
         flex-direction: column;
@@ -233,14 +274,15 @@
           align-items: center;
           position: absolute;
           color: lightskyblue;
+          cursor: pointer;
 
           background-position: bottom;
           background: linear-gradient(
             $transparent 0%,
-            rgba(80, 79, 79, 0.5) 20%,
-            rgba(80, 79, 79, 0.7) 50%,
-            rgba(80, 79, 79, 0.9) 80%,
-            rgb(80, 79, 79) 100%
+            rgba(54, 44, 65, 0.5) 20%,
+            rgba(54, 44, 65, 0.7) 50%,
+            rgba(54, 44, 65, 0.9) 80%,
+            rgb(54, 44, 65) 100%
           );
           .content-header-div {
             display: flex;
@@ -280,18 +322,20 @@
                 justify-content: center;
                 align-items: center;
                 background-color: rgba(42, 42, 42, 0.6);
-                border-color: hsla(0, 0%, 100%, 0.5);
                 border-radius: 50%;
-                border-width: 2px;
+                border-width: 1px;
+                border-style: solid;
+                border-color: #fff;
                 margin: 0.4rem;
                 min-width: 36px;
                 max-width: 42px;
                 min-height: 36px;
                 max-height: 42px;
+                width: 42px;
+                height: 42px;
                 cursor: pointer;
                 transition: all 250ms;
                 &:hover {
-                  border-color: $white;
                   // transform: scale(1.05);
                 }
                 p {
@@ -360,7 +404,7 @@
         padding: 0.8rem;
         .seasons-button {
           @include centerFlex;
-          border: 1px solid rgba(80, 80, 80, 0.8);
+          border: 1px solid rgba(190, 190, 190, 1);
           border-radius: 0.3rem;
           width: 2.2rem;
           height: 2.2rem;
@@ -389,13 +433,13 @@
           display: flex;
           min-width: calc(100% - 3rem);
           flex-direction: column;
-          background-color: rgba(50, 50, 50, 0.6);
-          border: 1px solid rgba(80, 80, 80, 0.1);
+          background-color: rgba(35, 35, 35, 0.7);
+          border: 1px solid rgba(62, 62, 62, 0.8);
           padding: 0.75rem 1rem;
           margin: 0.5rem;
           border-radius: 0.6rem;
           text-decoration-line: none;
-          transition: all 175ms;
+          transition: all 275ms;
 
           .episode-div-header {
             display: flex;

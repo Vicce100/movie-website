@@ -50,6 +50,11 @@ export default function AdminScene() {
       (async () => (!(await checkAuthRole(currentUser.role)).data.access ? navigate('/') : null))();
   }, [currentUser, navigate]);
 
+  useEffect(() => {
+    const htmlTag = document.querySelector('html');
+    if (htmlTag) htmlTag.style.overflowY = 'hidden';
+  }, []);
+
   const addFFmpeg = useCallback(
     () => (
       <div className="ffmpeg-container">
@@ -57,14 +62,15 @@ export default function AdminScene() {
           onSubmit={(e) => {
             e.preventDefault();
             if (!ffmpegVideoIdRef.current?.value) return;
-            setIsUploading(true);
-            generateFFmpeg(ffmpegVideoIdRef.current.value)
-              .finally(() => setIsUploading(false))
+            // setIsUploading(true);
+            generateFFmpeg(ffmpegVideoIdRef.current.value);
+            /* .finally(() => setIsUploading(false))
               .then(({ data }) => {
                 if (data.success && ffmpegVideoIdRef.current?.value)
                   ffmpegVideoIdRef.current.value = '';
               })
               .catch((error) => console.log(error));
+              */
           }}
         >
           <label htmlFor="ffmpegForm">Video Id</label>

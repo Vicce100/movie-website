@@ -4,6 +4,7 @@ import {
   updateMovieDate as movieUpdateDate,
   uploadMovieObject as uploadObjectMovie,
   uploadMovieChunk as uploadChunkMovie,
+  deleteMovie as movieDelete,
   getVideosData as videosDataGet,
   getMovieData as movieDataGet,
   getSeriesData as seriesDataGet,
@@ -16,6 +17,8 @@ import {
   searchSeries as seriesSearch,
   addIdToSavedList as addToSavedList,
   removeIdFromSavedList as removeFromSavedList,
+  addIdToLikedList as addToLikedList,
+  removeIdFromLikedList as removeFromLikedList,
   generateFFmpeg as ffmpegGenerate,
   removeFFmpeg as ffmpegRemove,
   addView as viewAdd,
@@ -29,17 +32,25 @@ import {
   updateSeriesWatchedActiveEpisode as doUpdateSeriesWatchedActiveEpisode,
   addToSeriesWatchedEpisodes as addSeriesWatchedEpisodes,
   updateSeriesWatchedEpisode as doUpdateSeriesWatchedEpisode,
+  getMoviesInfinityScroll as moviesGetInfinityScroll,
+  getSeriesInfinityScroll as seriesGetInfinityScroll,
+  searchMoviesInfinityScroll as moviesSearchInfinityScroll,
+  searchSeriesInfinityScroll as seriesSearchInfinityScroll,
 } from './apiService';
 
 type ErrorType = { message: string; status: string };
 
 export const updateMovieDate = <T>(data: {
-  title: string | undefined;
-  displayPicture: string | undefined;
-  backdropPath: string | undefined;
-  description: string | undefined;
-  releaseDate: string | undefined;
-  videoId: string;
+  title: string | undefined | null;
+  creditsDurationInMs: number | undefined | null;
+  isPublic: boolean | undefined | null;
+  categories: string[] | undefined | null;
+  franchise: string[] | undefined | null;
+  description: string | undefined | null;
+  releaseDate: string | undefined | null;
+  videoId: string | undefined | null;
+  displayPictureUrl: string;
+  backdropPath: string;
 }) =>
   movieUpdateDate<T>(data)
     .then((res) => res)
@@ -69,6 +80,13 @@ export const uploadMovieChunk = <T>(
   headers: AxiosRequestHeaders
 ) =>
   uploadChunkMovie<T>(URL, data, headers)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const deleteMovie = (movieId: string) =>
+  movieDelete(movieId)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);
@@ -109,14 +127,22 @@ export const getEpisodeData = (episodeId: string) =>
       throw new Error(error.response?.data.message);
     });
 
-export const getSeriesByCategory = (data: { categoryNames: string[]; exudeArray?: string[] }) =>
+export const getSeriesByCategory = (data: {
+  categoryNames: string[];
+  exudeArray?: string[];
+  limit?: number;
+}) =>
   seriesByCategoryGet(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);
     });
 
-export const getMovieByCategory = (data: { categoryNames: string[]; exudeArray?: string[] }) =>
+export const getMovieByCategory = (data: {
+  categoryNames: string[];
+  exudeArray?: string[];
+  limit?: number;
+}) =>
   movieByCategoryGet(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
@@ -153,6 +179,20 @@ export const addIdToSavedList = (data: { profileId: string; videoId: string }) =
 
 export const removeIdFromSavedList = (data: { profileId: string; videoId: string }) =>
   removeFromSavedList(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const addIdToLikedList = (data: { profileId: string; videoId: string }) =>
+  addToLikedList(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const removeIdFromLikedList = (data: { profileId: string; videoId: string }) =>
+  removeFromLikedList(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);
@@ -300,6 +340,42 @@ export const updateSeriesWatchedEpisode = (data: {
   trackId: number;
 }) =>
   doUpdateSeriesWatchedEpisode(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getMoviesInfinityScroll = (data: { skip: number; limit: number }) =>
+  moviesGetInfinityScroll(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const getSeriesInfinityScroll = (data: { skip: number; limit: number }) =>
+  seriesGetInfinityScroll(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const searchMoviesInfinityScroll = (data: {
+  searchId: string;
+  skip: number;
+  limit: number;
+}) =>
+  moviesSearchInfinityScroll(data)
+    .then((res) => res)
+    .catch((error: AxiosError<ErrorType>) => {
+      throw new Error(error.response?.data.message);
+    });
+
+export const searchSeriesInfinityScroll = (data: {
+  searchId: string;
+  skip: number;
+  limit: number;
+}) =>
+  seriesSearchInfinityScroll(data)
     .then((res) => res)
     .catch((error: AxiosError<ErrorType>) => {
       throw new Error(error.response?.data.message);

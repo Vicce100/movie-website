@@ -186,6 +186,7 @@ export default function MovieUpload() {
     formData.append('backdropPath', uploadMovieBackdrop.current?.src);
     formData.append('releaseDate', dayjs(uploadMovieReleaseDataRef.current.value).format());
     formData.append('title', uploadMovieTitleRef.current.value);
+    formData.append('creditsDurationInMs', String(480000));
     formData.append('description', uploadMovieDescriptionRef.current.value);
     formData.append('isPublic', String(true));
     categories.forEach((category) => formData.append('categories', category));
@@ -224,6 +225,7 @@ export default function MovieUpload() {
       releaseDate: dayjs(uploadMovieReleaseDataRef.current.value).format(),
       title: uploadMovieTitleRef.current.value,
       description: uploadMovieDescriptionRef.current.value,
+      creditsDurationInMs: 480000,
       isPublic: true,
       categories: categories.map((c) => c),
       franchise: franchises.map((f) => f),
@@ -303,7 +305,7 @@ export default function MovieUpload() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentChunkIndex]);
 
-  const submitInternalUpdate = useCallback(async () => {
+  /* const submitInternalUpdate = useCallback(async () => {
     const [movieTitle, displayPicture, backdrop, descriptor, date] = [
       updateMovieTitle?.current?.value,
       updateMovieDisplayPicture?.current?.value,
@@ -330,7 +332,7 @@ export default function MovieUpload() {
       })
       .catch((err) => console.log(err));
   }, []);
-
+*/
   const internalSearchSection = useCallback(
     () => (
       <div className="search-section">
@@ -647,7 +649,7 @@ export default function MovieUpload() {
               type="submit"
               className="submit-button"
               disabled={!!isUploading}
-              onClick={submitInternalUpdate}
+              // onClick={submitInternalUpdate}
             >
               {!isUploading ? <p>Submit</p> : <div className="submit-button-loader" />}
             </button>
@@ -778,7 +780,6 @@ export default function MovieUpload() {
     allCategories,
     allFranchise,
     checkSelectedCategories,
-    submitInternalUpdate,
     goBack,
     internalMovieData,
     isUploading,
