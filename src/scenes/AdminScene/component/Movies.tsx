@@ -468,8 +468,8 @@ export default function Movies() {
       franchise: franchises.length ? franchises.map((f) => f) : undefined,
       description: internalUpdateData?.description || undefined,
       releaseDate: internalUpdateData?.releaseDate || undefined,
-      displayPictureUrl: '',
-      backdropPath: '',
+      displayPictureUrl: internalUpdateData?.displayPictureUrl || '',
+      backdropPath: internalUpdateData?.backdropPath || '',
       videoId: movieData._id,
     })
       .then(() => {
@@ -711,7 +711,7 @@ export default function Movies() {
             <div className="controller-fields-section">
               <div className="image-section">
                 <img
-                  src={movieData.displayPicture}
+                  src={internalUpdateData.displayPictureUrl}
                   alt={`${movieData.title}-poster_path`}
                   className="img-vertical"
                 />
@@ -733,7 +733,7 @@ export default function Movies() {
                   />
                 </div>
                 <img
-                  src={movieData.backdropPath}
+                  src={internalUpdateData.backdropPath}
                   alt={`${movieData.title}-backdrop_path`}
                   className="img-horizontal"
                 />
